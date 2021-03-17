@@ -1,0 +1,1 @@
+"C:\Program Files\Epic Games\UE_4.26\Engine\Binaries\Win64\UE4Editor.exe" "%CD%\zSpace.uproject" /Game/ThirdPersonBP/Maps/Login -game -ResX=1280 -ResY=600 -WinX=20 -WinY=20 -nosteam -WINDOWED -log
