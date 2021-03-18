@@ -12,6 +12,10 @@
 UCLASS()
 class ZSPACE_API AMyMMOCharacterWithAbilities : public AOWSCharacterWithAbilities
 {
-	GENERATED_UCLASS_BODY()
+	GENERATED_BODY()
+
+public:
+	
+	AMyMMOCharacterWithAbilities(const FObjectInitializer& ObjectInitializer);
 	
 };

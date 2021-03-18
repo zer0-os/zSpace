@@ -11,6 +11,8 @@ public class zSpace : ModuleRules
         PublicDependencyModuleNames.AddRange(new string[] { "Core"
             , "CoreUObject"
             , "Engine"
+            , "InputCore"
+            , "GameplayTags"
             , "OWSPlugin"
             , "AIModule"
             , "Json"

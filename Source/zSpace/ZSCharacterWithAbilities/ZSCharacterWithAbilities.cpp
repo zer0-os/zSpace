@@ -1,0 +1,130 @@
+// Copyright 2020 Sabre Dart Studios
+
+
+#include "ZSCharacterWithAbilities.h"
+
+#include "OWSGameMode.h"
+#include "Components/InputComponent.h"
+#include "Kismet/KismetSystemLibrary.h"
+
+AZSCharacterWithAbilities::AZSCharacterWithAbilities(const FObjectInitializer& NewObjectInitializer) : Super(NewObjectInitializer)
+{
+	
+}
+
+void AZSCharacterWithAbilities::SetupPlayerInputComponent(UInputComponent* NewPlayerInputComponent)
+{
+	Super::SetupPlayerInputComponent(NewPlayerInputComponent);
+
+	if(NewPlayerInputComponent)
+	{
+		NewPlayerInputComponent->BindAxisKey(TEXT("Turn"), this, &AZSCharacterWithAbilities::Turn);
+		NewPlayerInputComponent->BindAxisKey(TEXT("LookUp"), this, &AZSCharacterWithAbilities::LookUp);
+		NewPlayerInputComponent->BindAxisKey(TEXT("MoveForward"), this, &AZSCharacterWithAbilities::MoveForward);
+		NewPlayerInputComponent->BindAxisKey(TEXT("MoveRight"), this, &AZSCharacterWithAbilities::MoveRight);
+		
+		NewPlayerInputComponent->BindAction(TEXT("Jump"), IE_Pressed, this, &AZSCharacterWithAbilities::Jump);
+		NewPlayerInputComponent->BindAction(TEXT("Jump"), IE_Released, this, &AZSCharacterWithAbilities::StopJumping);
+		NewPlayerInputComponent->BindAction(TEXT("ShowPlayersOnline"), IE_Pressed, this, &AZSCharacterWithAbilities::ShowPlayersOnline);
+		NewPlayerInputComponent->BindAction(TEXT("Dodge"), IE_Pressed, this, &AZSCharacterWithAbilities::Dodge);
+		
+		
+	}
+}
+
+void AZSCharacterWithAbilities::Turn(float NewValue)
+{
+	if(false == IsTransferringBetweenMaps)
+	{
+		if(GetWorld())
+		{
+			const float L_DeltaSeconds = GetWorld()->GetDeltaSeconds();
+			const float R_Input = NewValue * L_DeltaSeconds * BaseTurnRate;
+			AddControllerYawInput(R_Input);
+		}
+	}
+}
+
+void AZSCharacterWithAbilities::LookUp(float NewValue)
+{
+	if(false == IsTransferringBetweenMaps)
+	{
+		if(GetWorld())
+		{
+			const float L_DeltaSeconds = GetWorld()->GetDeltaSeconds();
+			const float R_Input = NewValue * L_DeltaSeconds * BaseLookUpRate;
+			AddControllerPitchInput(R_Input);
+		}
+	}
+}
+
+void AZSCharacterWithAbilities::Jump()
+{
+	Super::Jump();
+}
+
+void AZSCharacterWithAbilities::StopJumping()
+{
+	Super::StopJumping();	
+}
+
+void AZSCharacterWithAbilities::MoveForward(float NewValue)
+{
+	// DataTable'/Game/AbilitySystem/Abilities/MyGameplayTagsTable.MyGameplayTagsTable'
+	const FGameplayTag L_GameplayTag = FGameplayTag::RequestGameplayTag(FName("Combat.IsAttackingCannotMove"));
+	const bool L_HasMatchingGameplayTag =   AbilitySystem ?  AbilitySystem->HasMatchingGameplayTag(L_GameplayTag) : false;
+	if(false == IsTransferringBetweenMaps && false == L_HasMatchingGameplayTag)
+	{
+		const FQuat L_Quat(FRotator(0,GetControlRotation().Yaw, 0));
+		const FVector R_ForwardVector = L_Quat.GetForwardVector();
+		AddMovementInput(R_ForwardVector, NewValue);
+	}
+	
+}
+
+void AZSCharacterWithAbilities::MoveRight(float NewValue)
+{
+	// DataTable'/Game/AbilitySystem/Abilities/MyGameplayTagsTable.MyGameplayTagsTable'
+	const FGameplayTag L_GameplayTag = FGameplayTag::RequestGameplayTag(FName("Combat.IsAttackingCannotMove"));
+	const bool L_HasMatchingGameplayTag =   AbilitySystem ?  AbilitySystem->HasMatchingGameplayTag(L_GameplayTag) : false;
+	if(false == IsTransferringBetweenMaps && false == L_HasMatchingGameplayTag)
+	{
+		const FQuat L_Quat(FRotator(0,GetControlRotation().Yaw, 0));
+		const FVector R_RightVector = L_Quat.GetRightVector();
+		AddMovementInput(R_RightVector, NewValue);
+	}
+}
+
+void AZSCharacterWithAbilities::Dodge()
+{
+	if(GetOWSMovementComponent())
+	{
+		GetOWSMovementComponent()->DoDodge();		
+	}
+}
+
+void AZSCharacterWithAbilities::ShowPlayersOnline()
+{
+	Server_ShowPlayersOnline();
+}
+
+void AZSCharacterWithAbilities::Server_ShowPlayersOnline_Implementation()
+{
+	AOWSGameMode * L_GameMode = GetGameMode();
+	if(L_GameMode)
+	{
+		UKismetSystemLibrary::PrintString(this, TEXT("Characters Online:"));
+		for(const FCharactersOnlineStruct & Iter :  L_GameMode->CharactersOnline)
+		{
+			const FString L_Log = FString::Printf(TEXT("(Character Name %s ) : (Zone Name %s )"), *Iter.CharName, *Iter.ZoneName);
+		}
+	}
+}
+
+bool AZSCharacterWithAbilities::Server_ShowPlayersOnline_Validate()
+{
+	return true;
+}
+
+
+
