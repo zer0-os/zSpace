@@ -27,19 +27,18 @@ AZSCharacterWithAbilities::AZSCharacterWithAbilities(const FObjectInitializer& N
 void AZSCharacterWithAbilities::SetupPlayerInputComponent(UInputComponent* NewPlayerInputComponent)
 {
 
-	Super::SetupPlayerInputComponent(NewPlayerInputComponent);
 	if(NewPlayerInputComponent)
 	{
-		NewPlayerInputComponent->BindAxisKey(TEXT("Turn"), this, &AZSCharacterWithAbilities::Turn);
-		NewPlayerInputComponent->BindAxisKey(TEXT("LookUp"), this, &AZSCharacterWithAbilities::LookUp);
-		NewPlayerInputComponent->BindAxisKey(TEXT("MoveForward"), this, &AZSCharacterWithAbilities::MoveForward);
-		NewPlayerInputComponent->BindAxisKey(TEXT("MoveRight"), this, &AZSCharacterWithAbilities::MoveRight);
+		Super::SetupPlayerInputComponent(NewPlayerInputComponent);
+		NewPlayerInputComponent->BindAxis(TEXT("Turn"), this, &AZSCharacterWithAbilities::Turn);
+		NewPlayerInputComponent->BindAxis(TEXT("LookUp"), this, &AZSCharacterWithAbilities::LookUp);
+		NewPlayerInputComponent->BindAxis(TEXT("MoveForward"), this, &AZSCharacterWithAbilities::MoveForward);
+		NewPlayerInputComponent->BindAxis(TEXT("MoveRight"), this, &AZSCharacterWithAbilities::MoveRight);
 		
 		NewPlayerInputComponent->BindAction(TEXT("Jump"), IE_Pressed, this, &AZSCharacterWithAbilities::Jump);
 		NewPlayerInputComponent->BindAction(TEXT("Jump"), IE_Released, this, &AZSCharacterWithAbilities::StopJumping);
 		NewPlayerInputComponent->BindAction(TEXT("ShowPlayersOnline"), IE_Pressed, this, &AZSCharacterWithAbilities::ShowPlayersOnline);
 		NewPlayerInputComponent->BindAction(TEXT("Dodge"), IE_Pressed, this, &AZSCharacterWithAbilities::Dodge);
-		
 	}
 }
 
@@ -91,6 +90,7 @@ void AZSCharacterWithAbilities::StopJumping()
 
 void AZSCharacterWithAbilities::MoveForward(float NewValue)
 {
+	UE_LOG(LogTemp, Log, TEXT("*************** The NewValue = %f *******************"), NewValue);
 	// DataTable'/Game/AbilitySystem/Abilities/MyGameplayTagsTable.MyGameplayTagsTable'
 	const FGameplayTag L_GameplayTag = FGameplayTag::RequestGameplayTag(FName("Combat.IsAttackingCannotMove"));
 	const bool L_HasMatchingGameplayTag =   AbilitySystem ?  AbilitySystem->HasMatchingGameplayTag(L_GameplayTag) : false;

@@ -42,21 +42,27 @@ private:
 
 public:
 
+	UFUNCTION()
 	void Turn(float NewValue);
 
+	UFUNCTION()
 	void LookUp(float NewValue);
 
 	virtual void Jump() override;
 
 	virtual void StopJumping() override;
 
+	UFUNCTION()
 	void MoveForward(float NewValue);
 
+	UFUNCTION()
 	void MoveRight(float NewValue);
 
+	UFUNCTION()
 	void Dodge();
 
 	///  Show a List of all players online across all instances.
+	UFUNCTION()
 	void ShowPlayersOnline();
 
 	///  Show a List of all players online across all instances.

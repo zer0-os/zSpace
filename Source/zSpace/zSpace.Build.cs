@@ -12,6 +12,7 @@ public class zSpace : ModuleRules
             , "CoreUObject"
             , "Engine"
             , "InputCore"
+            , "HeadMountedDisplay"
             , "GameplayTags"
             , "OWSPlugin"
             , "AIModule"
