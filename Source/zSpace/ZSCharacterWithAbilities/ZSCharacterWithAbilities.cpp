@@ -4,18 +4,30 @@
 #include "ZSCharacterWithAbilities.h"
 
 #include "OWSGameMode.h"
+#include "Camera/CameraComponent.h"
 #include "Components/InputComponent.h"
+#include "GameFramework/SpringArmComponent.h"
 #include "Kismet/KismetSystemLibrary.h"
 
 AZSCharacterWithAbilities::AZSCharacterWithAbilities(const FObjectInitializer& NewObjectInitializer) : Super(NewObjectInitializer)
 {
+	SpringArmComponent = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArmComponent"));
+	checkf(nullptr != SpringArmComponent, TEXT("The SpringArmComponent is nullptr."));
+	SpringArmComponent->SetupAttachment(RootComponent);
+	SpringArmComponent->bUsePawnControlRotation = true;
+	SpringArmComponent->TargetArmLength = 300;
+	SpringArmComponent->SetRelativeLocation(FVector(0.0,70,68));
+
+	CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraComponent"));
+	checkf(nullptr != CameraComponent, TEXT("The CameraComponent is nullptr."));
+	CameraComponent->SetupAttachment(SpringArmComponent, USpringArmComponent::SocketName);
 	
 }
 
 void AZSCharacterWithAbilities::SetupPlayerInputComponent(UInputComponent* NewPlayerInputComponent)
 {
-	Super::SetupPlayerInputComponent(NewPlayerInputComponent);
 
+	Super::SetupPlayerInputComponent(NewPlayerInputComponent);
 	if(NewPlayerInputComponent)
 	{
 		NewPlayerInputComponent->BindAxisKey(TEXT("Turn"), this, &AZSCharacterWithAbilities::Turn);
@@ -28,8 +40,17 @@ void AZSCharacterWithAbilities::SetupPlayerInputComponent(UInputComponent* NewPl
 		NewPlayerInputComponent->BindAction(TEXT("ShowPlayersOnline"), IE_Pressed, this, &AZSCharacterWithAbilities::ShowPlayersOnline);
 		NewPlayerInputComponent->BindAction(TEXT("Dodge"), IE_Pressed, this, &AZSCharacterWithAbilities::Dodge);
 		
-		
 	}
+}
+
+void AZSCharacterWithAbilities::BeginPlay()
+{
+	Super::BeginPlay();
+}
+
+void AZSCharacterWithAbilities::Tick(float NewDeltaSeconds)
+{
+	Super::Tick(NewDeltaSeconds);
 }
 
 void AZSCharacterWithAbilities::Turn(float NewValue)

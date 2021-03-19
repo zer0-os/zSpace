@@ -20,6 +20,11 @@ public:
 
 
 	virtual void SetupPlayerInputComponent(UInputComponent* NewPlayerInputComponent) override;
+	
+	// Called when the game starts or when spawned
+	virtual void BeginPlay() override;
+
+	virtual void Tick(float NewDeltaSeconds) override;
 
 private:
 
@@ -28,6 +33,12 @@ private:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess=true))
 	float BaseLookUpRate = 45;
+
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, meta = (AllowPrivateAccess=true))
+	class USpringArmComponent * SpringArmComponent = nullptr; 
+
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, meta = (AllowPrivateAccess=true))
+	class UCameraComponent * CameraComponent =  nullptr;
 
 public:
 
