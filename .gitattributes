@@ -1,1 +1,4 @@
 Content/Movies/portal-loop_.mov filter=lfs diff=lfs merge=lfs -text
+Content/Landscape_AutoMaterial_Pack/Materials/M_PebblyRiverbank_01/T_PebblyRiverbank_01A_D.uasset filter=lfs diff=lfs merge=lfs -text
+Content/Landscape_AutoMaterial_Pack/Materials/M_PebblyRiverbank_01/T_PebblyRiverbank_01A_N.uasset filter=lfs diff=lfs merge=lfs -text
+Content/Landscape_AutoMaterial_Pack/Materials/M_PebblyRiverbank_01/T_PebblyRiverbank_01A_RH.uasset filter=lfs diff=lfs merge=lfs -text
