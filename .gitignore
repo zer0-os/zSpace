@@ -85,3 +85,4 @@ DerivedDataCache/*
 # Rider
 .idea
 Adventures.sln.DotSettings.user
+!OWSInstanceLauncher/*
