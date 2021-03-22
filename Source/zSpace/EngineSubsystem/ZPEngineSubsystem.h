@@ -4,13 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "Subsystems/EngineSubsystem.h"
-#include "MyEngineSubsystem.generated.h"
+#include "ZPEngineSubsystem.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class ZSPACE_API UMyEngineSubsystem : public UEngineSubsystem
+class ZSPACE_API UZPEngineSubsystem : public UEngineSubsystem
 {
 	GENERATED_BODY()
 	
