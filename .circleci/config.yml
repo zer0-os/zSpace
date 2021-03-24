@@ -21,7 +21,7 @@ jobs:
             pwd
             echo "-------------------------------"
             echo "Start Clone"
-            git clone --depth 1 https://artavazdng256@github.com/EpicGames/UnrealEngine.git
+            git clone --depth 1 https://8214f24ab19c7b5e5af428bc0058588e2f84cf24@github.com/EpicGames/UnrealEngine.git
       - run:
           name: "Build UE4"
           no_output_timeout: 240m
