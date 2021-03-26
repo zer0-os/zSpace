@@ -19,6 +19,7 @@ public class zSpace : ModuleRules
             , "Json"
             , "JsonUtilities"
 			, "GameplayAbilities"
+			, "UniversalVoiceChatPro"
 			});
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
