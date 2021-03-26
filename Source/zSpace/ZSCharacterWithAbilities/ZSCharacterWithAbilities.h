@@ -39,6 +39,9 @@ private:
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, meta = (AllowPrivateAccess=true))
 	class UCameraComponent * CameraComponent =  nullptr;
+	
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, meta = (AllowPrivateAccess=true))
+	class UDetectSurfaceTypeComponent * DetectSurfaceTypeComponent = nullptr;
 
 public:
 
