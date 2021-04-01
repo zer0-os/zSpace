@@ -31,7 +31,7 @@ EResolution UConverEResolutionToFIntPointOrViceVersa::GetEnumResolution(const UO
 	return EResolution::None;
 }
 
-TSubclassOf<class UUserWidget> UResolutionAndWidget::GetWidget(EResolution ResolutionEnum)
+TSubclassOf<class UUserWidget> UResolutionAndWidgetDataAsset::GetWidget(EResolution ResolutionEnum)
 {	
 	const TSubclassOf<class UUserWidget>* Find = ResolutionAndWidget.ResolutionAndWidget.Find(ResolutionEnum);
 	if (Find)

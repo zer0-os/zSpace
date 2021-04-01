@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "zSpace/Types/UITypes.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "UIBlueprintFunctionLibrary.generated.h"
 
@@ -16,5 +17,11 @@ class ZSPACE_API UUIBlueprintFunctionLibrary : public UBlueprintFunctionLibrary
 
 public:
 	UFUNCTION(BlueprintPure, meta = (WorldContext="WorldContext"))
-	static TSubclassOf<class UUserWidget> GetPreLoginWidgetForCurrentScreen(const UObject* WorldContext, class UResolutionAndWidget* PreLoginDataAsset);
+	static TSubclassOf<class UUserWidget> GetWidgetSubClassForCurrentScreen(const UObject* WorldContext, class UResolutionAndWidgetDataAsset* PreLoginDataAsset);
+
+	UFUNCTION(BlueprintPure, meta = (WorldContext="WorldContext"))
+	static FIntPoint GetCurrentScreenResolution(const UObject* WorldContext);
+
+	UFUNCTION(BlueprintPure, meta = (WorldContext="WorldContext"))
+	static EResolution GetCurrentScreenResolutionEnum(const UObject* WorldContext);
 };

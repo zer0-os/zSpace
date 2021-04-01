@@ -42,7 +42,7 @@ public:
 };
 
 UCLASS(BlueprintType)
-class ZSPACE_API UResolutionAndWidget : public UDataAsset
+class ZSPACE_API UResolutionAndWidgetDataAsset : public UDataAsset
 {
 	GENERATED_BODY()
 
@@ -52,5 +52,12 @@ public:
 
 	UFUNCTION(BlueprintPure)
 	TSubclassOf<class UUserWidget> GetWidget(EResolution ResolutionEnum);
+};
+
+UENUM(BlueprintType)
+enum class EWidgetType : uint8
+{
+	PreLogin,
+	Login,
 };
 

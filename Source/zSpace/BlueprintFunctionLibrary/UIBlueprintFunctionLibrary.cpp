@@ -7,7 +7,7 @@
 #include <Blueprint/UserWidget.h>
 #include "../Types/UITypes.h"
 
-TSubclassOf<class UUserWidget>UUIBlueprintFunctionLibrary::GetPreLoginWidgetForCurrentScreen(const UObject* WorldContext, UResolutionAndWidget* PreLoginDataAsset)
+TSubclassOf<class UUserWidget>UUIBlueprintFunctionLibrary::GetWidgetSubClassForCurrentScreen(const UObject* WorldContext, UResolutionAndWidgetDataAsset* PreLoginDataAsset)
 {
 	check(PreLoginDataAsset);
 	if (!IsValid(PreLoginDataAsset)) return UUserWidget::StaticClass();
@@ -30,4 +30,28 @@ TSubclassOf<class UUserWidget>UUIBlueprintFunctionLibrary::GetPreLoginWidgetForC
 	TSubclassOf<UUserWidget> Result = PreLoginDataAsset->GetWidget(Resolution);
 
 	return Result ? Result : UUserWidget::StaticClass();
+}
+
+FIntPoint UUIBlueprintFunctionLibrary::GetCurrentScreenResolution(const UObject* WorldContext)
+{
+	UGameUserSettings* UserSettings = UGameUserSettings::GetGameUserSettings();
+	check(UserSettings);
+	if (!IsValid(UserSettings)) return FIntPoint::ZeroValue;
+
+	return UserSettings->GetScreenResolution();
+}
+
+EResolution UUIBlueprintFunctionLibrary::GetCurrentScreenResolutionEnum(const UObject* WorldContext)
+{
+	UGameUserSettings* UserSettings = UGameUserSettings::GetGameUserSettings();
+	check(UserSettings);
+	if (!IsValid(UserSettings)) return EResolution::R_1920X1080;
+
+	FIntPoint ScreenResolution = UserSettings->GetScreenResolution();
+	EResolution Resolution = UConverEResolutionToFIntPointOrViceVersa::GetEnumResolution(WorldContext, ScreenResolution);
+	if (Resolution == EResolution::None)
+	{
+		Resolution = EResolution::R_1920X1080;
+	}
+	return Resolution;
 }
