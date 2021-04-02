@@ -22,6 +22,8 @@ protected:
 	TMap<EResolution, class UUserWidget*> PreLoginWidgets;
 	UPROPERTY()
 	TMap<EResolution, class UUserWidget*> LoginWidgets;
+	UPROPERTY()
+	TMap<EResolution, class UUserWidget*> RegisterWidgets;
 
 public:
 	UFUNCTION(BlueprintCallable, Category="UI")
