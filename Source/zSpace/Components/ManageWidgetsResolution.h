@@ -30,8 +30,11 @@ public:
 	UFUNCTION(BlueprintPure, Category="UI")
 	TMap<EResolution, class UUserWidget*>& GetWidgetsByEnum(EWidgetType WidgetType, bool& Result);
 
-	UFUNCTION(BlueprintPure)
+	UFUNCTION(BlueprintPure, Category="UI")
 	class UUserWidget* GetWidgetByResolution(EWidgetType WidgetType, EResolution Resolution);
+
+	UFUNCTION(BlueprintCallable, Category="UI")
+	void RemoveFromParentWidgets(TMap<EResolution, class UUserWidget*>& Widgets);
 
 private:
 	UPROPERTY()

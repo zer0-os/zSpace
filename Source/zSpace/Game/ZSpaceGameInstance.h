@@ -28,6 +28,6 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="UI")
 	TSubclassOf<class UManageWidgetsResolution> ManageWidgetsResolutionSubClass;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="UI")
+	UPROPERTY(BlueprintReadOnly, Category="UI")
 	class UManageWidgetsResolution* ManageWidgetsResolution = nullptr;
 };
