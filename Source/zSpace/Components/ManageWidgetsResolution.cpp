@@ -23,6 +23,12 @@ bool UManageWidgetsResolution::CreateWidgetAndAddViewprot(APlayerController* Pla
 		{
 			EWidgetType WidgetType = IUIResolutionInterface::Execute_GetWidgetType(WidgetDefaultObject);
 			UUserWidget* Widget = GetWidgetByResolution(WidgetType, Resolution);
+
+			bool OutResult;
+			TMap<EResolution, UUserWidget*>& Widgets = GetWidgetsByEnum(WidgetType, OutResult);
+			RemoveFromParentWidgets(Widgets);
+
+			// Add Viewport
 			if (IsValid(Widget))
 			{
 				if (!Widget->IsInViewport())
@@ -30,18 +36,14 @@ bool UManageWidgetsResolution::CreateWidgetAndAddViewprot(APlayerController* Pla
 					ReturnWidget = Widget;
 					Widget->AddToViewport();
 				}
-
-				// UKismetSystemLibrary::PrintString(this, GetNameSafe(Widget));
-				UKismetSystemLibrary::PrintString(this, Widget->IsConstructed() ? "11" : "22");
-				
 				UKismetSystemLibrary::PrintString(this, "++++++++++");
 				return true;
 			}
+			// Create New Widget
 			else
 			{
 				UKismetSystemLibrary::PrintString(this, "-----------");
-				bool OutResult;
-				TMap<EResolution, UUserWidget*>& Widgets = GetWidgetsByEnum(WidgetType, OutResult);
+
 				UUserWidget* CreatedWidget = CreateWidget(PlayerControler, WidgetSubClass);
 				if (IsValid(CreatedWidget))
 				{
@@ -68,6 +70,10 @@ TMap<EResolution, class UUserWidget*>& UManageWidgetsResolution::GetWidgetsByEnu
 		Result = true;
 		return LoginWidgets;
 		break;
+	case EWidgetType::Register:
+		Result = true;
+		return RegisterWidgets;
+		break;
 	default:
 		Result = false;
 		return EmptyWidgets;
@@ -89,5 +95,19 @@ UUserWidget* UManageWidgetsResolution::GetWidgetByResolution(EWidgetType WidgetT
 	}
 
 	return nullptr;
+}
+
+void UManageWidgetsResolution::RemoveFromParentWidgets(TMap<EResolution, class UUserWidget*>& Widgets)
+{
+	TArray<UUserWidget*> OutArray;
+	Widgets.GenerateValueArray(OutArray);
+
+	for (UUserWidget* Widget : OutArray)
+	{
+		if (IsValid(Widget) && Widget->IsInViewport())
+		{
+			Widget->RemoveFromParent();
+		}
+	}
 }
 

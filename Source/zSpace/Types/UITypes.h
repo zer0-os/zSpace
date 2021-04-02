@@ -59,5 +59,6 @@ enum class EWidgetType : uint8
 {
 	PreLogin,
 	Login,
+	Register,
 };
 
