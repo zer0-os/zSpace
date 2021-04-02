@@ -70,6 +70,10 @@ TMap<EResolution, class UUserWidget*>& UManageWidgetsResolution::GetWidgetsByEnu
 		Result = true;
 		return LoginWidgets;
 		break;
+	case EWidgetType::Register:
+		Result = true;
+		return RegisterWidgets;
+		break;
 	default:
 		Result = false;
 		return EmptyWidgets;
