@@ -8,6 +8,7 @@ set PROJECT_PATH=%CD%\%PROJECT_NAME%.uproject
 set CLIENTCONFIG=Development
 
 set ARCHIVEDIRECTORY=C:\zSpace_Server
+set ARCHIVEDIRECTORY_CLIENT=C:/%PROJECT_NAME%_Client/
 
 set SERVER_PATH=%ARCHIVEDIRECTORY%\WindowsNoEditor
 
@@ -27,7 +28,8 @@ set SERVER_EXE_PATH=%ARCHIVEDIRECTORY%\WindowsServer\%PROJECT_NAME%\Binaries\Win
 set MOVE_SERVER_EXE_PATH=%ARCHIVEDIRECTORY%\WindowsNoEditor\%PROJECT_NAME%\Binaries\Win64\
 
 if exist ( "%SERVER_EXE_PATH%" )(
-	echo "Z Space: copying exe"
+	echo "Z Space: copying exe" 
+	xcopy /E /I "%SERVER_PATH%" "%ARCHIVEDIRECTORY_CLIENT%"
 	copy %SERVER_EXE_PATH% %MOVE_SERVER_EXE_PATH%
 	move %SERVER_PATH% %FINAL_SERVER_PATH%
 	move %ARCHIVEDIRECTORY%\WindowsServer %ARCHIVEDIRECTORY%\WindowsServer_NoExecut
