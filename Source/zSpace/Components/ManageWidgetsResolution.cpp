@@ -36,14 +36,14 @@ bool UManageWidgetsResolution::CreateWidgetAndAddViewprot(APlayerController* Pla
 					ReturnWidget = Widget;
 					Widget->AddToViewport();
 				}
-				UKismetSystemLibrary::PrintString(this, "++++++++++");
+				// UKismetSystemLibrary::PrintString(this, "++++++++++");
 				OnWidgetChanged.Broadcast(Widget, WidgetType);
 				return true;
 			}
 			// Create New Widget
 			else
 			{
-				UKismetSystemLibrary::PrintString(this, "-----------");
+				// UKismetSystemLibrary::PrintString(this, "-----------");
 
 				UUserWidget* CreatedWidget = CreateWidget(PlayerControler, WidgetSubClass);
 				if (IsValid(CreatedWidget))
