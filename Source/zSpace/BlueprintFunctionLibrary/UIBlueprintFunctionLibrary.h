@@ -24,4 +24,7 @@ public:
 
 	UFUNCTION(BlueprintPure, meta = (WorldContext="WorldContext"))
 	static EResolution GetCurrentScreenResolutionEnum(const UObject* WorldContext);
+
+	UFUNCTION(BlueprintPure, BlueprintCosmetic, meta = (WorldContext="WorldContext"))
+	static class UUserWidget* GetWidgetByWidgetType(const UObject* WorldContext, EWidgetType WidgetType);
 };

@@ -37,6 +37,7 @@ bool UManageWidgetsResolution::CreateWidgetAndAddViewprot(APlayerController* Pla
 					Widget->AddToViewport();
 				}
 				UKismetSystemLibrary::PrintString(this, "++++++++++");
+				OnWidgetChanged.Broadcast(Widget, WidgetType);
 				return true;
 			}
 			// Create New Widget
@@ -50,6 +51,7 @@ bool UManageWidgetsResolution::CreateWidgetAndAddViewprot(APlayerController* Pla
 					Widgets.Add(Resolution, CreatedWidget);
 					CreatedWidget->AddToViewport();
 					ReturnWidget = CreatedWidget;
+					OnWidgetChanged.Broadcast(CreatedWidget, WidgetType);
 					return true;
 				}
 			}

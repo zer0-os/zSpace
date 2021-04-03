@@ -17,6 +17,10 @@ public:
 	// Sets default values for this component's properties
 	UManageWidgetsResolution();
 
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnWidgetChanged, class UUserWidget*, Widget, EWidgetType, WidgetType);
+	UPROPERTY(BlueprintAssignable)
+	FOnWidgetChanged OnWidgetChanged;
+
 protected:
 	UPROPERTY()
 	TMap<EResolution, class UUserWidget*> PreLoginWidgets;

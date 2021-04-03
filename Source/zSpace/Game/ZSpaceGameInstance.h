@@ -21,6 +21,9 @@ public:
 	UFUNCTION(BlueprintCosmetic)
 	void InitManageWidgetsResolution();
 
+	UFUNCTION(BlueprintPure)
+	class UManageWidgetsResolution* GetManageWidgetsResolution() const;
+
 protected:
 	virtual void Init() override;
 

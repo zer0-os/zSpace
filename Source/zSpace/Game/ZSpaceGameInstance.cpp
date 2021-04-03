@@ -22,6 +22,11 @@ void UZSpaceGameInstance::InitManageWidgetsResolution()
 	}
 }
 
+class UManageWidgetsResolution* UZSpaceGameInstance::GetManageWidgetsResolution() const
+{
+	return ManageWidgetsResolution;
+}
+
 void UZSpaceGameInstance::Init()
 {
 	Super::Init();
