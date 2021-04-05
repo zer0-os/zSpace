@@ -76,6 +76,10 @@ TMap<EResolution, class UUserWidget*>& UManageWidgetsResolution::GetWidgetsByEnu
 		Result = true;
 		return RegisterWidgets;
 		break;
+	case EWidgetType::Gameplay:
+		Result = true;
+		return GameplayWidgets;
+		break;
 	default:
 		Result = false;
 		return EmptyWidgets;
