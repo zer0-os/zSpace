@@ -25,11 +25,19 @@ public:
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, BlueprintCosmetic)
 	void SetPlayerName(const FText& PlayerName);
 
+	UFUNCTION(BlueprintCallable, BlueprintCosmetic)
+	void SetHealth(const float CurrentValue, const float MaxValue);
+
+	UFUNCTION(BlueprintCallable, BlueprintCosmetic)
+	void SetStamina(const float CurrentValue, const float MaxValue);
+
 public:
 	UPROPERTY(BlueprintReadWrite, meta=(BindWidget))
 	class UProgressBar* HealthProgressBar = nullptr;
 
 	UPROPERTY(BlueprintReadWrite, meta=(BindWidget))
-	class UProgressBar* StaminaProgressBar = nullptr;
+	class UTextBlock* HealthTextValue = nullptr;
 
+	UPROPERTY(BlueprintReadWrite, meta=(BindWidget))
+	class UProgressBar* StaminaProgressBar = nullptr;
 };
