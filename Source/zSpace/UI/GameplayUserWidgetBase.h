@@ -19,6 +19,8 @@ class ZSPACE_API UGameplayUserWidgetBase : public UUserWidget, public IUIResolut
 protected:
 	virtual void NativePreConstruct() override;
 
+	virtual void NativeConstruct() override;
+
 public:
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, BlueprintCosmetic)
 	void SetPlayerName(const FText& PlayerName);
@@ -30,8 +32,4 @@ public:
 	UPROPERTY(BlueprintReadWrite, meta=(BindWidget))
 	class UProgressBar* StaminaProgressBar = nullptr;
 
-// Interface UIResolutionInterface
-protected:
-	virtual EWidgetType GetWidgetType_Implementation() override;
-	
 };
