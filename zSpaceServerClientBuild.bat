@@ -34,12 +34,12 @@ if exist ( "%SERVER_EXE_PATH%" )(
 	
 	 
 	echo "Info xcopy %SERVER_PATH% %ARCHIVEDIRECTORY_CLIENT%"
-	xcopy /E /I "%SERVER_PATH%" "%ARCHIVEDIRECTORY_CLIENT%"
-	copy %SERVER_EXE_PATH% %MOVE_SERVER_EXE_PATH%
+	xcopy /Y /E /I "%SERVER_PATH%" "%ARCHIVEDIRECTORY_CLIENT%"
+	xcopy /Y /E /I  %SERVER_EXE_PATH% %MOVE_SERVER_EXE_PATH%
 	move %SERVER_PATH% %FINAL_SERVER_PATH%
 	move %ARCHIVEDIRECTORY%\WindowsServer %ARCHIVEDIRECTORY%\WindowsServer_NoExecut
-	xcopy /E /I "%CD%\OWSInstanceLauncher" "%ARCHIVEDIRECTORY%\OWSInstanceLauncher"
-	copy "%CD%\appsettings.json" "%ARCHIVEDIRECTORY%\OWSInstanceLauncher\appsettings.json"
+	xcopy /Y /E /I "%CD%\OWSInstanceLauncher" "%ARCHIVEDIRECTORY%\OWSInstanceLauncher"
+	xcopy /Y /E /I "%CD%\appsettings.json" "%ARCHIVEDIRECTORY%\OWSInstanceLauncher\appsettings.json"
 	
 )
 
