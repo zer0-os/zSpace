@@ -1,0 +1,63 @@
+// Copyright 2020 Sabre Dart Studios
+
+
+#include "zSpace/UI/RegisterUserWidgetBase.h"
+
+#include "../BlueprintFunctionLibrary/UIBlueprintFunctionLibrary.h"
+#include "../Components/ManageWidgetsResolution.h"
+#include <Components/EditableTextBox.h>
+#include "../Game/ZSpaceGameInstance.h"
+#include <Components/Button.h>
+#include "../Types/UITypes.h"
+#include "LoginUserWidgetBase.h"
+
+void URegisterUserWidgetBase::NativePreConstruct()
+{
+	Super::NativePreConstruct();
+
+	if (IsValid(BtnRegister))
+	{
+		if (!BtnRegister->OnClicked.IsAlreadyBound(this, &URegisterUserWidgetBase::BtnRegisterOnClicked))
+		{
+			BtnRegister->OnClicked.AddDynamic(this, &URegisterUserWidgetBase::BtnRegisterOnClicked);
+		}
+	}
+	UZSpaceGameInstance* GameInstance = GetGameInstance<UZSpaceGameInstance>();
+	if (IsValid(GameInstance))
+	{
+		ManageWidgetsResolution = GameInstance->GetManageWidgetsResolution();
+	}
+}
+
+void URegisterUserWidgetBase::BtnRegisterOnClicked()
+{
+	const FString StringFirstName = FirstName->GetText().ToString();
+	const FString StringLastName = LastName->GetText().ToString();
+	const FString StringEmail = Email->GetText().ToString();
+	const FString StringPassword = Password->GetText().ToString();
+
+	Register(StringEmail, StringPassword, StringFirstName, StringLastName);
+}
+
+void URegisterUserWidgetBase::OnSuccessRegister(UResolutionAndWidgetDataAsset* LoginDataAsset)
+{
+	if (!IsValid(ManageWidgetsResolution)) return;
+
+	TSubclassOf<class UUserWidget> WidgetSubClass = UUIBlueprintFunctionLibrary::GetWidgetSubClassForCurrentScreen(this, LoginDataAsset);
+	EResolution Resolution = UUIBlueprintFunctionLibrary::GetCurrentScreenResolutionEnum(this);
+
+	UUserWidget* Widget = nullptr;
+
+	ManageWidgetsResolution->CreateWidgetAndAddViewprot(GetOwningPlayer(), WidgetSubClass, Resolution, Widget);
+	if (IsValid(Widget))
+	{
+		ULoginUserWidgetBase* LoginWidget = Cast<ULoginUserWidgetBase>(Widget);
+		if (IsValid(LoginWidget))
+		{
+			LoginWidget->txtEmail->SetText(Email->GetText());
+		}
+	}
+
+	RemoveFromParent();
+}
+
