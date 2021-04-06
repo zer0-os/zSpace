@@ -3,6 +3,11 @@ set UE4_PATH=C:\UnrealEngine\
 
 set PROJECT_NAME=zSpace
 
+
+If EXIST  "C:\zSpace_Server"  rmdir C:\zSpace_Server /s /q
+IF EXIST  "C:\zSpace_Client"  rmdir C:\zSpace_Client /s /q
+IF EXIST  "C:\zSpaceArchive"  rmdir C:\zSpaceArchive /s /q
+
 set PROJECT_PATH=%CD%\%PROJECT_NAME%.uproject
 
 set CLIENTCONFIG=Development
@@ -31,8 +36,6 @@ set MOVE_SERVER_EXE_PATH=%ARCHIVEDIRECTORY%\WindowsNoEditor\%PROJECT_NAME%\Binar
 
 if exist ( "%SERVER_EXE_PATH%" )(
 	echo "Z Space: copying exe" 
-	
-	 
 	echo "Info xcopy %SERVER_PATH% %ARCHIVEDIRECTORY_CLIENT%"
 	xcopy /Y /E /I "%SERVER_PATH%" "%ARCHIVEDIRECTORY_CLIENT%"
 	xcopy /Y /E /I  %SERVER_EXE_PATH% %MOVE_SERVER_EXE_PATH%
