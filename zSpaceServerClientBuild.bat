@@ -31,8 +31,6 @@ set MOVE_SERVER_EXE_PATH=%ARCHIVEDIRECTORY%\WindowsNoEditor\%PROJECT_NAME%\Binar
 
 if exist ( "%SERVER_EXE_PATH%" )(
 	echo "Z Space: copying exe" 
-	
-	 
 	echo "Info xcopy %SERVER_PATH% %ARCHIVEDIRECTORY_CLIENT%"
 	xcopy /Y /E /I "%SERVER_PATH%" "%ARCHIVEDIRECTORY_CLIENT%"
 	xcopy /Y /E /I  %SERVER_EXE_PATH% %MOVE_SERVER_EXE_PATH%
