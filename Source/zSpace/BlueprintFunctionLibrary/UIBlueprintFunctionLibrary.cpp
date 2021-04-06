@@ -10,10 +10,10 @@
 #include <Engine/World.h>
 #include "../Components/ManageWidgetsResolution.h"
 
-TSubclassOf<class UUserWidget>UUIBlueprintFunctionLibrary::GetWidgetSubClassForCurrentScreen(const UObject* WorldContext, UResolutionAndWidgetDataAsset* PreLoginDataAsset)
+TSubclassOf<class UUserWidget>UUIBlueprintFunctionLibrary::GetWidgetSubClassForCurrentScreen(const UObject* WorldContext, UResolutionAndWidgetDataAsset* WidgetDataAsset)
 {
-	check(PreLoginDataAsset);
-	if (!IsValid(PreLoginDataAsset)) return UUserWidget::StaticClass();
+	check(WidgetDataAsset);
+	if (!IsValid(WidgetDataAsset)) return UUserWidget::StaticClass();
 
 	// Get Current Resolution
 	FIntPoint ScreenResolution = UUIBlueprintFunctionLibrary::GetCurrentScreenResolution(WorldContext);
@@ -26,7 +26,7 @@ TSubclassOf<class UUserWidget>UUIBlueprintFunctionLibrary::GetWidgetSubClassForC
 	}
 
 	// Get Widget For Current Resolution
-	TSubclassOf<UUserWidget> Result = PreLoginDataAsset->GetWidget(Resolution);
+	TSubclassOf<UUserWidget> Result = WidgetDataAsset->GetWidget(Resolution);
 
 	return Result ? Result : UUserWidget::StaticClass();
 }
