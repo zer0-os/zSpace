@@ -3,6 +3,11 @@ set UE4_PATH=C:\UnrealEngine\
 
 set PROJECT_NAME=zSpace
 
+
+If EXIST  "C:\zSpace_Server"  rmdir C:\zSpace_Server /s /q
+IF EXIST  "C:\zSpace_Client"  rmdir C:\zSpace_Client /s /q
+IF EXIST  "C:\zSpaceArchive"  rmdir C:\zSpaceArchive /s /q
+
 set PROJECT_PATH=%CD%\%PROJECT_NAME%.uproject
 
 set CLIENTCONFIG=Development
