@@ -21,6 +21,9 @@ protected:
 	UFUNCTION()
 	void BtnRegisterOnClicked();
 
+	UFUNCTION()
+	void BtnCancelOnClicked();
+
 	UFUNCTION(BlueprintCallable, BlueprintCosmetic)
 	void OnSuccessRegister(class UResolutionAndWidgetDataAsset* LoginDataAsset);
 
@@ -28,18 +31,24 @@ public:
 	UPROPERTY(BlueprintReadOnly)
 	class UManageWidgetsResolution* ManageWidgetsResolution = nullptr;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, meta=(BindWidget))
+	UPROPERTY(BlueprintReadWrite, meta=(BindWidget))
 	class UEditableTextBox* FirstName = nullptr;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, meta=(BindWidget))
+	UPROPERTY(BlueprintReadWrite, meta=(BindWidget))
 	class UEditableTextBox* LastName = nullptr;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, meta=(BindWidget))
+	UPROPERTY(BlueprintReadWrite, meta=(BindWidget))
 	class UEditableTextBox* Email = nullptr;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, meta=(BindWidget))
+	UPROPERTY(BlueprintReadWrite, meta=(BindWidget))
 	class UEditableTextBox* Password = nullptr;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, meta=(BindWidget))
+	UPROPERTY(BlueprintReadWrite, meta=(BindWidget))
 	class UButton* BtnRegister = nullptr;
+	
+	UPROPERTY(BlueprintReadWrite, meta=(BindWidget))
+	class UButton* BtnCancel = nullptr;
+
+	UPROPERTY(EditDefaultsOnly)
+	class UResolutionAndWidgetDataAsset* PreLoginDataAsset = nullptr;
 };

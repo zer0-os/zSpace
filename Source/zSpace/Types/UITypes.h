@@ -61,5 +61,6 @@ enum class EWidgetType : uint8
 	Login,
 	Register,
 	Gameplay,
+	SelectCharacter,
 };
 
