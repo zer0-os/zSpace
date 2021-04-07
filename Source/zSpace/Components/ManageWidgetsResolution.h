@@ -30,6 +30,8 @@ protected:
 	TMap<EResolution, class UUserWidget*> RegisterWidgets;
 	UPROPERTY()
 	TMap<EResolution, class UUserWidget*> GameplayWidgets;
+	UPROPERTY()
+	TMap<EResolution, class UUserWidget*> SelectCharacterWidgets;
 
 public:
 	UFUNCTION(BlueprintCallable, Category="UI")
