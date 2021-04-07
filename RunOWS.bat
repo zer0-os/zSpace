@@ -1,6 +1,6 @@
 
 taskkill /im  OWSInstanceLauncher.exe /F /T /FI "IMAGENAME  eq OWSInstanceLauncher.exe"
 
-cd C:\zSpace_Server
+cd C:\zSpace_Server\OWSInstanceLauncher
 
-Start /B %CD%\OWSInstanceLauncher\OWSInstanceLauncher.exe
+Start /B OWSInstanceLauncher.exe
