@@ -21,6 +21,7 @@ public class zSpace : ModuleRules
 			, "GameplayAbilities"
 			, "UniversalVoiceChatPro"
 			, "PhysicsCore"
+            , "MediaAssets"
 			});
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });

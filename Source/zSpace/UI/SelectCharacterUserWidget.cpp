@@ -3,6 +3,7 @@
 
 #include "zSpace/UI/SelectCharacterUserWidget.h"
 
+#include <MediaAssets/Public/MediaPlayer.h>
 #include "SelectCharacterBoxUserWidget.h"
 #include <Kismet/KismetSystemLibrary.h>
 #include <Components/BorderSlot.h>
@@ -11,6 +12,13 @@
 EWidgetType USelectCharacterUserWidget::GetWidgetType_Implementation()
 {
 	return EWidgetType::SelectCharacter;
+}
+
+void USelectCharacterUserWidget::NativePreConstruct()
+{
+	Super::NativePreConstruct();
+
+	MediaPlayer->OpenSource(MediaSource);
 }
 
 void USelectCharacterUserWidget::CreateCharacterSelectBox(const FCharacterSelectBoxInfo& CharacterSelectBoxInfo)

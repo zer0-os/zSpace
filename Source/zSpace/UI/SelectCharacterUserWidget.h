@@ -16,6 +16,10 @@ class ZSPACE_API USelectCharacterUserWidget : public UUserWidget, public IUIReso
 {
 	GENERATED_BODY()
 
+protected:
+	virtual void NativePreConstruct() override;
+
+
 public:
 	UPROPERTY(BlueprintReadOnly)
 	class USelectCharacterBoxUserWidget* SelectedCharacterBoxUserWidget = nullptr;
@@ -34,6 +38,12 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, meta=(BindWidget))
 	class UButton* CreateNewCharacterButton = nullptr;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	class UMediaPlayer* MediaPlayer = nullptr;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	class UMediaSource* MediaSource = nullptr;
 
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<class UUserWidget> SelectCharacterBoxSubClass;
