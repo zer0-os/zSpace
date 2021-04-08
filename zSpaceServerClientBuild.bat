@@ -43,6 +43,7 @@ if exist ( "%SERVER_EXE_PATH%" )(
 	move %ARCHIVEDIRECTORY%\WindowsServer %ARCHIVEDIRECTORY%\WindowsServer_NoExecut
 	xcopy /Y /E /I "%CD%\OWSInstanceLauncher" "%ARCHIVEDIRECTORY%\OWSInstanceLauncher"
 	copy "%CD%\appsettings.json" "%ARCHIVEDIRECTORY%\OWSInstanceLauncher\appsettings.json"
+	copy "%CD%\RunOWS.bat" "%ARCHIVEDIRECTORY%\OWSInstanceLauncher\RunOWS.bat"
 	
 )
 
