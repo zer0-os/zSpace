@@ -13,5 +13,12 @@ UCLASS()
 class ZSPACE_API UChatUserWidget : public UUserWidget
 {
 	GENERATED_BODY()
-	
+
+public:
+	UPROPERTY(BlueprintReadWrite, meta=(BindWidget))
+	class UEditableTextBox* txtMessageToSend = nullptr;
+
+	UPROPERTY(BlueprintReadWrite, meta=(BindWidget))
+	class UScrollBox* ChatScrollBox = nullptr;
+
 };
