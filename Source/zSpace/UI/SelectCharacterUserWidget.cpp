@@ -50,3 +50,30 @@ void USelectCharacterUserWidget::CreateCharacterSelectBox(const FCharacterSelect
 		}
 	}
 }
+
+void USelectCharacterUserWidget::ShowCharacters(TArray<FUserCharacter>& UserCharacters, int32 CurrentCharacterIndex)
+{
+	if (UserCharacters.IsValidIndex(CurrentCharacterIndex))
+	{
+		FUserCharacter& CurrentSelectedCharacter = UserCharacters[CurrentCharacterIndex];
+
+		if (UserCharacters.Num() >= 1)
+		{
+			for (FUserCharacter& User : UserCharacters)
+			{
+				if (User.CharacterName != CurrentSelectedCharacter.CharacterName)
+				{
+					if (SelectCharacterLeftCanvas->GetAllChildren().Num() == 0)
+					{
+						// CreateWidget<>()
+
+					}
+					else if (SelectCharacterRightCanvas->GetAllChildren().Num() == 0)
+					{
+
+					}
+				}
+			}
+		}
+	}
+}
