@@ -64,3 +64,18 @@ enum class EWidgetType : uint8
 	SelectCharacter,
 };
 
+USTRUCT(BlueprintType)
+struct ZSPACE_API FCharacterSelectBoxInfo
+{
+	GENERATED_USTRUCT_BODY()
+public:
+	UPROPERTY(BlueprintReadWrite)
+	FString PlayerName;
+
+	UPROPERTY(BlueprintReadWrite)
+	FString PlayerLevel;
+
+	UPROPERTY(BlueprintReadWrite)
+	UTexture2D* BackgroundImage = nullptr;
+};
+
