@@ -40,4 +40,7 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, meta=(BindWidget))
 	class UProgressBar* StaminaProgressBar = nullptr;
+
+	UPROPERTY(BlueprintReadWrite, meta=(BindWidget))
+	class UChatUserWidget* ChatWidget = nullptr;
 };

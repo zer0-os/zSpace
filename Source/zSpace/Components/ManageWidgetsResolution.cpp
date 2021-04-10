@@ -80,6 +80,10 @@ TMap<EResolution, class UUserWidget*>& UManageWidgetsResolution::GetWidgetsByEnu
 		Result = true;
 		return GameplayWidgets;
 		break;
+	case EWidgetType::SelectCharacter:
+		Result = true;
+		return SelectCharacterWidgets;
+		break;
 	default:
 		Result = false;
 		return EmptyWidgets;

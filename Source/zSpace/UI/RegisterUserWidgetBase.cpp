@@ -10,6 +10,7 @@
 #include <Components/Button.h>
 #include "../Types/UITypes.h"
 #include "LoginUserWidgetBase.h"
+#include <Kismet/KismetSystemLibrary.h>
 
 void URegisterUserWidgetBase::NativePreConstruct()
 {
@@ -22,6 +23,14 @@ void URegisterUserWidgetBase::NativePreConstruct()
 			BtnRegister->OnClicked.AddDynamic(this, &URegisterUserWidgetBase::BtnRegisterOnClicked);
 		}
 	}
+	if (IsValid(BtnCancel))
+	{
+		if (!BtnCancel->OnClicked.IsAlreadyBound(this, &URegisterUserWidgetBase::BtnCancelOnClicked))
+		{
+			BtnCancel->OnClicked.AddDynamic(this, &URegisterUserWidgetBase::BtnCancelOnClicked);
+		}
+	}
+
 	UZSpaceGameInstance* GameInstance = GetGameInstance<UZSpaceGameInstance>();
 	if (IsValid(GameInstance))
 	{
@@ -37,6 +46,19 @@ void URegisterUserWidgetBase::BtnRegisterOnClicked()
 	const FString StringPassword = Password->GetText().ToString();
 
 	Register(StringEmail, StringPassword, StringFirstName, StringLastName);
+}
+
+void URegisterUserWidgetBase::BtnCancelOnClicked()
+{
+	if (!IsValid(ManageWidgetsResolution)) return;
+	
+	RemoveFromParent();
+	
+	TSubclassOf<class UUserWidget> WidgetSubClass = UUIBlueprintFunctionLibrary::GetWidgetSubClassForCurrentScreen(this, PreLoginDataAsset);
+	EResolution Resolution = UUIBlueprintFunctionLibrary::GetCurrentScreenResolutionEnum(this);
+	UUserWidget* Widget = nullptr;
+	
+	ManageWidgetsResolution->CreateWidgetAndAddViewprot(GetOwningPlayer(), WidgetSubClass, Resolution, Widget);
 }
 
 void URegisterUserWidgetBase::OnSuccessRegister(UResolutionAndWidgetDataAsset* LoginDataAsset)
