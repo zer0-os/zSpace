@@ -72,13 +72,13 @@ FVector UDetectSurfaceTypeComponent::GetFootLocationByCharacterFootType(ECharact
 
 void UDetectSurfaceTypeComponent::PutFootOnGround(ECharacterFootType NewCharacterFootType)
 {
-	const FString L_CharacterFootType = UEnum::GetValueAsString(NewCharacterFootType);
+	// const FString L_CharacterFootType = UEnum::GetValueAsString(NewCharacterFootType);
 	//UE_LOG(LogTemp, Log, TEXT("Foot = %s"), *L_CharacterFootType);
 	const FVector L_Start = GetFootLocationByCharacterFootType(NewCharacterFootType);
 	const FVector L_End = (FVector::UpVector * - 100) + L_Start;
 	TArray<AActor *> ActorsToIgnore;
 	TArray<FHitResult> OutHits;
-	const bool bIsBlocking = UKismetSystemLibrary::LineTraceMulti(GetOwner(), L_Start, L_End, ETraceTypeQuery::TraceTypeQuery2, true, ActorsToIgnore, EDrawDebugTrace::ForDuration, OutHits, true);
+	const bool bIsBlocking = UKismetSystemLibrary::LineTraceMulti(GetOwner(), L_Start, L_End, ETraceTypeQuery::TraceTypeQuery2, true, ActorsToIgnore, EDrawDebugTrace::None, OutHits, true);
 	if(bIsBlocking)
 	{
 		for(const FHitResult & IterHitResult : OutHits)
