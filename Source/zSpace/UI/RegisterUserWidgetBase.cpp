@@ -5,12 +5,13 @@
 
 #include "../BlueprintFunctionLibrary/UIBlueprintFunctionLibrary.h"
 #include "../Components/ManageWidgetsResolution.h"
-#include <Components/EditableTextBox.h>
+#include "Components/EditableTextBox.h"
 #include "../Game/ZSpaceGameInstance.h"
-#include <Components/Button.h>
-#include "../Types/UITypes.h"
+#include "Kismet/KismetSystemLibrary.h"
+#include "zSpace/UI/ZSpaceButton.h"
 #include "LoginUserWidgetBase.h"
-#include <Kismet/KismetSystemLibrary.h>
+#include "Components/Button.h"
+#include "../Types/UITypes.h"
 
 void URegisterUserWidgetBase::NativePreConstruct()
 {
@@ -18,9 +19,13 @@ void URegisterUserWidgetBase::NativePreConstruct()
 
 	if (IsValid(BtnRegister))
 	{
-		if (!BtnRegister->OnClicked.IsAlreadyBound(this, &URegisterUserWidgetBase::BtnRegisterOnClicked))
+		UButton* Button = BtnRegister->ButtonWidget;
+		if (IsValid(Button))
 		{
-			BtnRegister->OnClicked.AddDynamic(this, &URegisterUserWidgetBase::BtnRegisterOnClicked);
+			if (!Button->OnClicked.IsAlreadyBound(this, &URegisterUserWidgetBase::BtnRegisterOnClicked))
+			{
+				Button->OnClicked.AddDynamic(this, &URegisterUserWidgetBase::BtnRegisterOnClicked);
+			}
 		}
 	}
 	if (IsValid(BtnCancel))
