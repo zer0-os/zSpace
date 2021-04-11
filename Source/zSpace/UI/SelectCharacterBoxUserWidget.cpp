@@ -3,6 +3,7 @@
 
 #include "zSpace/UI/SelectCharacterBoxUserWidget.h"
 #include <Components/WidgetSwitcher.h>
+#include "zSpace/UI/ZSpaceButton.h"
 #include <Components/TextBlock.h>
 #include <Components/Button.h>
 #include <Components/Image.h>

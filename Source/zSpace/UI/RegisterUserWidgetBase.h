@@ -44,7 +44,7 @@ public:
 	class UEditableTextBox* Password = nullptr;
 
 	UPROPERTY(BlueprintReadWrite, meta=(BindWidget))
-	class UButton* BtnRegister = nullptr;
+	class UZSpaceButton* BtnRegister = nullptr;
 	
 	UPROPERTY(BlueprintReadWrite, meta=(BindWidget))
 	class UButton* BtnCancel = nullptr;
