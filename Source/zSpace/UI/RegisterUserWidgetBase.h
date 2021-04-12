@@ -18,6 +18,8 @@ class ZSPACE_API URegisterUserWidgetBase : public UOWSLoginWidget, public IUIRes
 protected:
 	virtual void NativePreConstruct() override;
 
+	virtual void NativeDestruct() override;
+
 	UFUNCTION()
 	void BtnRegisterOnClicked();
 
@@ -26,6 +28,9 @@ protected:
 
 	UFUNCTION(BlueprintCallable, BlueprintCosmetic)
 	void OnSuccessRegister(class UResolutionAndWidgetDataAsset* LoginDataAsset);
+
+	UFUNCTION()
+	void ToPreviousMenu();
 
 public:
 	UPROPERTY(BlueprintReadOnly)

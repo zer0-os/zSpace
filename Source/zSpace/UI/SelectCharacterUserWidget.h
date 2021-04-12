@@ -20,6 +20,10 @@ class ZSPACE_API USelectCharacterUserWidget : public UUserWidget, public IUIReso
 protected:
 	virtual void NativePreConstruct() override;
 
+	virtual void NativeDestruct() override;
+
+	UFUNCTION()
+	void ToPreviousMenu();
 
 public:
 	UPROPERTY(BlueprintReadOnly)
