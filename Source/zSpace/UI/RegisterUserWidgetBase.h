@@ -51,4 +51,10 @@ public:
 
 	UPROPERTY(EditDefaultsOnly)
 	class UResolutionAndWidgetDataAsset* PreLoginDataAsset = nullptr;
+
+protected:
+	void BindOnTextCommittedEvent();
+
+	UFUNCTION()
+	void OnTextCommitted(const FText& Text, ETextCommit::Type CommitMethod);
 };

@@ -41,6 +41,8 @@ void URegisterUserWidgetBase::NativePreConstruct()
 	{
 		ManageWidgetsResolution = GameInstance->GetManageWidgetsResolution();
 	}
+
+	BindOnTextCommittedEvent();
 }
 
 void URegisterUserWidgetBase::BtnRegisterOnClicked()
@@ -86,5 +88,29 @@ void URegisterUserWidgetBase::OnSuccessRegister(UResolutionAndWidgetDataAsset* L
 	}
 
 	RemoveFromParent();
+}
+
+void URegisterUserWidgetBase::BindOnTextCommittedEvent()
+{
+	auto Bind = [this] (UEditableTextBox* EditableTextBox) -> void
+	{
+		if (IsValid(EditableTextBox) && !EditableTextBox->OnTextCommitted.IsAlreadyBound(this, &URegisterUserWidgetBase::OnTextCommitted))
+		{
+			EditableTextBox->OnTextCommitted.AddDynamic(this, &URegisterUserWidgetBase::OnTextCommitted);
+		}
+	};
+
+ 	Bind(FirstName);
+ 	Bind(LastName);
+ 	Bind(Email);
+ 	Bind(Password);
+}
+
+void URegisterUserWidgetBase::OnTextCommitted(const FText& Text, ETextCommit::Type CommitMethod)
+{
+	if (CommitMethod == ETextCommit::OnEnter)
+	{
+		BtnRegisterOnClicked();
+	}
 }
 
