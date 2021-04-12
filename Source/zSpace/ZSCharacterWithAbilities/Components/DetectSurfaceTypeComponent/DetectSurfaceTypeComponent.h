@@ -37,6 +37,9 @@ public:
 private:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess=true), Category="BoneName")
+	TArray<TEnumAsByte<EObjectTypeQuery> >  ObjectTypes;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess=true), Category="BoneName")
 	FString LeftFootBoneName = "foot_l";
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess=true), Category="BoneName")
