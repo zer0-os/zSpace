@@ -6,6 +6,7 @@
 #include "GameFramework/Character.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "PhysicalMaterials/PhysicalMaterial.h"
 
 // Sets default values for this component's properties
 UDetectSurfaceTypeComponent::UDetectSurfaceTypeComponent()
@@ -13,7 +14,11 @@ UDetectSurfaceTypeComponent::UDetectSurfaceTypeComponent()
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = false;
-
+		
+	//EObjectTypeQuery> >  ObjectTypes
+	ObjectTypes.Add( UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_GameTraceChannel3));
+	ObjectTypes.Add( UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_WorldStatic));
+	
 	// ...
 }
 
@@ -59,11 +64,13 @@ FVector UDetectSurfaceTypeComponent::GetFootLocationByCharacterFootType(ECharact
 	{
 		if(ECharacterFootType::LEFT == NewCharacterFootType)
 		{
-			R_Location = L_SkeletalMeshComponent->GetSocketLocation(FName(LeftFootBoneName));	
+			R_Location = L_SkeletalMeshComponent->GetSocketLocation(FName(LeftFootBoneName));
+			R_Location.Z += 150;
 		}
 		else if(ECharacterFootType::RIGHT == NewCharacterFootType)
 		{
 			R_Location = L_SkeletalMeshComponent->GetSocketLocation(FName(RightFootBoneName));
+			R_Location.Z += 150;
 		}
 	}
 	return R_Location;
@@ -75,17 +82,18 @@ void UDetectSurfaceTypeComponent::PutFootOnGround(ECharacterFootType NewCharacte
 	// const FString L_CharacterFootType = UEnum::GetValueAsString(NewCharacterFootType);
 	//UE_LOG(LogTemp, Log, TEXT("Foot = %s"), *L_CharacterFootType);
 	const FVector L_Start = GetFootLocationByCharacterFootType(NewCharacterFootType);
-	const FVector L_End = (FVector::UpVector * - 100) + L_Start;
-	TArray<AActor *> ActorsToIgnore;
-	TArray<FHitResult> OutHits;
-	const bool bIsBlocking = UKismetSystemLibrary::LineTraceMulti(GetOwner(), L_Start, L_End, ETraceTypeQuery::TraceTypeQuery2, true, ActorsToIgnore, EDrawDebugTrace::None, OutHits, true);
+	const FVector L_End = (FVector::UpVector * - 250) + L_Start;
+	TArray<AActor *> L_ActorsToIgnore;
+	TArray<FHitResult> L_OutHits;
+	const bool bIsBlocking = UKismetSystemLibrary::LineTraceMultiForObjects(GetOwner(), L_Start, L_End, ObjectTypes, true, L_ActorsToIgnore, EDrawDebugTrace::None, L_OutHits, true);
 	if(bIsBlocking)
 	{
-		for(const FHitResult & IterHitResult : OutHits)
+		for(const FHitResult & IterHitResult : L_OutHits)
 		{
 			if(IterHitResult.bBlockingHit && IterHitResult.PhysMaterial.IsValid() )
 			{
 				UPhysicalMaterial * L_PhysicalMaterial = IterHitResult.PhysMaterial.Get();
+				//UE_LOG(LogTemp, Log, TEXT(" %s ***************** Physics Material name = %s"), *IterHitResult.Actor->GetName(), *L_PhysicalMaterial->GetName());
 				if(CharacterUnderFootSurfaceDA)
 				{
 					bool bIsValid = false;
@@ -93,6 +101,7 @@ void UDetectSurfaceTypeComponent::PutFootOnGround(ECharacterFootType NewCharacte
 					if(bIsValid)
 					{
 						PlayRandomSound(L_CharacterUnderFootSurfaceData, L_Start);
+						return;
 					}
 				}
 			}
