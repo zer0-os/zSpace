@@ -2,8 +2,6 @@
 set UE4_PATH=C:\UnrealEngine\
 
 
-set UE4_PATH="C:\Program Files\Epic Games\UE_4.26"
-
 set PROJECT_NAME=zSpace
 
 set TEST_MAP_NAME=FourZoneMap
@@ -19,8 +17,11 @@ call %UE4_PATH%\Engine\Binaries\Win64\UE4Editor-Cmd.exe ^
  -Quality=Preview ^
  -MapsOnly ^
  -ProjectOnly ^
- -AllowCommandletRendering ^
- -Map %TEST_MAP_NAME%
+ -AllowCommandletRendering 
+ 
+ 
+ 
+# -Map %TEST_MAP_NAME%
  
 
 
