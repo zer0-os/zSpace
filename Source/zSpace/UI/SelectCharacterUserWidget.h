@@ -25,6 +25,12 @@ protected:
 	UFUNCTION()
 	void ToPreviousMenu();
 
+	UFUNCTION(BlueprintCallable)
+	void ShowCreateNewCharacterWidget(TSubclassOf<class UUserWidget> Class);
+	
+	UFUNCTION(BlueprintCallable)
+	void HideCreateNewCharacterWidget();
+
 public:
 	UPROPERTY(BlueprintReadOnly)
 	class USelectCharacterBoxUserWidget* SelectedCharacterBoxUserWidget = nullptr;
@@ -37,6 +43,9 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, meta=(BindWidget))
 	class UBorder* SelectCharacterLeftCanvas = nullptr;
+	
+	UPROPERTY(BlueprintReadWrite, meta=(BindWidgetOptional))
+	class UUserWidget* CreateNewCharacterWidget = nullptr;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	class UMediaPlayer* MediaPlayer = nullptr;
