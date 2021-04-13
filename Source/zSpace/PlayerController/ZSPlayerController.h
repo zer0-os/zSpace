@@ -4,22 +4,23 @@
 
 #include "CoreMinimal.h"
 #include "OWSPlayerController.h"
-#include "ZPPlayerController.generated.h"
+#include "ZSPlayerController.generated.h"
 
 /**
  * 
  */
 
 UCLASS()
-class ZSPACE_API AZPPlayerController : public AOWSPlayerController
+class ZSPACE_API AZSPlayerController : public AOWSPlayerController
 {
 	GENERATED_BODY()
 
 
 public:
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnEscButtonPressed);
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnGetAllCharacters, const TArray<FUserCharacter>&, UserCharacters);
 
-	AZPPlayerController();
+	AZSPlayerController();
 
 	virtual  void BeginPlay() override;
 
@@ -31,9 +32,13 @@ protected:
 	UFUNCTION()
 		void OnEscOnClicked();
 
-public:
+	// void NotifyGetAllCharacters_Implementation(const TArray<FUserCharacter> &UserCharacters);
 
+public:
 	UPROPERTY(BlueprintAssignable)
 		FOnEscButtonPressed OnEscButtonPressed;
+	
+	UPROPERTY(BlueprintAssignable)
+		FOnGetAllCharacters OnGetAllCharacters;
 };
 

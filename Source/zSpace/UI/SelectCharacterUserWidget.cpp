@@ -11,7 +11,7 @@
 #include "Components/Border.h"
 #include "../BlueprintFunctionLibrary/UIBlueprintFunctionLibrary.h"
 #include "../Types/UITypes.h"
-#include "../PlayerController/ZPPlayerController.h"
+#include "../PlayerController/ZSPlayerController.h"
 #include "../Components/ManageWidgetsResolution.h"
 #include "../Game/ZSpaceGameInstance.h"
 
@@ -29,7 +29,7 @@ void USelectCharacterUserWidget::NativePreConstruct()
 		MediaPlayer->OpenSource(MediaSource);
 	}
 
-	AZPPlayerController* PlayerController = Cast<AZPPlayerController>(GetOwningPlayer());
+	AZSPlayerController* PlayerController = Cast<AZSPlayerController>(GetOwningPlayer());
 	if (IsValid(PlayerController))
 	{
 		if (!PlayerController->OnEscButtonPressed.IsAlreadyBound(this, &USelectCharacterUserWidget::ToPreviousMenu))
@@ -43,7 +43,7 @@ void USelectCharacterUserWidget::NativeDestruct()
 {
 	Super::NativeDestruct();
 
-	AZPPlayerController* PlayerController = Cast<AZPPlayerController>(GetOwningPlayer());
+	AZSPlayerController* PlayerController = Cast<AZSPlayerController>(GetOwningPlayer());
 	if (IsValid(PlayerController))
 	{
 		PlayerController->OnEscButtonPressed.RemoveDynamic(this, &USelectCharacterUserWidget::ToPreviousMenu);
@@ -52,26 +52,56 @@ void USelectCharacterUserWidget::NativeDestruct()
 
 void USelectCharacterUserWidget::ToPreviousMenu()
 {
+	if(IsValid(CreateNewCharacterWidget) && CreateNewCharacterWidget->IsInViewport())
+	{
+		CreateNewCharacterWidget->RemoveFromParent();
+		return;
+	}
+	
 	UZSpaceGameInstance* GameInstance = GetGameInstance<UZSpaceGameInstance>();
 	if (!IsValid(GameInstance)) return;
 
 	UManageWidgetsResolution* ManageWidgetsResolution = GameInstance->GetManageWidgetsResolution();
 	if (!IsValid(ManageWidgetsResolution)) return;
 
-	EResolution Resolution = UUIBlueprintFunctionLibrary::GetCurrentScreenResolutionEnum(this);
+	const EResolution Resolution = UUIBlueprintFunctionLibrary::GetCurrentScreenResolutionEnum(this);
 	UResolutionAndWidgetDataAsset* WidgetDataAsset = IUIResolutionInterface::Execute_GetToPreviousMenuDataAsset(this);
-	TSubclassOf<UUserWidget> WidgetSubClass = UUIBlueprintFunctionLibrary::GetWidgetSubClassForCurrentScreen(this, WidgetDataAsset);
+	const TSubclassOf<UUserWidget> WidgetSubClass = UUIBlueprintFunctionLibrary::GetWidgetSubClassForCurrentScreen(this, WidgetDataAsset);
 	UUserWidget* Widget = nullptr;
 
 	ManageWidgetsResolution->CreateWidgetAndAddViewprot(GetOwningPlayer(), WidgetSubClass, Resolution, Widget);
 
-	AZPPlayerController* PlayerController = Cast<AZPPlayerController>(GetOwningPlayer());
+	AZSPlayerController* PlayerController = Cast<AZSPlayerController>(GetOwningPlayer());
 	if (IsValid(PlayerController))
 	{
 		PlayerController->OnEscButtonPressed.RemoveDynamic(this, &USelectCharacterUserWidget::ToPreviousMenu);
 	}
 
 	RemoveFromParent();
+}
+
+void USelectCharacterUserWidget::ShowCreateNewCharacterWidget(TSubclassOf<UUserWidget> Class)
+{
+	if (IsValid(CreateNewCharacterWidget))
+	{
+		CreateNewCharacterWidget->AddToViewport();
+	}
+	else
+	{
+		CreateNewCharacterWidget = CreateWidget<UUserWidget>(GetOwningPlayer(), Class);
+		if (IsValid(CreateNewCharacterWidget))
+		{
+			CreateNewCharacterWidget->AddToViewport();
+		}
+	}
+}
+
+void USelectCharacterUserWidget::HideCreateNewCharacterWidget()
+{
+	if (IsValid(CreateNewCharacterWidget))
+	{
+		CreateNewCharacterWidget->RemoveFromParent();
+	}
 }
 
 void USelectCharacterUserWidget::CreateCharacterSelectBox(const FCharacterSelectBoxInfo& CharacterSelectBoxInfo)
