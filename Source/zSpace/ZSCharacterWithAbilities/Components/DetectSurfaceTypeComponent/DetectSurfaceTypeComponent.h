@@ -52,7 +52,9 @@ private:
 	
 	FVector GetFootLocationByCharacterFootType(ECharacterFootType NewCharacterFootType);
 
-	void PlayRandomSound(FCharacterUnderFootSurfaceData NewCharacterUnderFootSurfaceData, const FVector & NewLocation);
+	void PlayRandomSound(const FCharacterUnderFootSurfaceData & NewCharacterUnderFootSurfaceData, const FVector & NewLocation);
+	
+	void SpawnParticle(const FCharacterUnderFootSurfaceData & NewCharacterUnderFootSurfaceData, const FVector & NewLocation);
 	
 public:	
 
