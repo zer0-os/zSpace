@@ -16,7 +16,7 @@ TSubclassOf<class UUserWidget>UUIBlueprintFunctionLibrary::GetWidgetSubClassForC
 	if (!IsValid(WidgetDataAsset)) return UUserWidget::StaticClass();
 
 	// Get Current Resolution
-	FIntPoint ScreenResolution = UUIBlueprintFunctionLibrary::GetCurrentScreenResolution(WorldContext);
+	const FIntPoint ScreenResolution = UUIBlueprintFunctionLibrary::GetCurrentScreenResolution(WorldContext);
 
 	// Get Enum Resolution For Current Resolution
 	EResolution Resolution = UConverEResolutionToFIntPointOrViceVersa::GetEnumResolution(WorldContext, ScreenResolution);
@@ -42,7 +42,7 @@ FIntPoint UUIBlueprintFunctionLibrary::GetCurrentScreenResolution(const UObject*
 
 EResolution UUIBlueprintFunctionLibrary::GetCurrentScreenResolutionEnum(const UObject* WorldContext)
 {
-	FIntPoint ScreenResolution = UUIBlueprintFunctionLibrary::GetCurrentScreenResolution(WorldContext);
+	const FIntPoint ScreenResolution = UUIBlueprintFunctionLibrary::GetCurrentScreenResolution(WorldContext);
 	EResolution Resolution = UConverEResolutionToFIntPointOrViceVersa::GetEnumResolution(WorldContext, ScreenResolution);
 	if (Resolution == EResolution::None)
 	{
@@ -64,9 +64,15 @@ class UUserWidget* UUIBlueprintFunctionLibrary::GetWidgetByWidgetType(const UObj
 		UManageWidgetsResolution* ManageWidgetsResolution = GameInstance->GetManageWidgetsResolution();
 		if (IsValid(ManageWidgetsResolution))
 		{
-			FIntPoint ScreenResolution = UUIBlueprintFunctionLibrary::GetCurrentScreenResolution(WorldContext);
+			const FIntPoint ScreenResolution = UUIBlueprintFunctionLibrary::GetCurrentScreenResolution(WorldContext);
 			EResolution Resolution = UConverEResolutionToFIntPointOrViceVersa::GetEnumResolution(WorldContext, ScreenResolution);
-			return ManageWidgetsResolution->GetWidgetByResolution(WidgetType, Resolution);
+			if (Resolution == EResolution::None)
+			{
+				Resolution = EResolution::R_1920X1080;
+			}
+			
+			UUserWidget* Widget = ManageWidgetsResolution->GetWidgetByResolution(WidgetType, Resolution);
+			return Widget;
 		}
 	}
 

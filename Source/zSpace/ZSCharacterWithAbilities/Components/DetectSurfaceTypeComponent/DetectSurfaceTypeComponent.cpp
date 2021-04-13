@@ -7,6 +7,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "PhysicalMaterials/PhysicalMaterial.h"
+#include "Particles/ParticleSystem.h"
 
 // Sets default values for this component's properties
 UDetectSurfaceTypeComponent::UDetectSurfaceTypeComponent()
@@ -100,7 +101,8 @@ void UDetectSurfaceTypeComponent::PutFootOnGround(ECharacterFootType NewCharacte
 					const FCharacterUnderFootSurfaceData L_CharacterUnderFootSurfaceData =  CharacterUnderFootSurfaceDA->GetCharacterUnderFootSurfaceDataByPhysicsType(L_PhysicalMaterial, bIsValid);
 					if(bIsValid)
 					{
-						PlayRandomSound(L_CharacterUnderFootSurfaceData, L_Start);
+						PlayRandomSound(L_CharacterUnderFootSurfaceData, IterHitResult.Location);
+						SpawnParticle(L_CharacterUnderFootSurfaceData, IterHitResult.Location);
 						return;
 					}
 				}
@@ -109,11 +111,23 @@ void UDetectSurfaceTypeComponent::PutFootOnGround(ECharacterFootType NewCharacte
 	}
 }
 
-void UDetectSurfaceTypeComponent::PlayRandomSound(FCharacterUnderFootSurfaceData NewCharacterUnderFootSurfaceData, const FVector & NewLocation)
+void UDetectSurfaceTypeComponent::PlayRandomSound(const FCharacterUnderFootSurfaceData & NewCharacterUnderFootSurfaceData, const FVector & NewLocation)
 {
 	const int32 L_Num = NewCharacterUnderFootSurfaceData.SurfaceSoundBaseArray.Num();
 	const int32 L_Index = UKismetMathLibrary::RandomInteger(L_Num);
-	USoundBase * L_Sound = NewCharacterUnderFootSurfaceData.SurfaceSoundBaseArray[L_Index];
+	USoundBase * L_Sound = NewCharacterUnderFootSurfaceData.SurfaceSoundBaseArray[L_Index].LoadSynchronous();
 	//UE_LOG(LogTemp, Log, TEXT(" Num = %d  Index = %d ----"), L_Num, L_Index);
-	UGameplayStatics::PlaySoundAtLocation(GetOwner(), L_Sound, NewLocation);
+	if(L_Sound)
+	{
+		UGameplayStatics::PlaySoundAtLocation(GetOwner(), L_Sound, NewLocation);
+	}
+}
+
+void UDetectSurfaceTypeComponent::SpawnParticle(const FCharacterUnderFootSurfaceData & NewCharacterUnderFootSurfaceData, const FVector& NewLocation)
+{
+	UParticleSystem * L_ParticleSystem = NewCharacterUnderFootSurfaceData.SurfaceParticleSystem.LoadSynchronous();
+	if(L_ParticleSystem)
+	{
+		UGameplayStatics::SpawnEmitterAtLocation(GetOwner(), L_ParticleSystem, NewLocation);
+	}
 }
