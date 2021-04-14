@@ -28,17 +28,35 @@ public:
 
 	virtual void SetupInputComponent() override;
 
+	UFUNCTION(BlueprintCallable)
+	void BindOnGetAllCharacters(const TArray<FUserCharacter>& UserCharacters);
+	
+	UFUNCTION(BlueprintPure, BlueprintGetter)
+	FString GetUserSessionGUID() const;
+
+	UFUNCTION(BlueprintSetter)
+	void SetUserSessionGUID(FString Value);
+	
+	
 protected:
 	UFUNCTION()
-		void OnEscOnClicked();
+	void OnEscOnClicked();
 
-	// void NotifyGetAllCharacters_Implementation(const TArray<FUserCharacter> &UserCharacters);
+	void CheckCharacterCountAndAdd(int32 CheckCount, const TArray<FUserCharacter>& UserCharacters);
+
+	UFUNCTION()
+	void OnGetAllCharactersEvent(const TArray<FUserCharacter>& UserCharacters);
 
 public:
 	UPROPERTY(BlueprintAssignable)
-		FOnEscButtonPressed OnEscButtonPressed;
+	FOnEscButtonPressed OnEscButtonPressed;
 	
 	UPROPERTY(BlueprintAssignable)
-		FOnGetAllCharacters OnGetAllCharacters;
+	FOnGetAllCharacters OnGetAllCharacters;
+	
+protected:
+	UPROPERTY(BlueprintGetter=GetUserSessionGUID, BlueprintSetter=SetUserSessionGUID)
+	FString UserSessionGUID;
+	
 };
 
