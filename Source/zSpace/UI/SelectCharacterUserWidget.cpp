@@ -69,7 +69,7 @@ void USelectCharacterUserWidget::ToPreviousMenu()
 	const TSubclassOf<UUserWidget> WidgetSubClass = UUIBlueprintFunctionLibrary::GetWidgetSubClassForCurrentScreen(this, WidgetDataAsset);
 	UUserWidget* Widget = nullptr;
 
-	ManageWidgetsResolution->CreateWidgetAndAddViewprot(GetOwningPlayer(), WidgetSubClass, Resolution, Widget);
+	ManageWidgetsResolution->CreateWidgetAndAddViewport(GetOwningPlayer(), WidgetSubClass, Resolution, Widget);
 
 	AZSPlayerController* PlayerController = Cast<AZSPlayerController>(GetOwningPlayer());
 	if (IsValid(PlayerController))

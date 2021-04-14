@@ -28,4 +28,7 @@ public:
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	class UResolutionAndWidgetDataAsset* GetToPreviousMenuDataAsset();
+	
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+	FBackgroundVideo GetBackgroundVideo();
 };

@@ -79,3 +79,20 @@ public:
 	UTexture2D* BackgroundImage = nullptr;
 };
 
+USTRUCT(BlueprintType)
+struct ZSPACE_API FBackgroundVideo
+{
+	GENERATED_USTRUCT_BODY()
+	
+public:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	class UMediaPlayer* MediaPlayer = nullptr;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	class UMediaSource* MediaSource = nullptr;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	class UMaterialInterface* VideoMaterial; 
+};
+
+
