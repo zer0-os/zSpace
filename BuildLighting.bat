@@ -14,7 +14,7 @@ call %UE4_PATH%\Engine\Binaries\Win64\UE4Editor-Cmd.exe ^
  -Run=ResavePackages ^
  -IgnoreChangeList ^
  -BuildLighting ^
- -Quality=Preview ^
+ -Quality=Production ^
  -MapsOnly ^
  -ProjectOnly ^
  -AllowCommandletRendering ^
