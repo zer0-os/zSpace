@@ -11,17 +11,17 @@
 // Sets default values for this component's properties
 UManageWidgetsResolution::UManageWidgetsResolution() {}
 
-bool UManageWidgetsResolution::CreateWidgetAndAddViewprot(APlayerController* PlayerControler, TSubclassOf<class UUserWidget> WidgetSubClass, EResolution Resolution, UUserWidget*& ReturnWidget)
+bool UManageWidgetsResolution::CreateWidgetAndAddViewport(APlayerController* PlayerControler, TSubclassOf<class UUserWidget> WidgetSubClass, EResolution Resolution, UUserWidget*& ReturnWidget)
 {
 	if (!WidgetSubClass) return false;
 
 	UUserWidget* WidgetDefaultObject = WidgetSubClass.GetDefaultObject();
 	if (IsValid(WidgetDefaultObject))
 	{
-		bool IsImplemented = WidgetDefaultObject->Implements<UUIResolutionInterface>();
+		const bool IsImplemented = WidgetDefaultObject->Implements<UUIResolutionInterface>();
 		if (IsImplemented)
 		{
-			EWidgetType WidgetType = IUIResolutionInterface::Execute_GetWidgetType(WidgetDefaultObject);
+			const EWidgetType WidgetType = IUIResolutionInterface::Execute_GetWidgetType(WidgetDefaultObject);
 			UUserWidget* Widget = GetWidgetByResolution(WidgetType, Resolution);
 
 			bool OutResult;

@@ -35,7 +35,7 @@ protected:
 
 public:
 	UFUNCTION(BlueprintCallable, Category="UI")
-	bool CreateWidgetAndAddViewprot(class APlayerController* PlayerControler, TSubclassOf<class UUserWidget> WidgetSubClass, EResolution Resolution, UUserWidget*& ReturnWidget);
+	bool CreateWidgetAndAddViewport(class APlayerController* PlayerControler, TSubclassOf<class UUserWidget> WidgetSubClass, EResolution Resolution, UUserWidget*& ReturnWidget);
 
 	UFUNCTION(BlueprintPure, Category="UI")
 	TMap<EResolution, class UUserWidget*>& GetWidgetsByEnum(EWidgetType WidgetType, bool& Result);

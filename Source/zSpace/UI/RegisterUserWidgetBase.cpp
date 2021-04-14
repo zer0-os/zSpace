@@ -86,7 +86,7 @@ void URegisterUserWidgetBase::BtnCancelOnClicked()
 	EResolution Resolution = UUIBlueprintFunctionLibrary::GetCurrentScreenResolutionEnum(this);
 	UUserWidget* Widget = nullptr;
 	
-	ManageWidgetsResolution->CreateWidgetAndAddViewprot(GetOwningPlayer(), WidgetSubClass, Resolution, Widget);
+	ManageWidgetsResolution->CreateWidgetAndAddViewport(GetOwningPlayer(), WidgetSubClass, Resolution, Widget);
 }
 
 void URegisterUserWidgetBase::OnSuccessRegister(UResolutionAndWidgetDataAsset* LoginDataAsset)
@@ -98,7 +98,7 @@ void URegisterUserWidgetBase::OnSuccessRegister(UResolutionAndWidgetDataAsset* L
 
 	UUserWidget* Widget = nullptr;
 
-	ManageWidgetsResolution->CreateWidgetAndAddViewprot(GetOwningPlayer(), WidgetSubClass, Resolution, Widget);
+	ManageWidgetsResolution->CreateWidgetAndAddViewport(GetOwningPlayer(), WidgetSubClass, Resolution, Widget);
 	if (IsValid(Widget))
 	{
 		ULoginUserWidgetBase* LoginWidget = Cast<ULoginUserWidgetBase>(Widget);
@@ -118,7 +118,7 @@ void URegisterUserWidgetBase::ToPreviousMenu()
 	TSubclassOf<UUserWidget> WidgetSubClass = UUIBlueprintFunctionLibrary::GetWidgetSubClassForCurrentScreen(this, WidgetDataAsset);
 	UUserWidget* Widget = nullptr;
 
-	ManageWidgetsResolution->CreateWidgetAndAddViewprot(GetOwningPlayer(), WidgetSubClass, Resolution, Widget);
+	ManageWidgetsResolution->CreateWidgetAndAddViewport(GetOwningPlayer(), WidgetSubClass, Resolution, Widget);
 
 	AZSPlayerController* PlayerController = Cast<AZSPlayerController>(GetOwningPlayer());
 	if (IsValid(PlayerController))
