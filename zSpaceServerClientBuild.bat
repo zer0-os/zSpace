@@ -27,7 +27,7 @@ IF NOT EXIST "C:\%PROJECT_NAME%_Client" mkdir "C:\%PROJECT_NAME%_Client"
 call "%UE4_PATH%\Engine\Build\BatchFiles\Build.bat" "%PROJECT_NAME%Editor" win64 %CLIENTCONFIG% "%PROJECT_PATH%" -WaitMutex
 
 
-powershell.exe -command "git log -1 | Select-String -Pattern '^BuildLight: true' -Quiet > LightStatus"
+%SystemRoot%\system32\WindowsPowerShell\v1.0\powershell.exe -command "git log -1 | Select-String -Pattern '^BuildLight: true' -Quiet > LightStatus"
 
 for /f "tokens=*" %%a in ('type LightStatus') do set LightStatus=%%a
 
