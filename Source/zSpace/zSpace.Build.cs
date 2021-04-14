@@ -20,6 +20,8 @@ public class zSpace : ModuleRules
             , "JsonUtilities"
 			, "GameplayAbilities"
 			, "UniversalVoiceChatPro"
+			, "PhysicsCore"
+            , "MediaAssets"
 			});
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
@@ -27,7 +29,7 @@ public class zSpace : ModuleRules
         PublicIncludePathModuleNames.AddRange(new string[] { "OWSPlugin" });
 
         // Uncomment if you are using Slate UI
-        //PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore" });
+        PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore" });
 
         // Uncomment if you are using online features
         // PrivateDependencyModuleNames.Add("OnlineSubsystem");

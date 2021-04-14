@@ -6,6 +6,7 @@
 #include "OWSGameMode.h"
 #include "Camera/CameraComponent.h"
 #include "Components/InputComponent.h"
+#include "Components/DetectSurfaceTypeComponent/DetectSurfaceTypeComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Kismet/KismetSystemLibrary.h"
 
@@ -21,6 +22,10 @@ AZSCharacterWithAbilities::AZSCharacterWithAbilities(const FObjectInitializer& N
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraComponent"));
 	checkf(nullptr != CameraComponent, TEXT("The CameraComponent is nullptr."));
 	CameraComponent->SetupAttachment(SpringArmComponent, USpringArmComponent::SocketName);
+
+	DetectSurfaceTypeComponent = CreateDefaultSubobject<UDetectSurfaceTypeComponent>(TEXT("DetectSurfaceTypeComponent"));
+	checkf(nullptr != DetectSurfaceTypeComponent, TEXT("The DetectSurfaceTypeComponent is nullptr."));
+	AddOwnedComponent(DetectSurfaceTypeComponent);
 	
 }
 
