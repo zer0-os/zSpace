@@ -4,6 +4,7 @@
 #include "zSpace/UI/RegisterUserWidgetBase.h"
 
 #include "../BlueprintFunctionLibrary/UIBlueprintFunctionLibrary.h"
+#include "../PlayerController/ZSPlayerController.h"
 #include "../Components/ManageWidgetsResolution.h"
 #include "Components/EditableTextBox.h"
 #include "../Game/ZSpaceGameInstance.h"
@@ -43,6 +44,26 @@ void URegisterUserWidgetBase::NativePreConstruct()
 	}
 
 	BindOnTextCommittedEvent();
+
+	AZSPlayerController* PlayerController = Cast<AZSPlayerController>(GetOwningPlayer());
+	if (IsValid(PlayerController))
+	{
+		if (!PlayerController->OnEscButtonPressed.IsAlreadyBound(this, &URegisterUserWidgetBase::ToPreviousMenu))
+		{
+			PlayerController->OnEscButtonPressed.AddDynamic(this, &URegisterUserWidgetBase::ToPreviousMenu);
+		}
+	}
+}
+
+void URegisterUserWidgetBase::NativeDestruct()
+{
+	Super::NativeDestruct();
+
+	AZSPlayerController* PlayerController = Cast<AZSPlayerController>(GetOwningPlayer());
+	if (IsValid(PlayerController))
+	{
+		PlayerController->OnEscButtonPressed.RemoveDynamic(this, &URegisterUserWidgetBase::ToPreviousMenu);
+	}
 }
 
 void URegisterUserWidgetBase::BtnRegisterOnClicked()
@@ -65,7 +86,7 @@ void URegisterUserWidgetBase::BtnCancelOnClicked()
 	EResolution Resolution = UUIBlueprintFunctionLibrary::GetCurrentScreenResolutionEnum(this);
 	UUserWidget* Widget = nullptr;
 	
-	ManageWidgetsResolution->CreateWidgetAndAddViewprot(GetOwningPlayer(), WidgetSubClass, Resolution, Widget);
+	ManageWidgetsResolution->CreateWidgetAndAddViewport(GetOwningPlayer(), WidgetSubClass, Resolution, Widget);
 }
 
 void URegisterUserWidgetBase::OnSuccessRegister(UResolutionAndWidgetDataAsset* LoginDataAsset)
@@ -77,7 +98,7 @@ void URegisterUserWidgetBase::OnSuccessRegister(UResolutionAndWidgetDataAsset* L
 
 	UUserWidget* Widget = nullptr;
 
-	ManageWidgetsResolution->CreateWidgetAndAddViewprot(GetOwningPlayer(), WidgetSubClass, Resolution, Widget);
+	ManageWidgetsResolution->CreateWidgetAndAddViewport(GetOwningPlayer(), WidgetSubClass, Resolution, Widget);
 	if (IsValid(Widget))
 	{
 		ULoginUserWidgetBase* LoginWidget = Cast<ULoginUserWidgetBase>(Widget);
@@ -85,6 +106,24 @@ void URegisterUserWidgetBase::OnSuccessRegister(UResolutionAndWidgetDataAsset* L
 		{
 			LoginWidget->txtEmail->SetText(Email->GetText());
 		}
+	}
+
+	RemoveFromParent();
+}
+
+void URegisterUserWidgetBase::ToPreviousMenu()
+{
+	EResolution Resolution = UUIBlueprintFunctionLibrary::GetCurrentScreenResolutionEnum(this);
+	UResolutionAndWidgetDataAsset* WidgetDataAsset = IUIResolutionInterface::Execute_GetToPreviousMenuDataAsset(this);
+	TSubclassOf<UUserWidget> WidgetSubClass = UUIBlueprintFunctionLibrary::GetWidgetSubClassForCurrentScreen(this, WidgetDataAsset);
+	UUserWidget* Widget = nullptr;
+
+	ManageWidgetsResolution->CreateWidgetAndAddViewport(GetOwningPlayer(), WidgetSubClass, Resolution, Widget);
+
+	AZSPlayerController* PlayerController = Cast<AZSPlayerController>(GetOwningPlayer());
+	if (IsValid(PlayerController))
+	{
+		PlayerController->OnEscButtonPressed.RemoveDynamic(this, &URegisterUserWidgetBase::ToPreviousMenu);
 	}
 
 	RemoveFromParent();

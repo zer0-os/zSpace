@@ -4,18 +4,21 @@
 
 #include "CoreMinimal.h"
 #include "OWSLoginWidget.h"
+#include "../Interfaces/UIResolutionInterface.h"
 #include "LoginUserWidgetBase.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class ZSPACE_API ULoginUserWidgetBase : public UOWSLoginWidget
+class ZSPACE_API ULoginUserWidgetBase : public UOWSLoginWidget, public IUIResolutionInterface
 {
 	GENERATED_BODY()
 
 protected:
 	virtual void NativePreConstruct() override;
+
+	virtual void NativeDestruct() override;
 
 public:
 	UPROPERTY(BlueprintReadWrite, meta=(BindWidgetOptional))
@@ -29,4 +32,7 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCosmetic)
 	void OnPressedEnter();
+
+	UFUNCTION()
+	void ToPreviousMenu();
 };
