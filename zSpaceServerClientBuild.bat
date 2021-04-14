@@ -44,7 +44,7 @@ set SERVER_EXE_PATH=%ARCHIVEDIRECTORY%\WindowsServer\%PROJECT_NAME%\Binaries\Win
 
 set MOVE_SERVER_EXE_PATH=%ARCHIVEDIRECTORY%\WindowsNoEditor\%PROJECT_NAME%\Binaries\Win64\
 
-if exist "%SERVER_EXE_PATH%" (
+if exist ( "%SERVER_EXE_PATH%" ) (
 	echo "Z Space: copying exe" 
 	echo "Info xcopy %SERVER_PATH% %ARCHIVEDIRECTORY_CLIENT%"
 	xcopy /Y /E /I "%SERVER_PATH%" "%ARCHIVEDIRECTORY_CLIENT%"
