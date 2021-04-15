@@ -24,6 +24,8 @@ IF NOT EXIST %ARCHIVEDIRECTORY% mkdir "%ARCHIVEDIRECTORY%"
 IF NOT EXIST "C:\%PROJECT_NAME%_Client" mkdir "C:\%PROJECT_NAME%_Client"
 
  
+fsutil file createnew LightStatus 1
+
 call "%UE4_PATH%\Engine\Build\BatchFiles\Build.bat" "%PROJECT_NAME%Editor" win64 %CLIENTCONFIG% "%PROJECT_PATH%" -WaitMutex
 
 
