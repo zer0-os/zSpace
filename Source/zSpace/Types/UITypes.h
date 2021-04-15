@@ -92,7 +92,10 @@ public:
 	class UMediaSource* MediaSource = nullptr;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	class UMaterialInterface* VideoMaterial; 
+	class UMaterialInterface* VideoMaterial;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	class USoundBase* MenuSound = nullptr;
 };
 
 

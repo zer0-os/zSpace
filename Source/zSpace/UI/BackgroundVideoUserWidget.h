@@ -19,6 +19,9 @@ protected:
 	UFUNCTION()
 	void OnChangedWidget(class UUserWidget* Widget, EWidgetType WidgetType);
 	
+	UFUNCTION()
+	void OnEndReachedVideo();
+	
 public:
 	UPROPERTY(BlueprintReadOnly, meta=(BindWidget))
 	class UImage* BackgroundVideo = nullptr;
@@ -32,6 +35,12 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	class UMediaSource* MediaSource = nullptr;
 	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	class USoundBase* MenuSound = nullptr;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	class UAudioComponent* SoundComponent = nullptr;
+		
 public:
 	UFUNCTION(BlueprintCallable)
 	void CheckVideoAndPlay(FBackgroundVideo BackgroundVideoInfo);
