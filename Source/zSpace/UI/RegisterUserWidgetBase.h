@@ -18,6 +18,8 @@ class ZSPACE_API URegisterUserWidgetBase : public UOWSLoginWidget, public IUIRes
 protected:
 	virtual void NativePreConstruct() override;
 
+	virtual void NativeDestruct() override;
+
 	UFUNCTION()
 	void BtnRegisterOnClicked();
 
@@ -26,6 +28,9 @@ protected:
 
 	UFUNCTION(BlueprintCallable, BlueprintCosmetic)
 	void OnSuccessRegister(class UResolutionAndWidgetDataAsset* LoginDataAsset);
+
+	UFUNCTION()
+	void ToPreviousMenu();
 
 public:
 	UPROPERTY(BlueprintReadOnly)
@@ -44,11 +49,17 @@ public:
 	class UEditableTextBox* Password = nullptr;
 
 	UPROPERTY(BlueprintReadWrite, meta=(BindWidget))
-	class UButton* BtnRegister = nullptr;
+	class UZSpaceButton* BtnRegister = nullptr;
 	
 	UPROPERTY(BlueprintReadWrite, meta=(BindWidget))
 	class UButton* BtnCancel = nullptr;
 
 	UPROPERTY(EditDefaultsOnly)
 	class UResolutionAndWidgetDataAsset* PreLoginDataAsset = nullptr;
+
+protected:
+	void BindOnTextCommittedEvent();
+
+	UFUNCTION()
+	void OnTextCommitted(const FText& Text, ETextCommit::Type CommitMethod);
 };

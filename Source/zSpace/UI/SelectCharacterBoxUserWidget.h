@@ -29,6 +29,9 @@ public:
 	class UImage* BackgroundImage = nullptr;
 
 	UPROPERTY(BlueprintReadWrite, meta=(BindWidget))
+	class UZSpaceButton* SelectButton = nullptr;
+
+	UPROPERTY(BlueprintReadWrite, meta=(BindWidget))
 	class UButton* EditModeButton = nullptr;
 
 	UPROPERTY(BlueprintReadWrite, meta=(BindWidget))
@@ -38,7 +41,7 @@ public:
 	class UButton* RemoveCharacterButton = nullptr;
 
 	UPROPERTY(BlueprintReadWrite, meta=(BindWidget))
-	class UButton* DoneEditModeButton = nullptr;
+	class UZSpaceButton* DoneEditModeButton = nullptr;
 
 	UPROPERTY(BlueprintReadWrite, meta=(BindWidget))
 	class UWidgetSwitcher* WidgetSwitcherDoneEditMode = nullptr;

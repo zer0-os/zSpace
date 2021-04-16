@@ -37,6 +37,9 @@ public:
 private:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess=true), Category="BoneName")
+	TArray<TEnumAsByte<EObjectTypeQuery> >  ObjectTypes;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess=true), Category="BoneName")
 	FString LeftFootBoneName = "foot_l";
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess=true), Category="BoneName")
@@ -49,7 +52,9 @@ private:
 	
 	FVector GetFootLocationByCharacterFootType(ECharacterFootType NewCharacterFootType);
 
-	void PlayRandomSound(FCharacterUnderFootSurfaceData NewCharacterUnderFootSurfaceData, const FVector & NewLocation);
+	void PlayRandomSound(const FCharacterUnderFootSurfaceData & NewCharacterUnderFootSurfaceData, const FVector & NewLocation);
+	
+	void SpawnParticle(const FCharacterUnderFootSurfaceData & NewCharacterUnderFootSurfaceData, const FVector & NewLocation);
 	
 public:	
 

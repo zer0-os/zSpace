@@ -16,7 +16,12 @@ struct FCharacterUnderFootSurfaceData
 	UPhysicalMaterial *  PhysicalMaterial = nullptr;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess=true))
-	TArray<class USoundBase *> SurfaceSoundBaseArray;
+	TArray<TSoftObjectPtr<class USoundBase >> SurfaceSoundBaseArray;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess=true))
+	TSoftObjectPtr<class UParticleSystem > SurfaceParticleSystem;
+
+	
 	
 };
 

@@ -3,6 +3,7 @@
 
 #include "zSpace/UI/SelectCharacterBoxUserWidget.h"
 #include <Components/WidgetSwitcher.h>
+#include "zSpace/UI/ZSpaceButton.h"
 #include <Components/TextBlock.h>
 #include <Components/Button.h>
 #include <Components/Image.h>
@@ -22,8 +23,8 @@ void USelectCharacterBoxUserWidget::NativePreConstruct()
 
 void USelectCharacterBoxUserWidget::SetupWidget(const FCharacterSelectBoxInfo& CharacterSelectBoxInfo)
 {
-	PlayerName->SetText(FText::FromString(CharacterSelectBoxInfo.PlayerName));
-	PlayerLevel->SetText(FText::FromString(CharacterSelectBoxInfo.PlayerLevel));
+	PlayerName->SetText(FText::FromString(CharacterSelectBoxInfo.CharacterName));
+	PlayerLevel->SetText(FText::FromString(CharacterSelectBoxInfo.CharacterLevel));
 }
 
 void USelectCharacterBoxUserWidget::OnClickedEditModeButton()
