@@ -4,13 +4,15 @@
 #include "zSpace/UI/RegisterUserWidgetBase.h"
 
 #include "../BlueprintFunctionLibrary/UIBlueprintFunctionLibrary.h"
+#include "../PlayerController/ZSPlayerController.h"
 #include "../Components/ManageWidgetsResolution.h"
-#include <Components/EditableTextBox.h>
+#include "Components/EditableTextBox.h"
 #include "../Game/ZSpaceGameInstance.h"
-#include <Components/Button.h>
-#include "../Types/UITypes.h"
+#include "Kismet/KismetSystemLibrary.h"
+#include "zSpace/UI/ZSpaceButton.h"
 #include "LoginUserWidgetBase.h"
-#include <Kismet/KismetSystemLibrary.h>
+#include "Components/Button.h"
+#include "../Types/UITypes.h"
 
 void URegisterUserWidgetBase::NativePreConstruct()
 {
@@ -18,9 +20,13 @@ void URegisterUserWidgetBase::NativePreConstruct()
 
 	if (IsValid(BtnRegister))
 	{
-		if (!BtnRegister->OnClicked.IsAlreadyBound(this, &URegisterUserWidgetBase::BtnRegisterOnClicked))
+		UButton* Button = BtnRegister->ButtonWidget;
+		if (IsValid(Button))
 		{
-			BtnRegister->OnClicked.AddDynamic(this, &URegisterUserWidgetBase::BtnRegisterOnClicked);
+			if (!Button->OnClicked.IsAlreadyBound(this, &URegisterUserWidgetBase::BtnRegisterOnClicked))
+			{
+				Button->OnClicked.AddDynamic(this, &URegisterUserWidgetBase::BtnRegisterOnClicked);
+			}
 		}
 	}
 	if (IsValid(BtnCancel))
@@ -35,6 +41,28 @@ void URegisterUserWidgetBase::NativePreConstruct()
 	if (IsValid(GameInstance))
 	{
 		ManageWidgetsResolution = GameInstance->GetManageWidgetsResolution();
+	}
+
+	BindOnTextCommittedEvent();
+
+	AZSPlayerController* PlayerController = Cast<AZSPlayerController>(GetOwningPlayer());
+	if (IsValid(PlayerController))
+	{
+		if (!PlayerController->OnEscButtonPressed.IsAlreadyBound(this, &URegisterUserWidgetBase::ToPreviousMenu))
+		{
+			PlayerController->OnEscButtonPressed.AddDynamic(this, &URegisterUserWidgetBase::ToPreviousMenu);
+		}
+	}
+}
+
+void URegisterUserWidgetBase::NativeDestruct()
+{
+	Super::NativeDestruct();
+
+	AZSPlayerController* PlayerController = Cast<AZSPlayerController>(GetOwningPlayer());
+	if (IsValid(PlayerController))
+	{
+		PlayerController->OnEscButtonPressed.RemoveDynamic(this, &URegisterUserWidgetBase::ToPreviousMenu);
 	}
 }
 
@@ -58,7 +86,7 @@ void URegisterUserWidgetBase::BtnCancelOnClicked()
 	EResolution Resolution = UUIBlueprintFunctionLibrary::GetCurrentScreenResolutionEnum(this);
 	UUserWidget* Widget = nullptr;
 	
-	ManageWidgetsResolution->CreateWidgetAndAddViewprot(GetOwningPlayer(), WidgetSubClass, Resolution, Widget);
+	ManageWidgetsResolution->CreateWidgetAndAddViewport(GetOwningPlayer(), WidgetSubClass, Resolution, Widget);
 }
 
 void URegisterUserWidgetBase::OnSuccessRegister(UResolutionAndWidgetDataAsset* LoginDataAsset)
@@ -70,7 +98,7 @@ void URegisterUserWidgetBase::OnSuccessRegister(UResolutionAndWidgetDataAsset* L
 
 	UUserWidget* Widget = nullptr;
 
-	ManageWidgetsResolution->CreateWidgetAndAddViewprot(GetOwningPlayer(), WidgetSubClass, Resolution, Widget);
+	ManageWidgetsResolution->CreateWidgetAndAddViewport(GetOwningPlayer(), WidgetSubClass, Resolution, Widget);
 	if (IsValid(Widget))
 	{
 		ULoginUserWidgetBase* LoginWidget = Cast<ULoginUserWidgetBase>(Widget);
@@ -81,5 +109,47 @@ void URegisterUserWidgetBase::OnSuccessRegister(UResolutionAndWidgetDataAsset* L
 	}
 
 	RemoveFromParent();
+}
+
+void URegisterUserWidgetBase::ToPreviousMenu()
+{
+	EResolution Resolution = UUIBlueprintFunctionLibrary::GetCurrentScreenResolutionEnum(this);
+	UResolutionAndWidgetDataAsset* WidgetDataAsset = IUIResolutionInterface::Execute_GetToPreviousMenuDataAsset(this);
+	TSubclassOf<UUserWidget> WidgetSubClass = UUIBlueprintFunctionLibrary::GetWidgetSubClassForCurrentScreen(this, WidgetDataAsset);
+	UUserWidget* Widget = nullptr;
+
+	ManageWidgetsResolution->CreateWidgetAndAddViewport(GetOwningPlayer(), WidgetSubClass, Resolution, Widget);
+
+	AZSPlayerController* PlayerController = Cast<AZSPlayerController>(GetOwningPlayer());
+	if (IsValid(PlayerController))
+	{
+		PlayerController->OnEscButtonPressed.RemoveDynamic(this, &URegisterUserWidgetBase::ToPreviousMenu);
+	}
+
+	RemoveFromParent();
+}
+
+void URegisterUserWidgetBase::BindOnTextCommittedEvent()
+{
+	auto Bind = [this] (UEditableTextBox* EditableTextBox) -> void
+	{
+		if (IsValid(EditableTextBox) && !EditableTextBox->OnTextCommitted.IsAlreadyBound(this, &URegisterUserWidgetBase::OnTextCommitted))
+		{
+			EditableTextBox->OnTextCommitted.AddDynamic(this, &URegisterUserWidgetBase::OnTextCommitted);
+		}
+	};
+
+ 	Bind(FirstName);
+ 	Bind(LastName);
+ 	Bind(Email);
+ 	Bind(Password);
+}
+
+void URegisterUserWidgetBase::OnTextCommitted(const FText& Text, ETextCommit::Type CommitMethod)
+{
+	if (CommitMethod == ETextCommit::OnEnter)
+	{
+		BtnRegisterOnClicked();
+	}
 }
 

@@ -25,4 +25,10 @@ class ZSPACE_API IUIResolutionInterface
 public:
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	EWidgetType GetWidgetType();
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+	class UResolutionAndWidgetDataAsset* GetToPreviousMenuDataAsset();
+	
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+	FBackgroundVideo GetBackgroundVideo();
 };
