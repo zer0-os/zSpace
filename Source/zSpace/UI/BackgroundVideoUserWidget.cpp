@@ -7,7 +7,9 @@
 #include "zSpace/Interfaces/UIResolutionInterface.h"
 #include "zSpace/Game/ZSpaceGameInstance.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include "Components/AudioComponent.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Kismet/GameplayStatics.h"
 #include "Components/Image.h"
 #include "MediaPlayer.h"
 
@@ -41,6 +43,13 @@ void UBackgroundVideoUserWidget::OnChangedWidget(UUserWidget* Widget, EWidgetTyp
 	}
 }
 
+void UBackgroundVideoUserWidget::OnEndReachedVideo()
+{
+	// UKismetSystemLibrary::PrintString(this, "END");
+	MediaPlayer->Seek(FTimespan::Zero());
+	//MediaPlayer->Reopen();
+}
+
 void UBackgroundVideoUserWidget::CheckVideoAndPlay(FBackgroundVideo BackgroundVideoInfo)
 {
 	if (BackgroundVideoInfo.VideoMaterial != BackgroundVideo->Brush.GetResourceObject())
@@ -57,6 +66,7 @@ void UBackgroundVideoUserWidget::CheckVideoAndPlay(FBackgroundVideo BackgroundVi
  			{
  				MediaPlayer->OpenSource(BackgroundVideoInfo.MediaSource);
  				MediaSource = BackgroundVideoInfo.MediaSource;
+ 				
  				// UKismetSystemLibrary::PrintString(this, "NEW_1");
  			}
  		}
@@ -70,5 +80,26 @@ void UBackgroundVideoUserWidget::CheckVideoAndPlay(FBackgroundVideo BackgroundVi
  			MediaSource = BackgroundVideoInfo.MediaSource;
  			// UKismetSystemLibrary::PrintString(this, "NEW_2");
 		}
+	}
+
+	if (MenuSound != BackgroundVideoInfo.MenuSound)
+	{
+		MenuSound = BackgroundVideoInfo.MenuSound;
+		
+		if (IsValid(SoundComponent))
+		{
+			SoundComponent->Stop();
+			SoundComponent->SetSound(MenuSound);
+			SoundComponent->Play();
+		}
+		else
+		{
+ 			SoundComponent = UGameplayStatics::SpawnSound2D(this, MenuSound);
+		}
+	}
+
+	if (IsValid(MediaPlayer))
+	{
+		MediaPlayer->OnEndReached.AddUniqueDynamic(this, &UBackgroundVideoUserWidget::OnEndReachedVideo);
 	}
 }
