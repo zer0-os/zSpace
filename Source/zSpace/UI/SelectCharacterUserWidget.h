@@ -7,6 +7,9 @@
 #include "zSpace/Types/UITypes.h"
 #include "../Interfaces/UIResolutionInterface.h"
 #include "OWSPlayerController.h"
+#include "Chaos/AABB.h"
+#include "Chaos/AABB.h"
+
 #include "SelectCharacterUserWidget.generated.h"
 
 /**
@@ -35,6 +38,9 @@ public:
 	UPROPERTY(BlueprintReadOnly)
 	class USelectCharacterBoxUserWidget* SelectedCharacterBoxUserWidget = nullptr;
 
+	// UPROPERTY()
+	// TArray<class USelectCharacterBoxUserWidget*> CharacterBoxes;
+
 	UPROPERTY(BlueprintReadWrite, meta=(BindWidget))
 	class UBorder* SelectCharacterMiddleCanvas = nullptr;
 
@@ -58,11 +64,8 @@ public:
 	
 public:
 	UFUNCTION(BlueprintCallable, BlueprintCosmetic)
-	void CreateCharacterSelectBox(const FCharacterSelectBoxInfo& CharacterSelectBoxInfo);
+	void CreateCharacterSelectBox(const FCharacterSelectBoxInfo& CharacterSelectBoxInfo, class UBorder* ParentBorder);
 
 	UFUNCTION(BlueprintCallable, BlueprintCosmetic)
-	void ShowCharacters(TArray<FUserCharacter>& UserCharacters, int32 CurrentCharacterIndex);
-
-public:
-	EWidgetType GetWidgetType_Implementation() override;
+	void ShowCharacters(const TArray<FUserCharacter>& UserCharacters, const int32 CurrentCharacterIndex);
 };

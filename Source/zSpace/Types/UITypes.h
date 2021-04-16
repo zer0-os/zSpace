@@ -70,10 +70,10 @@ struct ZSPACE_API FCharacterSelectBoxInfo
 	GENERATED_USTRUCT_BODY()
 public:
 	UPROPERTY(BlueprintReadWrite)
-	FString PlayerName;
+	FString CharacterName;
 
 	UPROPERTY(BlueprintReadWrite)
-	FString PlayerLevel;
+	FString CharacterLevel;
 
 	UPROPERTY(BlueprintReadWrite)
 	UTexture2D* BackgroundImage = nullptr;
