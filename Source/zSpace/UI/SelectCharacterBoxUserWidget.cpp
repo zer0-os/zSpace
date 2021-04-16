@@ -23,8 +23,8 @@ void USelectCharacterBoxUserWidget::NativePreConstruct()
 
 void USelectCharacterBoxUserWidget::SetupWidget(const FCharacterSelectBoxInfo& CharacterSelectBoxInfo)
 {
-	PlayerName->SetText(FText::FromString(CharacterSelectBoxInfo.PlayerName));
-	PlayerLevel->SetText(FText::FromString(CharacterSelectBoxInfo.PlayerLevel));
+	PlayerName->SetText(FText::FromString(CharacterSelectBoxInfo.CharacterName));
+	PlayerLevel->SetText(FText::FromString(CharacterSelectBoxInfo.CharacterLevel));
 }
 
 void USelectCharacterBoxUserWidget::OnClickedEditModeButton()
