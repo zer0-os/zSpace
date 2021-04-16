@@ -94,7 +94,7 @@ void UDetectSurfaceTypeComponent::PutFootOnGround(ECharacterFootType NewCharacte
 			if(IterHitResult.bBlockingHit && IterHitResult.PhysMaterial.IsValid() )
 			{
 				UPhysicalMaterial * L_PhysicalMaterial = IterHitResult.PhysMaterial.Get();
-				//UE_LOG(LogTemp, Log, TEXT(" %s ***************** Physics Material name = %s"), *IterHitResult.Actor->GetName(), *L_PhysicalMaterial->GetName());
+				//UE_LOG(LogTemp, Log, TEXT("CompoentName =  %s ,  Actor Name %s ***************** Physics Material name = %s"), *IterHitResult.Component->GetName(), *IterHitResult.Actor->GetName(), *L_PhysicalMaterial->GetName());
 				if(CharacterUnderFootSurfaceDA)
 				{
 					bool bIsValid = false;
