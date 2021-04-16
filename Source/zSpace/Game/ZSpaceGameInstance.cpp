@@ -8,6 +8,7 @@
 
 UZSpaceGameInstance::UZSpaceGameInstance(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
+	
 }
 
 void UZSpaceGameInstance::InitManageWidgetsResolution()
@@ -36,3 +37,13 @@ void UZSpaceGameInstance::Init()
 		InitManageWidgetsResolution();
 	}
 }
+
+void UZSpaceGameInstance::SetNextMapPortal()
+{
+	bNextMapPortal = true;
+	GetWorld()->GetTimerManager().SetTimer(TimeHandleNextMapPortal, [&] ()
+	{
+		bNextMapPortal = false;	
+	}, 1, false);
+}
+

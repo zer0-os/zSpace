@@ -17,7 +17,7 @@ UDetectSurfaceTypeComponent::UDetectSurfaceTypeComponent()
 	PrimaryComponentTick.bCanEverTick = false;
 		
 	//EObjectTypeQuery> >  ObjectTypes
-	ObjectTypes.Add( UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_GameTraceChannel3));
+	ObjectTypes.Add( UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_GameTraceChannel4));
 	ObjectTypes.Add( UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_WorldStatic));
 	
 	// ...
