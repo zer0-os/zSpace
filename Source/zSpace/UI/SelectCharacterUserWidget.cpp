@@ -3,22 +3,18 @@
 
 #include "zSpace/UI/SelectCharacterUserWidget.h"
 
+#include "../BlueprintFunctionLibrary/UIBlueprintFunctionLibrary.h"
+#include "../PlayerController/ZSPlayerController.h"
+#include "../Components/ManageWidgetsResolution.h"
 #include <MediaAssets/Public/MediaSource.h>
 #include <MediaAssets/Public/MediaPlayer.h>
 #include "SelectCharacterBoxUserWidget.h"
 #include <Kismet/KismetSystemLibrary.h>
+#include "../Game/ZSpaceGameInstance.h"
 #include <Components/BorderSlot.h>
 #include "Components/Border.h"
-#include "../BlueprintFunctionLibrary/UIBlueprintFunctionLibrary.h"
 #include "../Types/UITypes.h"
-#include "../PlayerController/ZSPlayerController.h"
-#include "../Components/ManageWidgetsResolution.h"
-#include "../Game/ZSpaceGameInstance.h"
-
-EWidgetType USelectCharacterUserWidget::GetWidgetType_Implementation()
-{
-	return EWidgetType::SelectCharacter;
-}
+#include "Components/WidgetSwitcher.h"
 
 void USelectCharacterUserWidget::NativePreConstruct()
 {
@@ -104,20 +100,22 @@ void USelectCharacterUserWidget::HideCreateNewCharacterWidget()
 	}
 }
 
-void USelectCharacterUserWidget::CreateCharacterSelectBox(const FCharacterSelectBoxInfo& CharacterSelectBoxInfo)
+void USelectCharacterUserWidget::CreateCharacterSelectBox(const FCharacterSelectBoxInfo& CharacterSelectBoxInfo, UBorder* ParentBorder)
 {
+	if (!IsValid(ParentBorder)) return;
 	check(SelectCharacterBoxSubClass);
 
-	if (IsValid(SelectedCharacterBoxUserWidget))
+	USelectCharacterBoxUserWidget* CharacterBox = Cast<USelectCharacterBoxUserWidget>(ParentBorder->GetChildAt(0));
+	if (IsValid(CharacterBox))
 	{
-		SelectedCharacterBoxUserWidget->SetupWidget(CharacterSelectBoxInfo);
+		CharacterBox->SetupWidget(CharacterSelectBoxInfo);
 		return;
 	}
 
-	SelectedCharacterBoxUserWidget = CreateWidget<USelectCharacterBoxUserWidget>(GetOwningPlayer(), SelectCharacterBoxSubClass);
-	if (IsValid(SelectedCharacterBoxUserWidget))
+	auto* NewWidget = CreateWidget<USelectCharacterBoxUserWidget>(GetOwningPlayer(), SelectCharacterBoxSubClass);
+	if (IsValid(NewWidget))
 	{
-		UPanelSlot* PanelSlot = SelectCharacterMiddleCanvas->AddChild(SelectedCharacterBoxUserWidget);
+		UPanelSlot* PanelSlot = ParentBorder->AddChild(NewWidget);
 		UBorderSlot* BorderPanelSlot = Cast<UBorderSlot>(PanelSlot);
 		if (IsValid(BorderPanelSlot))
 		{
@@ -125,34 +123,42 @@ void USelectCharacterUserWidget::CreateCharacterSelectBox(const FCharacterSelect
 			BorderPanelSlot->SetHorizontalAlignment(HAlign_Fill);
 			BorderPanelSlot->SetVerticalAlignment(VAlign_Fill);
 
-			SelectedCharacterBoxUserWidget->SetupWidget(CharacterSelectBoxInfo);
+			NewWidget->SetupWidget(CharacterSelectBoxInfo);
 		}
 	}
 }
 
-void USelectCharacterUserWidget::ShowCharacters(TArray<FUserCharacter>& UserCharacters, int32 CurrentCharacterIndex)
+void USelectCharacterUserWidget::ShowCharacters(const TArray<FUserCharacter>& UserCharacters, const int32 CurrentCharacterIndex)
 {
-	if (UserCharacters.IsValidIndex(CurrentCharacterIndex))
+	auto CheckAndCreate = [this, UserCharacters](const int32 CheckIndex, UBorder* Border) -> void
 	{
-		FUserCharacter& CurrentSelectedCharacter = UserCharacters[CurrentCharacterIndex];
-
-		if (UserCharacters.Num() >= 1)
+		if (UserCharacters.IsValidIndex(CheckIndex))
 		{
-			for (FUserCharacter& User : UserCharacters)
+			FCharacterSelectBoxInfo	CharacterInfo;	
+			const FUserCharacter& UserCharacter = UserCharacters[CheckIndex];
+			CharacterInfo.CharacterName = UserCharacter.CharacterName;
+			CharacterInfo.CharacterLevel = FString::FromInt(UserCharacter.Level);
+			CreateCharacterSelectBox(CharacterInfo, Border);
+			auto* Child = Cast<USelectCharacterBoxUserWidget>(Border->GetChildAt(0));
+			if (IsValid(Child))
 			{
-				if (User.CharacterName != CurrentSelectedCharacter.CharacterName)
-				{
-					if (SelectCharacterLeftCanvas->GetAllChildren().Num() == 0)
-					{
-						// CreateWidget<>()
-
-					}
-					else if (SelectCharacterRightCanvas->GetAllChildren().Num() == 0)
-					{
-
-					}
-				}
+				const bool bIsShowButtons =  Border == SelectCharacterMiddleCanvas;
+				Child->WidgetSwitcherEditMode->SetVisibility(bIsShowButtons ? ESlateVisibility::Visible : ESlateVisibility::Collapsed);
+				Child->WidgetSwitcherDoneEditMode->SetVisibility(bIsShowButtons ? ESlateVisibility::Visible : ESlateVisibility::Collapsed);
+			}
+			
+		}
+		else
+		{
+			auto* Child = Border->GetChildAt(0);
+			if (IsValid(Child))
+			{
+				Child->RemoveFromParent();
 			}
 		}
-	}
+	};
+
+	CheckAndCreate(CurrentCharacterIndex, SelectCharacterMiddleCanvas);
+	CheckAndCreate(CurrentCharacterIndex - 1, SelectCharacterLeftCanvas);
+	CheckAndCreate(CurrentCharacterIndex + 1, SelectCharacterRightCanvas);
 }
