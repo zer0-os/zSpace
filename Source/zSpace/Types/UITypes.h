@@ -54,6 +54,16 @@ public:
 	TSubclassOf<class UUserWidget> GetWidget(EResolution ResolutionEnum);
 };
 
+UCLASS(BlueprintType)
+class ZSPACE_API UUseResolutionInGame : public UDataAsset
+{
+	GENERATED_BODY()
+
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TArray<EResolution> Resolutions;
+};
+
 UENUM(BlueprintType)
 enum class EWidgetType : uint8
 {
