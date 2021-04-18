@@ -20,7 +20,7 @@ enum class EResolution : uint8
 };
 
 UCLASS(BlueprintType)
-class ZSPACE_API UConverEResolutionToFIntPointOrViceVersa : public UObject
+class ZSPACE_API UConvertEResolutionToFIntPointOrViceVersa : public UObject
 {
 	GENERATED_BODY()
 public:

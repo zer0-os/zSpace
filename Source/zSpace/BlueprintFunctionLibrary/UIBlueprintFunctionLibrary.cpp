@@ -19,7 +19,7 @@ TSubclassOf<class UUserWidget>UUIBlueprintFunctionLibrary::GetWidgetSubClassForC
 	const FIntPoint ScreenResolution = UUIBlueprintFunctionLibrary::GetCurrentScreenResolution(WorldContext);
 
 	// Get Enum Resolution For Current Resolution
-	EResolution Resolution = UConverEResolutionToFIntPointOrViceVersa::GetEnumResolution(WorldContext, ScreenResolution);
+	EResolution Resolution = UConvertEResolutionToFIntPointOrViceVersa::GetEnumResolution(WorldContext, ScreenResolution);
 	if (Resolution == EResolution::None)
 	{
 		Resolution = EResolution::R_1920X1080;
@@ -43,7 +43,7 @@ FIntPoint UUIBlueprintFunctionLibrary::GetCurrentScreenResolution(const UObject*
 EResolution UUIBlueprintFunctionLibrary::GetCurrentScreenResolutionEnum(const UObject* WorldContext)
 {
 	const FIntPoint ScreenResolution = UUIBlueprintFunctionLibrary::GetCurrentScreenResolution(WorldContext);
-	EResolution Resolution = UConverEResolutionToFIntPointOrViceVersa::GetEnumResolution(WorldContext, ScreenResolution);
+	EResolution Resolution = UConvertEResolutionToFIntPointOrViceVersa::GetEnumResolution(WorldContext, ScreenResolution);
 	if (Resolution == EResolution::None)
 	{
 		Resolution = EResolution::R_1920X1080;
@@ -65,7 +65,7 @@ class UUserWidget* UUIBlueprintFunctionLibrary::GetWidgetByWidgetType(const UObj
 		if (IsValid(ManageWidgetsResolution))
 		{
 			const FIntPoint ScreenResolution = UUIBlueprintFunctionLibrary::GetCurrentScreenResolution(WorldContext);
-			EResolution Resolution = UConverEResolutionToFIntPointOrViceVersa::GetEnumResolution(WorldContext, ScreenResolution);
+			EResolution Resolution = UConvertEResolutionToFIntPointOrViceVersa::GetEnumResolution(WorldContext, ScreenResolution);
 			if (Resolution == EResolution::None)
 			{
 				Resolution = EResolution::R_1920X1080;
