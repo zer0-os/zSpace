@@ -3,7 +3,7 @@
 
 #include "zSpace/Types/UITypes.h"
 
-FIntPoint UConverEResolutionToFIntPointOrViceVersa::GetIntPoint(const UObject* WorldContext, EResolution Resolution)
+FIntPoint UConvertEResolutionToFIntPointOrViceVersa::GetIntPoint(const UObject* WorldContext, EResolution Resolution)
 {
 	switch (Resolution)
 	{
@@ -22,7 +22,7 @@ FIntPoint UConverEResolutionToFIntPointOrViceVersa::GetIntPoint(const UObject* W
 	}
 }
 
-EResolution UConverEResolutionToFIntPointOrViceVersa::GetEnumResolution(const UObject* WorldContext, FIntPoint Resolution)
+EResolution UConvertEResolutionToFIntPointOrViceVersa::GetEnumResolution(const UObject* WorldContext, FIntPoint Resolution)
 {
 	if (Resolution.X == 5120 && Resolution.Y == 1440) return EResolution::R_5120X1440;
 	if (Resolution.X == 1920 && Resolution.Y == 1080) return EResolution::R_1920X1080;

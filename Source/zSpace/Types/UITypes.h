@@ -20,7 +20,7 @@ enum class EResolution : uint8
 };
 
 UCLASS(BlueprintType)
-class ZSPACE_API UConverEResolutionToFIntPointOrViceVersa : public UObject
+class ZSPACE_API UConvertEResolutionToFIntPointOrViceVersa : public UObject
 {
 	GENERATED_BODY()
 public:
@@ -52,6 +52,16 @@ public:
 
 	UFUNCTION(BlueprintPure)
 	TSubclassOf<class UUserWidget> GetWidget(EResolution ResolutionEnum);
+};
+
+UCLASS(BlueprintType)
+class ZSPACE_API UUseResolutionInGame : public UDataAsset
+{
+	GENERATED_BODY()
+
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TArray<EResolution> Resolutions;
 };
 
 UENUM(BlueprintType)
