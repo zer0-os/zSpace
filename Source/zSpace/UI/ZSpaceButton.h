@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+#include <Sound/SlateSound.h>
 #include "ZSpaceButton.generated.h"
 
 /**
@@ -34,4 +35,10 @@ public:
 
 	UPROPERTY(EditAnywhere, Category="Button")
 	class UTexture2D* ButtonPressedImage = nullptr;
+	
+	UPROPERTY(EditAnywhere, Category="Button")
+	FSlateSound ButtonPresedSound;  
+
+	UPROPERTY(EditAnywhere, Category="Button")
+	FSlateSound ButtonHoveredSound;  
 };
