@@ -12,7 +12,8 @@
 				"Engine",
 				"UMG",
 				"GameplayAbilities",
-				"OWSPlugin"
+				"OWSPlugin",
+				"CoreUObject"
 			]
 		}
 	],
