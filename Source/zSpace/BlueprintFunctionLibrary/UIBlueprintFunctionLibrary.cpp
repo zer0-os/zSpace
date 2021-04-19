@@ -70,6 +70,32 @@ TArray<EResolution> UUIBlueprintFunctionLibrary::GetAllResolutionExceptChoseReso
 	return Result;
 }
 
+FString UUIBlueprintFunctionLibrary::GetResolutionByEnum(const UObject* WorldContext, const EResolution Resolution, TEnumAsByte<EWindowMode::Type> WindowMode)
+{
+	auto GetWindowMode = [WindowMode]() -> char
+	{
+		switch (WindowMode)
+		{
+		case EWindowMode::Type::Fullscreen: return 'f';
+		case EWindowMode::Type::Windowed: return 'w';
+		case EWindowMode::Type::WindowedFullscreen: return 'w';
+		default: return '\0';
+		}	
+	};
+
+	FString ResolutionString;
+	
+	switch (Resolution)
+	{
+	case EResolution::R_5120X1440: return ResolutionString = "5120x1440";
+	case EResolution::R_1920X1080: return ResolutionString = "1920x1080";
+	case EResolution::R_1440X900: return ResolutionString = "1440x900";
+	default: ResolutionString = "1920x1080";
+	}
+
+	return ResolutionString + GetWindowMode();
+}
+
 class UUserWidget* UUIBlueprintFunctionLibrary::GetWidgetByWidgetType(const UObject* WorldContext, EWidgetType WidgetType)
 {
 	if (!IsValid(GEngine)) return nullptr;
