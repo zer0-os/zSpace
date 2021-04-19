@@ -67,6 +67,29 @@ public:
 };
 
 UENUM(BlueprintType)
+enum class EResolutionButtonStyleType : uint8
+{
+	NormalStyle,
+	ActiveStyle
+};
+
+UCLASS(BlueprintType)
+class ZSPACE_API UButtonStyleByResolution : public UDataAsset
+{
+	GENERATED_BODY()
+
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TMap<EResolution, FButtonStyle> NormalStyle;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TMap<EResolution, FButtonStyle> ActiveStyle;
+
+	UFUNCTION(BlueprintPure, BlueprintCosmetic, meta = (WorldContext="WorldContext"))
+	static FButtonStyle GetButtonStyleByResolution(const class UObject* WorldContext, EResolution Resolution, EResolutionButtonStyleType ResolutionButtonStyle, UButtonStyleByResolution* ButtonStyleByResolution);
+};
+
+UENUM(BlueprintType)
 enum class EWidgetType : uint8
 {
 	PreLogin,

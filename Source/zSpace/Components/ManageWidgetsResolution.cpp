@@ -8,12 +8,15 @@
 #include <Kismet/KismetSystemLibrary.h>
 #include <Blueprint/UserWidget.h>
 
+#include "zSpace/BlueprintFunctionLibrary/UIBlueprintFunctionLibrary.h"
+
 // Sets default values for this component's properties
 UManageWidgetsResolution::UManageWidgetsResolution() {}
 
 bool UManageWidgetsResolution::CreateWidgetAndAddViewport(APlayerController* PlayerControler, TSubclassOf<class UUserWidget> WidgetSubClass, EResolution Resolution, UUserWidget*& ReturnWidget)
 {
 	if (!WidgetSubClass) return false;
+	// const EResolution CurrentResolution = UUIBlueprintFunctionLibrary::GetCurrentScreenResolutionEnum(this);
 
 	UUserWidget* WidgetDefaultObject = WidgetSubClass.GetDefaultObject();
 	if (IsValid(WidgetDefaultObject))
