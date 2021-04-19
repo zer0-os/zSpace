@@ -6,6 +6,8 @@
 #include "../Components/ManageWidgetsResolution.h"
 #include <Kismet/KismetSystemLibrary.h>
 
+#include "WidgetLoadingManagerObject/WidgetLoadingManagerObject.h"
+
 UZSpaceGameInstance::UZSpaceGameInstance(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
 	
@@ -28,22 +30,32 @@ class UManageWidgetsResolution* UZSpaceGameInstance::GetManageWidgetsResolution(
 	return ManageWidgetsResolution;
 }
 
+void UZSpaceGameInstance::CreateWidgetLoadingManagerObject()
+{
+	if( GetWorld() && GetWorld()->IsClient() )
+	{
+		checkf(nullptr != WidgetLoadingManagerObjectSubClass, TEXT("The WidgetLoadingManagerObjectSubClass isn't set, Please set"));
+		if(WidgetLoadingManagerObjectSubClass)
+		{
+			WidgetLoadingManagerObject = NewObject<UWidgetLoadingManagerObject>(this, WidgetLoadingManagerObjectSubClass);
+		}
+	}
+}
+
 void UZSpaceGameInstance::Init()
 {
 	Super::Init();
+	CreateWidgetLoadingManagerObject();
 
+	
 	if (UKismetSystemLibrary::IsStandalone(this) || !UKismetSystemLibrary::IsServer(this))
 	{
 		InitManageWidgetsResolution();
 	}
 }
 
-void UZSpaceGameInstance::SetNextMapPortal()
+UWidgetLoadingManagerObject* UZSpaceGameInstance::GetWidgetLoadingManagerObject() const
 {
-	bNextMapPortal = true;
-	GetWorld()->GetTimerManager().SetTimer(TimeHandleNextMapPortal, [&] ()
-	{
-		bNextMapPortal = false;	
-	}, 1, false);
+	return WidgetLoadingManagerObject;
 }
 

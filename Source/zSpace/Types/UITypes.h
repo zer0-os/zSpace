@@ -17,10 +17,12 @@ enum class EResolution : uint8
 	R_5120X1440		UMETA(DisplayName="5120X1440"),
 	R_1920X1080		UMETA(DisplayName="1920X1080"),
 	R_1440X900		UMETA(DisplayName="1440X900"),
+
+	MAX				UMETA(Hidden),
 };
 
 UCLASS(BlueprintType)
-class ZSPACE_API UConverEResolutionToFIntPointOrViceVersa : public UObject
+class ZSPACE_API UConvertEResolutionToFIntPointOrViceVersa : public UObject
 {
 	GENERATED_BODY()
 public:
@@ -52,6 +54,39 @@ public:
 
 	UFUNCTION(BlueprintPure)
 	TSubclassOf<class UUserWidget> GetWidget(EResolution ResolutionEnum);
+};
+
+UCLASS(BlueprintType)
+class ZSPACE_API UUseResolutionInGame : public UDataAsset
+{
+	GENERATED_BODY()
+
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TArray<EResolution> Resolutions;
+};
+
+UENUM(BlueprintType)
+enum class EResolutionButtonStyleType : uint8
+{
+	NormalStyle,
+	ActiveStyle
+};
+
+UCLASS(BlueprintType)
+class ZSPACE_API UButtonStyleByResolution : public UDataAsset
+{
+	GENERATED_BODY()
+
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TMap<EResolution, FButtonStyle> NormalStyle;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TMap<EResolution, FButtonStyle> ActiveStyle;
+
+	UFUNCTION(BlueprintPure, BlueprintCosmetic, meta = (WorldContext="WorldContext"))
+	static FButtonStyle GetButtonStyleByResolution(const class UObject* WorldContext, EResolution Resolution, EResolutionButtonStyleType ResolutionButtonStyle, UButtonStyleByResolution* ButtonStyleByResolution);
 };
 
 UENUM(BlueprintType)

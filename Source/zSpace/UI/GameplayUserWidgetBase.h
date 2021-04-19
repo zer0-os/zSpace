@@ -31,6 +31,9 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintCosmetic)
 	void SetStamina(const float CurrentValue, const float MaxValue);
 
+	UFUNCTION(BlueprintCallable, BlueprintCosmetic)
+	void SetPlayerCorrectName();
+
 public:
 	UPROPERTY(BlueprintReadWrite, meta=(BindWidget))
 	class UProgressBar* HealthProgressBar = nullptr;

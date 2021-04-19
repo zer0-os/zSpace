@@ -24,14 +24,19 @@ public:
 	UFUNCTION(BlueprintPure)
 	class UManageWidgetsResolution* GetManageWidgetsResolution() const;
 
+	// [Client]
+	UFUNCTION(BlueprintCosmetic)
+	void CreateWidgetLoadingManagerObject();
+
 protected:
 	
 	virtual void Init() override;
 
 public:
+
+	UFUNCTION(BlueprintPure)
+	class UWidgetLoadingManagerObject * GetWidgetLoadingManagerObject() const ;
 	
-	UFUNCTION(BlueprintCallable)
-	void SetNextMapPortal();
 
 protected:
 	
@@ -41,11 +46,23 @@ protected:
 	UPROPERTY(BlueprintReadOnly, Category="UI")
 	class UManageWidgetsResolution* ManageWidgetsResolution = nullptr;
 
-	FTimerHandle TimeHandleNextMapPortal;
-
-
-	UPROPERTY(BlueprintReadWrite, meta=(AllowPrivateAccess=true))
-	uint8 bNextMapPortal:1;
+	/**
+	 * @brief The WidgetLoadingManagerObjectSubClass manager of loading widget.
+	 */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="UI")
+	TSubclassOf<class UWidgetLoadingManagerObject> WidgetLoadingManagerObjectSubClass;
 	
+	/**
+	 * @brief The WidgetLoadingManagerObject pointer of WidgetLoadingManagerObject
+	 */
+	UPROPERTY(BlueprintReadOnly, Category="UI")
+	class UWidgetLoadingManagerObject * WidgetLoadingManagerObject = nullptr;
 	
+
+	/**
+	 * @brief The LoadingWidget is Widget 'sub class' that shows loading effect.
+	 */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="UI")
+	TSubclassOf<class UUserWidget> LoadingWidgetSubClass;
+
 };

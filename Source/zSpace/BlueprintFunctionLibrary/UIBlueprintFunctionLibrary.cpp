@@ -19,7 +19,7 @@ TSubclassOf<class UUserWidget>UUIBlueprintFunctionLibrary::GetWidgetSubClassForC
 	const FIntPoint ScreenResolution = UUIBlueprintFunctionLibrary::GetCurrentScreenResolution(WorldContext);
 
 	// Get Enum Resolution For Current Resolution
-	EResolution Resolution = UConverEResolutionToFIntPointOrViceVersa::GetEnumResolution(WorldContext, ScreenResolution);
+	EResolution Resolution = UConvertEResolutionToFIntPointOrViceVersa::GetEnumResolution(WorldContext, ScreenResolution);
 	if (Resolution == EResolution::None)
 	{
 		Resolution = EResolution::R_1920X1080;
@@ -43,12 +43,57 @@ FIntPoint UUIBlueprintFunctionLibrary::GetCurrentScreenResolution(const UObject*
 EResolution UUIBlueprintFunctionLibrary::GetCurrentScreenResolutionEnum(const UObject* WorldContext)
 {
 	const FIntPoint ScreenResolution = UUIBlueprintFunctionLibrary::GetCurrentScreenResolution(WorldContext);
-	EResolution Resolution = UConverEResolutionToFIntPointOrViceVersa::GetEnumResolution(WorldContext, ScreenResolution);
+	EResolution Resolution = UConvertEResolutionToFIntPointOrViceVersa::GetEnumResolution(WorldContext, ScreenResolution);
 	if (Resolution == EResolution::None)
 	{
 		Resolution = EResolution::R_1920X1080;
 	}
 	return Resolution;
+}
+
+TArray<EResolution> UUIBlueprintFunctionLibrary::GetAllResolutionExceptChoseResolution(const UObject* WorldContext,
+	EResolution SelectResolution)
+{
+	TArray<EResolution> Result;
+
+	const uint8 Start = 1;
+	const uint8 End = static_cast<uint8>(EResolution::MAX);
+
+	for (uint8 X(Start); X < End; X++)
+	{
+		if (SelectResolution != static_cast<EResolution>(X))
+		{
+			Result.Add(static_cast<EResolution>(X));
+		}
+	}
+	
+	return Result;
+}
+
+FString UUIBlueprintFunctionLibrary::GetResolutionByEnum(const UObject* WorldContext, const EResolution Resolution, TEnumAsByte<EWindowMode::Type> WindowMode)
+{
+	auto GetWindowMode = [WindowMode]() -> char
+	{
+		switch (WindowMode)
+		{
+		case EWindowMode::Type::Fullscreen: return 'f';
+		case EWindowMode::Type::Windowed: return 'w';
+		case EWindowMode::Type::WindowedFullscreen: return 'w';
+		default: return '\0';
+		}	
+	};
+
+	FString ResolutionString;
+	
+	switch (Resolution)
+	{
+	case EResolution::R_5120X1440: return ResolutionString = "5120x1440";
+	case EResolution::R_1920X1080: return ResolutionString = "1920x1080";
+	case EResolution::R_1440X900: return ResolutionString = "1440x900";
+	default: ResolutionString = "1920x1080";
+	}
+
+	return ResolutionString + GetWindowMode();
 }
 
 class UUserWidget* UUIBlueprintFunctionLibrary::GetWidgetByWidgetType(const UObject* WorldContext, EWidgetType WidgetType)
@@ -65,7 +110,7 @@ class UUserWidget* UUIBlueprintFunctionLibrary::GetWidgetByWidgetType(const UObj
 		if (IsValid(ManageWidgetsResolution))
 		{
 			const FIntPoint ScreenResolution = UUIBlueprintFunctionLibrary::GetCurrentScreenResolution(WorldContext);
-			EResolution Resolution = UConverEResolutionToFIntPointOrViceVersa::GetEnumResolution(WorldContext, ScreenResolution);
+			EResolution Resolution = UConvertEResolutionToFIntPointOrViceVersa::GetEnumResolution(WorldContext, ScreenResolution);
 			if (Resolution == EResolution::None)
 			{
 				Resolution = EResolution::R_1920X1080;
