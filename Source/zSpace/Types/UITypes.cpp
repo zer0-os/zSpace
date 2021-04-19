@@ -31,6 +31,21 @@ EResolution UConvertEResolutionToFIntPointOrViceVersa::GetEnumResolution(const U
 	return EResolution::None;
 }
 
+FButtonStyle UButtonStyleByResolution::GetButtonStyleByResolution(const UObject* WorldContext,
+	EResolution Resolution, const EResolutionButtonStyleType ResolutionButtonStyle, UButtonStyleByResolution* ButtonStyleByResolution)
+{
+	auto Data = ResolutionButtonStyle == EResolutionButtonStyleType::ActiveStyle ?
+		ButtonStyleByResolution->ActiveStyle : ButtonStyleByResolution->NormalStyle;
+
+ 	FButtonStyle* Style = Data.Find(Resolution);
+	if (Style)
+	{
+		return *Style;
+	}
+
+	return FButtonStyle();
+}
+
 TSubclassOf<class UUserWidget> UResolutionAndWidgetDataAsset::GetWidget(EResolution ResolutionEnum)
 {	
 	const TSubclassOf<class UUserWidget>* Find = ResolutionAndWidget.ResolutionAndWidget.Find(ResolutionEnum);
