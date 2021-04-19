@@ -137,8 +137,10 @@ void APlayerVoiceChatActor::RepNotifyAttenuationAsset() {
 	//if (!pathToAttenuationAsset.IsEmpty()) {
 	//	UE_LOG(LogTemp, Warning, TEXT("APlayerVoiceChatActor RepNotifyAttenuationAsset server ? %d %s"), GetWorld()->IsServer(), *pathToAttenuationAsset);
 	//}
+	/*
 	if (GEngine)
 		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, FString::Printf(TEXT("RepNotifyAttenuationAsset %s empty? %d"), *GetName(), pathToAttenuationAsset.IsEmpty()));
+		*/
 
 	if (this->microphoneSpeakComponent) {
 		if (!pathToAttenuationAsset.IsEmpty()) {

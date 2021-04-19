@@ -26,6 +26,9 @@ void UZSpaceButton::NativePreConstruct()
 		SetImageSetting(ButtonHoveredImage, ButtonStyle.Hovered);
 		SetImageSetting(ButtonPressedImage, ButtonStyle.Pressed);
 
+		ButtonStyle.SetPressedSound(ButtonPresedSound);
+		ButtonStyle.SetHoveredSound(ButtonHoveredSound);
+
 		ButtonWidget->SetStyle(ButtonStyle);
 	}
 }
