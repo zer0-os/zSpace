@@ -27,4 +27,7 @@ public:
 
 	UFUNCTION(BlueprintPure, BlueprintCosmetic, meta = (WorldContext="WorldContext"))
 	static class UUserWidget* GetWidgetByWidgetType(const UObject* WorldContext, EWidgetType WidgetType);
+
+	UFUNCTION(BlueprintPure, BlueprintCosmetic, meta = (WorldContext="WorldContext"))
+	static TArray<EResolution> GetAllResolutionExceptChoseResolution(const UObject* WorldContext, EResolution SelectResolution);
 };
