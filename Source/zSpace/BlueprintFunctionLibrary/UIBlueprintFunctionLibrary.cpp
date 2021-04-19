@@ -51,6 +51,25 @@ EResolution UUIBlueprintFunctionLibrary::GetCurrentScreenResolutionEnum(const UO
 	return Resolution;
 }
 
+TArray<EResolution> UUIBlueprintFunctionLibrary::GetAllResolutionExceptChoseResolution(const UObject* WorldContext,
+	EResolution SelectResolution)
+{
+	TArray<EResolution> Result;
+
+	const uint8 Start = 1;
+	const uint8 End = static_cast<uint8>(EResolution::MAX);
+
+	for (uint8 X(Start); X < End; X++)
+	{
+		if (SelectResolution != static_cast<EResolution>(X))
+		{
+			Result.Add(static_cast<EResolution>(X));
+		}
+	}
+	
+	return Result;
+}
+
 class UUserWidget* UUIBlueprintFunctionLibrary::GetWidgetByWidgetType(const UObject* WorldContext, EWidgetType WidgetType)
 {
 	if (!IsValid(GEngine)) return nullptr;

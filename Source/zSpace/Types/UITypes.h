@@ -17,6 +17,8 @@ enum class EResolution : uint8
 	R_5120X1440		UMETA(DisplayName="5120X1440"),
 	R_1920X1080		UMETA(DisplayName="1920X1080"),
 	R_1440X900		UMETA(DisplayName="1440X900"),
+
+	MAX				UMETA(Hidden),
 };
 
 UCLASS(BlueprintType)
