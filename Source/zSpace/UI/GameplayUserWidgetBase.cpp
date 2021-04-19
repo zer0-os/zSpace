@@ -3,6 +3,8 @@
 
 #include "zSpace/UI/GameplayUserWidgetBase.h"
 #include <GameFramework/PlayerController.h>
+#include <Kismet/KismetStringLibrary.h>
+#include <Kismet/KismetSystemLibrary.h>
 #include <GameFramework/PlayerState.h>
 #include <Kismet/KismetMathLibrary.h>
 #include <Components/ProgressBar.h>
@@ -28,16 +30,8 @@ void UGameplayUserWidgetBase::NativeConstruct()
 {
 	Super::NativeConstruct();
 
-	APlayerController* PC = GetOwningPlayer<APlayerController>();
-	if (IsValid(PC))
-	{
-		APlayerState* PS = PC->GetPlayerState<APlayerState>();
-		if (IsValid(PS))
-		{
-			FString PlayerName = PS->GetPlayerName();
-			SetPlayerName(FText::FromString(PlayerName));
-		}
-	}
+	SetPlayerCorrectName();
+
 }
 
 void UGameplayUserWidgetBase::SetHealth(const float CurrentValue, const float MaxValue)
@@ -58,5 +52,30 @@ void UGameplayUserWidgetBase::SetStamina(const float CurrentValue, const float M
 	if (!IsValid(StaminaProgressBar)) return;
 
 	StaminaProgressBar->SetPercent(CurrentValue / MaxValue);
+}
+
+void UGameplayUserWidgetBase::SetPlayerCorrectName()
+{
+	APlayerController* PC = GetOwningPlayer<APlayerController>();
+	if (IsValid(PC))
+	{
+		APlayerState* PS = PC->GetPlayerState<APlayerState>();
+		if (IsValid(PS))
+		{
+			FString PlayerName = PS->GetPlayerName();
+			
+			if(PlayerName.Len() >= 7)
+			{ 
+				PlayerName = UKismetStringLibrary::GetSubstring(PlayerName, 0, 4);
+				PlayerName.Append("...");
+
+				SetPlayerName(FText::FromString(PlayerName));
+			}
+			else
+			{
+				SetPlayerName(FText::FromString(PlayerName));
+			}
+		}
+	}
 }
 
