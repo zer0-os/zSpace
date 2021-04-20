@@ -2,13 +2,14 @@
 
 
 #include "zSpace/ZSTravelToMapActor/ZSTravelToMapActor.h"
-
 #include "OWSCharacter.h"
 #include "OWSPlayerController.h"
 #include "Components/SceneComponent.h"
 #include "Components/BoxComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include "zSpace/ZSGamePlayerController/ZSGamePlayerController.h"
+#include "Blueprint/UserWidget.h"
 
 // Sets default values
 AZSTravelToMapActor::AZSTravelToMapActor()
@@ -53,7 +54,7 @@ void AZSTravelToMapActor::GetPlayerController(AOWSCharacter* NewOWSCharacter)
 {
 	if(IsValid(Character))
 	{
-		PlayerController = Character->GetController<AOWSPlayerController>();
+		PlayerController = Character->GetController<AZSGamePlayerController>();
 	}
 	else
 	{
@@ -158,7 +159,6 @@ void AZSTravelToMapActor::ComponentBeginOverlap(UPrimitiveComponent* OverlappedC
 			{
 				const FString L_CharacterName = GetCharacterName();
 				ShowLoadingEvent(L_CharacterName);
-				OnShowLoadingDialogEvent.Broadcast(L_CharacterName);
 				DisableCharacterMovement();
 				if(IsValid(PlayerController))
 				{
@@ -183,9 +183,27 @@ void AZSTravelToMapActor::ComponentEndOverlap(UPrimitiveComponent* OverlappedCom
 	}
 }
 
+void AZSTravelToMapActor::ShowLoadingEvent(const FString& NewCharacter)
+{
+	if(PlayerController)
+	{
+	    checkf(nullptr != UserWidgetLoading, TEXT("The UserWidgetLoading is not set, Please Set LoadingWidget class  "));
+		PlayerController->ShowLoadingWidgetByCharacterName(NewCharacter, UserWidgetLoading);
+	}
+}
+
+void AZSTravelToMapActor::HideLoadingEvent(const FString& NewCharacter)
+{
+	if(PlayerController)
+	{
+		PlayerController->HideLoadingWidgetByCharacterName(NewCharacter);
+	}
+		
+}
+
 void AZSTravelToMapActor::EventErrorMapServerToTravelTo(const FString& ErrorMsg)
 {
-	FString Value = FString::Printf(TEXT("Ava: %s"), *ErrorMsg);
+	const FString Value = FString::Printf(TEXT("Ava: %s"), *ErrorMsg);
 	UKismetSystemLibrary::PrintString(this, Value);
 	if(IsValid(Character))
 	{
@@ -195,7 +213,6 @@ void AZSTravelToMapActor::EventErrorMapServerToTravelTo(const FString& ErrorMsg)
 			L_CharacterMovementComponent->SetMovementMode(EMovementMode::MOVE_Walking);
 			const FString L_CharacterName = GetCharacterName();
 			HideLoadingEvent(L_CharacterName);
-			OnHideLoadingDialogEvent.Broadcast(L_CharacterName);
 			Character->IsTransferringBetweenMaps = true;
 		}
 	}
@@ -204,7 +221,7 @@ void AZSTravelToMapActor::EventErrorMapServerToTravelTo(const FString& ErrorMsg)
 
 void AZSTravelToMapActor::EventNotifyMapServerToTravelTo(const FString& ServerAndPort)
 {
-	FString Value = FString::Printf(TEXT("Ava: %s"), *ServerAndPort);
+	const FString Value = FString::Printf(TEXT("Ava: %s"), *ServerAndPort);
 	UKismetSystemLibrary::PrintString(this, Value);
 
 	UKismetSystemLibrary::PrintString(this, TEXT("Notify Map Server to Travel To"));
