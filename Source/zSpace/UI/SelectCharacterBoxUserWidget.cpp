@@ -30,6 +30,34 @@ void USelectCharacterBoxUserWidget::SetupWidget(const FCharacterSelectBoxInfo& C
 void USelectCharacterBoxUserWidget::OnClickedEditModeButton()
 {
 	bIsEditMode = true;
+	bIsCreateCharacterMode = false;
+	
 	WidgetSwitcherEditMode->SetActiveWidget(RemoveCharacterButton);
 	WidgetSwitcherDoneEditMode->SetActiveWidget(DoneEditModeButton);
+}
+
+void USelectCharacterBoxUserWidget::ChangeCreateCharacterMode()
+{
+	bIsEditMode = false;
+	bIsCreateCharacterMode = true;
+	
+	WidgetSwitcherEditMode->SetActiveWidget(RemoveCharacterButton);
+	WidgetSwitcherDoneEditMode->SetActiveWidget(CreateCharacterDone);
+
+	CreateCharacterNameSwitcher->SetActiveWidget(NewCharacterName);
+
+	// TODO Fix Level 
+	PlayerLevel->SetText(FText::FromString("LEVEL 0"));
+}
+
+void USelectCharacterBoxUserWidget::ChangeNormalMode()
+{
+	bIsEditMode = false;
+	bIsCreateCharacterMode = false;
+	
+	WidgetSwitcherEditMode->SetActiveWidget(EditModeButton);
+	WidgetSwitcherDoneEditMode->SetActiveWidget(SelectButton);
+	CreateCharacterNameSwitcher->SetActiveWidget(PlayerName);
+
+	NewCharacterName->SetText(FText::FromString(""));
 }
