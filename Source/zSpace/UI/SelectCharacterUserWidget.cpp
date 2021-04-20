@@ -162,3 +162,15 @@ void USelectCharacterUserWidget::ShowCharacters(const TArray<FUserCharacter>& Us
 	CheckAndCreate(CurrentCharacterIndex - 1, SelectCharacterLeftCanvas);
 	CheckAndCreate(CurrentCharacterIndex + 1, SelectCharacterRightCanvas);
 }
+
+USelectCharacterBoxUserWidget* USelectCharacterUserWidget::GetSelectedCharacterBox() const
+{
+	if (IsValid(SelectCharacterMiddleCanvas))
+	{
+		auto* Child = SelectCharacterMiddleCanvas->GetChildAt(0);
+
+		return Cast<USelectCharacterBoxUserWidget>(Child);
+	}
+
+	return nullptr;
+}

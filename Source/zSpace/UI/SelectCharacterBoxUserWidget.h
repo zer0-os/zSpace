@@ -5,6 +5,8 @@
 #include "CoreMinimal.h"
 #include "../Types/UITypes.h"
 #include "Blueprint/UserWidget.h"
+#include "Components/EditableTextBox.h"
+
 #include "SelectCharacterBoxUserWidget.generated.h"
 
 /**
@@ -45,10 +47,22 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, meta=(BindWidget))
 	class UWidgetSwitcher* WidgetSwitcherDoneEditMode = nullptr;
+	
+	UPROPERTY(BlueprintReadWrite, meta=(BindWidget))
+	class UZSpaceButton* CreateCharacterDone = nullptr;
+	
+	UPROPERTY(BlueprintReadWrite, meta=(BindWidget))
+	class UWidgetSwitcher* CreateCharacterNameSwitcher = nullptr;
+	
+	UPROPERTY(BlueprintReadWrite, meta=(BindWidget))
+	class UEditableTextBox* NewCharacterName = nullptr;
 
 	UPROPERTY(BlueprintReadWrite)
 	uint8 bIsEditMode : 1;
 
+	UPROPERTY(BlueprintReadWrite)
+	uint8 bIsCreateCharacterMode : 1;
+	
 public:
 	UFUNCTION(BlueprintCallable)
 	void SetupWidget(const FCharacterSelectBoxInfo& CharacterSelectBoxInfo);
@@ -56,5 +70,11 @@ public:
 protected:
 	UFUNCTION()
 	void OnClickedEditModeButton();
+	
+	UFUNCTION(BlueprintCallable)
+	void ChangeCreateCharacterMode();
 
+	UFUNCTION(BlueprintCallable)
+	void ChangeNormalMode();
+	
 };
