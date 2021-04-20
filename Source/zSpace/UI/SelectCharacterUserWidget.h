@@ -7,6 +7,7 @@
 #include "zSpace/Types/UITypes.h"
 #include "../Interfaces/UIResolutionInterface.h"
 #include "OWSPlayerController.h"
+#include "SelectCharacterBoxUserWidget.h"
 #include "Chaos/AABB.h"
 #include "Chaos/AABB.h"
 
@@ -35,12 +36,6 @@ protected:
 	void HideCreateNewCharacterWidget();
 
 public:
-	UPROPERTY(BlueprintReadOnly)
-	class USelectCharacterBoxUserWidget* SelectedCharacterBoxUserWidget = nullptr;
-
-	// UPROPERTY()
-	// TArray<class USelectCharacterBoxUserWidget*> CharacterBoxes;
-
 	UPROPERTY(BlueprintReadWrite, meta=(BindWidget))
 	class UBorder* SelectCharacterMiddleCanvas = nullptr;
 
@@ -68,4 +63,8 @@ public:
 
 	UFUNCTION(BlueprintCallable, BlueprintCosmetic)
 	void ShowCharacters(const TArray<FUserCharacter>& UserCharacters, const int32 CurrentCharacterIndex);
+
+	UFUNCTION(BlueprintPure)
+	class USelectCharacterBoxUserWidget* GetSelectedCharacterBox() const;
+	
 };

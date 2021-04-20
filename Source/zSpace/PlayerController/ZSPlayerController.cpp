@@ -3,12 +3,6 @@
 
 // ReSharper disable All
 #include "zSpace/PlayerController/ZSPlayerController.h"
-#include <Kismet/KismetSystemLibrary.h>
-#include <GameFramework/Character.h>
-
-
-#include "Chaos/AABB.h"
-#include "Chaos/AABB.h"
 #include "Kismet/KismetMathLibrary.h"
 
 AZSPlayerController::AZSPlayerController()
@@ -69,7 +63,6 @@ void AZSPlayerController::CheckCharacterCountAndAdd(int32 CheckCount, const TArr
 
 void AZSPlayerController::OnGetAllCharactersEvent(const TArray<FUserCharacter>& UserCharacters)
 {
-	UKismetSystemLibrary::PrintString(this, FString::FromInt(UserCharacters.Num()));
 	CheckCharacterCountAndAdd(3, UserCharacters);
 }
 
