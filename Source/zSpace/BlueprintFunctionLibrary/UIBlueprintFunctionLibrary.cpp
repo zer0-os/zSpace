@@ -87,10 +87,10 @@ FString UUIBlueprintFunctionLibrary::GetResolutionByEnum(const UObject* WorldCon
 	
 	switch (Resolution)
 	{
-	case EResolution::R_5120X1440: return ResolutionString = "5120x1440";
-	case EResolution::R_1920X1080: return ResolutionString = "1920x1080";
-	case EResolution::R_1440X900: return ResolutionString = "1440x900";
-	default: ResolutionString = "1920x1080";
+	case EResolution::R_5120X1440: ResolutionString = "5120x1440"; break;
+	case EResolution::R_1920X1080: ResolutionString = "1920x1080"; break;
+	case EResolution::R_1440X900: ResolutionString = "1440x900"; break;
+	default: ResolutionString = "1920x1080"; break;
 	}
 
 	return ResolutionString + GetWindowMode();
