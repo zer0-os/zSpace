@@ -3,6 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
+
+#include "ZSCustomButton.h"
 #include "../Types/UITypes.h"
 #include "Blueprint/UserWidget.h"
 #include "Components/EditableTextBox.h"
@@ -56,6 +58,12 @@ public:
 	
 	UPROPERTY(BlueprintReadWrite, meta=(BindWidget))
 	class UEditableTextBox* NewCharacterName = nullptr;
+	
+	UPROPERTY(BlueprintReadWrite, meta=(BindWidget))
+	class UZSCustomButton* NextCharacterMesh = nullptr;
+	
+	UPROPERTY(BlueprintReadWrite, meta=(BindWidget))
+	class UZSCustomButton* PreviousCharacterMesh = nullptr;
 
 	UPROPERTY(BlueprintReadWrite)
 	uint8 bIsEditMode : 1;
@@ -70,6 +78,12 @@ public:
 protected:
 	UFUNCTION()
 	void OnClickedEditModeButton();
+	
+	UFUNCTION()
+	void OnClickedNextCharacterMesh();
+	
+	UFUNCTION()
+	void OnClickedPreviousCharacterMesh();
 	
 	UFUNCTION(BlueprintCallable)
 	void ChangeCreateCharacterMode();

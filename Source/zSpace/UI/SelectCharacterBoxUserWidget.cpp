@@ -19,6 +19,16 @@ void USelectCharacterBoxUserWidget::NativePreConstruct()
 			EditModeButton->OnClicked.AddDynamic(this, &USelectCharacterBoxUserWidget::OnClickedEditModeButton);
 		}
 	}
+	if (IsValid(NextCharacterMesh))
+	{
+		NextCharacterMesh->SetVisibility(ESlateVisibility::Collapsed);
+		NextCharacterMesh->OnClicked.AddUniqueDynamic(this, &USelectCharacterBoxUserWidget::OnClickedNextCharacterMesh);
+	}
+	if (IsValid(PreviousCharacterMesh))
+	{
+		PreviousCharacterMesh->SetVisibility(ESlateVisibility::Collapsed);
+		PreviousCharacterMesh->OnClicked.AddUniqueDynamic(this, &USelectCharacterBoxUserWidget::OnClickedPreviousCharacterMesh);
+	}
 }
 
 void USelectCharacterBoxUserWidget::SetupWidget(const FCharacterSelectBoxInfo& CharacterSelectBoxInfo)
@@ -34,6 +44,19 @@ void USelectCharacterBoxUserWidget::OnClickedEditModeButton()
 	
 	WidgetSwitcherEditMode->SetActiveWidget(RemoveCharacterButton);
 	WidgetSwitcherDoneEditMode->SetActiveWidget(DoneEditModeButton);
+
+	NextCharacterMesh->SetVisibility(ESlateVisibility::Visible);
+	PreviousCharacterMesh->SetVisibility(ESlateVisibility::Visible);
+}
+
+void USelectCharacterBoxUserWidget::OnClickedNextCharacterMesh()
+{
+	
+}
+
+void USelectCharacterBoxUserWidget::OnClickedPreviousCharacterMesh()
+{
+	
 }
 
 void USelectCharacterBoxUserWidget::ChangeCreateCharacterMode()
