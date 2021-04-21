@@ -10,6 +10,8 @@
 #include "SelectCharacterBoxUserWidget.h"
 #include "Chaos/AABB.h"
 #include "Chaos/AABB.h"
+#include "zSpace/Types/CharacterMeshesDataAsset.h"
+
 
 #include "SelectCharacterUserWidget.generated.h"
 
@@ -56,7 +58,7 @@ public:
 
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<class UUserWidget> SelectCharacterBoxSubClass;
-	
+
 public:
 	UFUNCTION(BlueprintCallable, BlueprintCosmetic)
 	void CreateCharacterSelectBox(const FCharacterSelectBoxInfo& CharacterSelectBoxInfo, class UBorder* ParentBorder);
@@ -66,5 +68,4 @@ public:
 
 	UFUNCTION(BlueprintPure)
 	class USelectCharacterBoxUserWidget* GetSelectedCharacterBox() const;
-	
 };
