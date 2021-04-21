@@ -1,5 +1,7 @@
-set UE4_PATH=C:\UnrealEngine\
 
+cd ../
+
+set UE4_PATH=C:\UnrealEngine\
 
 set PROJECT_NAME=zSpace
 
