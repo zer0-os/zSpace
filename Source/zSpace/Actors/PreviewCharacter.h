@@ -40,4 +40,13 @@ public:
 	
 	UFUNCTION(BlueprintCallable)
 	void PreviousCharacterMesh();
+	
+	UFUNCTION(BlueprintPure)
+	class UCharacterMeshesDataAsset* GetCharacterMeshesDataAsset() const;
+
+	UFUNCTION(BlueprintPure)
+	FName GetCurrentMeshName() const;
+	
+	UFUNCTION(BlueprintPure)
+	class USkeletalMesh* GetCurrentMesh() const;
 };

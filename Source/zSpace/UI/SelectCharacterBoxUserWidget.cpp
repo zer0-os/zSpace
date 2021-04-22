@@ -2,11 +2,19 @@
 
 
 #include "zSpace/UI/SelectCharacterBoxUserWidget.h"
+
+#include "zSpace/PlayerController/ZSPlayerController.h"
+#include "zSpace/Types/CharacterMeshesDataAsset.h"
+#include "zSpace/Actors/PreviewCharacter.h"
 #include <Components/WidgetSwitcher.h>
+#include "Components/EditableTextBox.h"
+#include "zSpace/UI/ZSCustomButton.h"
 #include "zSpace/UI/ZSpaceButton.h"
+#include "Kismet/GameplayStatics.h"
 #include <Components/TextBlock.h>
 #include <Components/Button.h>
 #include <Components/Image.h>
+
 
 void USelectCharacterBoxUserWidget::NativePreConstruct()
 {
@@ -14,10 +22,11 @@ void USelectCharacterBoxUserWidget::NativePreConstruct()
 
 	if (IsValid(EditModeButton))
 	{
-		if (!EditModeButton->OnClicked.IsAlreadyBound(this, &USelectCharacterBoxUserWidget::OnClickedEditModeButton))
-		{
-			EditModeButton->OnClicked.AddDynamic(this, &USelectCharacterBoxUserWidget::OnClickedEditModeButton);
-		}
+		EditModeButton->OnClicked.AddUniqueDynamic(this, &USelectCharacterBoxUserWidget::OnClickedEditModeButton);
+	}
+	if (IsValid(DoneEditModeButton))
+	{
+		DoneEditModeButton->ButtonWidget->OnClicked.AddUniqueDynamic(this, &USelectCharacterBoxUserWidget::OnClickedDoneEditModeButton);
 	}
 	if (IsValid(NextCharacterMesh))
 	{
@@ -28,6 +37,13 @@ void USelectCharacterBoxUserWidget::NativePreConstruct()
 	{
 		PreviousCharacterMesh->SetVisibility(ESlateVisibility::Collapsed);
 		PreviousCharacterMesh->OnClicked.AddUniqueDynamic(this, &USelectCharacterBoxUserWidget::OnClickedPreviousCharacterMesh);
+	}
+
+	TArray<AActor*> OutActors;
+	UGameplayStatics::GetAllActorsOfClass(this, APreviewCharacter::StaticClass(), OutActors);
+	if (OutActors.IsValidIndex(0))
+	{
+		PreviewCharacter = Cast<APreviewCharacter>(OutActors[0]);
 	}
 }
 
@@ -51,12 +67,43 @@ void USelectCharacterBoxUserWidget::OnClickedEditModeButton()
 
 void USelectCharacterBoxUserWidget::OnClickedNextCharacterMesh()
 {
-	
+	if (IsValid(PreviewCharacter))
+	{
+		PreviewCharacter->NextCharacterMesh();
+	}
 }
 
 void USelectCharacterBoxUserWidget::OnClickedPreviousCharacterMesh()
 {
+	if (IsValid(PreviewCharacter))
+	{
+		PreviewCharacter->PreviousCharacterMesh();
+	}
+}
+
+void USelectCharacterBoxUserWidget::OnClickedDoneEditModeButton()
+{
+	if (!IsValid(PreviewCharacter)) return;
+	if (!bIsEditMode) return;
+
+	NextCharacterMesh->SetVisibility(ESlateVisibility::Collapsed);
+	PreviousCharacterMesh->SetVisibility(ESlateVisibility::Collapsed);
 	
+	WidgetSwitcherDoneEditMode->SetActiveWidget(SelectButton);
+	WidgetSwitcherEditMode->SetActiveWidget(EditModeButton);
+	bIsEditMode = false;
+	
+	AZSPlayerController* PC = GetOwningPlayer<AZSPlayerController>();
+	if (IsValid(PC))
+	{
+		const FString UserSessionGUID = PC->GetUserSessionGUID();
+		const FString CharacterName = PC->GetCharacterName();
+		const FString FieldName = "MeshName";
+		const FString FieldValue = PreviewCharacter->GetCurrentMeshName().ToString();
+		
+		PC->AddOrUpdateCosmeticCustomCharacterData(UserSessionGUID, CharacterName, FieldName, FieldValue);
+		UKismetSystemLibrary::PrintString(this, FieldValue);
+	}
 }
 
 void USelectCharacterBoxUserWidget::ChangeCreateCharacterMode()

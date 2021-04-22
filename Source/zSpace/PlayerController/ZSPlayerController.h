@@ -37,6 +37,11 @@ public:
 	UFUNCTION(BlueprintSetter)
 	void SetUserSessionGUID(FString Value);
 	
+	UFUNCTION(BlueprintPure, BlueprintGetter)
+	FString GetCharacterName() const;
+
+	UFUNCTION(BlueprintSetter)
+	void SetCharacterName(FString Value);
 	
 protected:
 	UFUNCTION()
@@ -57,6 +62,9 @@ public:
 protected:
 	UPROPERTY(BlueprintGetter=GetUserSessionGUID, BlueprintSetter=SetUserSessionGUID)
 	FString UserSessionGUID;
+
+	UPROPERTY(BlueprintGetter=GetCharacterName, BlueprintSetter=SetCharacterName)
+	FString CharacterName;
 	
 };
 

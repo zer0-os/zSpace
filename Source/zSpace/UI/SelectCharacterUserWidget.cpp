@@ -4,26 +4,18 @@
 #include "zSpace/UI/SelectCharacterUserWidget.h"
 
 #include "../BlueprintFunctionLibrary/UIBlueprintFunctionLibrary.h"
+#include "zSpace/UI/SelectCharacterBoxUserWidget.h"
 #include "../PlayerController/ZSPlayerController.h"
 #include "../Components/ManageWidgetsResolution.h"
-#include <MediaAssets/Public/MediaSource.h>
-#include <MediaAssets/Public/MediaPlayer.h>
-#include "SelectCharacterBoxUserWidget.h"
-#include <Kismet/KismetSystemLibrary.h>
 #include "../Game/ZSpaceGameInstance.h"
-#include <Components/BorderSlot.h>
+#include "Components/WidgetSwitcher.h"
+#include "Components/BorderSlot.h"
 #include "Components/Border.h"
 #include "../Types/UITypes.h"
-#include "Components/WidgetSwitcher.h"
 
 void USelectCharacterUserWidget::NativePreConstruct()
 {
 	Super::NativePreConstruct();
-
-	if (IsValid(MediaPlayer) && IsValid(MediaSource))
-	{
-		MediaPlayer->OpenSource(MediaSource);
-	}
 
 	AZSPlayerController* PlayerController = Cast<AZSPlayerController>(GetOwningPlayer());
 	if (IsValid(PlayerController))

@@ -5,13 +5,9 @@
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
 #include "zSpace/Types/UITypes.h"
-#include "../Interfaces/UIResolutionInterface.h"
 #include "OWSPlayerController.h"
 #include "SelectCharacterBoxUserWidget.h"
-#include "Chaos/AABB.h"
-#include "Chaos/AABB.h"
-#include "zSpace/Types/CharacterMeshesDataAsset.h"
-
+#include "../Interfaces/UIResolutionInterface.h"
 
 #include "SelectCharacterUserWidget.generated.h"
 

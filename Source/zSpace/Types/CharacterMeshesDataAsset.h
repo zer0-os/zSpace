@@ -16,6 +16,12 @@ class ZSPACE_API UCharacterMeshesDataAsset : public UDataAsset
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	TArray<USkeletalMesh*> CharacterMeshes;
+	TMap<USkeletalMesh*, FName> CharacterMeshAndName;
+
+public:
+	UFUNCTION(BlueprintPure)
+	class USkeletalMesh* GetMeshByName(const FName& Name) const;
 	
+	UFUNCTION(BlueprintPure)
+	FName GetNameByMesh(const USkeletalMesh* Mesh) const;
 };

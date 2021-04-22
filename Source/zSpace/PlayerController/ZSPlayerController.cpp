@@ -45,7 +45,7 @@ void AZSPlayerController::CheckCharacterCountAndAdd(int32 CheckCount, const TArr
 	if (UserCharacters.Num() < CheckCount)
 	{	
 		const int32 CreateCount = CheckCount - UserCharacters.Num();
-		FString CharacterName;
+		FString NewCharacterName;
 		const FString ClassName = "MaleWarrior";
 		
 		for (int32 X(0); X < CreateCount; X++)
@@ -54,7 +54,7 @@ void AZSPlayerController::CheckCharacterCountAndAdd(int32 CheckCount, const TArr
 			int32 RandomeNumberTwo = UKismetMathLibrary::RandomInteger(512);
 			int32 Number = RandomeNumberOne ^ RandomeNumberTwo;
 			
-			CharacterName = "Generated User" + FString::FromInt(Number);
+			NewCharacterName = "Generated User" + FString::FromInt(Number);
 			
 			CreateCharacter(UserSessionGUID, CharacterName, ClassName);
 		}
@@ -74,4 +74,14 @@ FString AZSPlayerController::GetUserSessionGUID() const
 void AZSPlayerController::SetUserSessionGUID(FString Value)
 {
 	UserSessionGUID = Value;
+}
+
+FString AZSPlayerController::GetCharacterName() const
+{
+	return CharacterName;
+}
+
+void AZSPlayerController::SetCharacterName(FString Value)
+{
+	CharacterName = Value;
 }
