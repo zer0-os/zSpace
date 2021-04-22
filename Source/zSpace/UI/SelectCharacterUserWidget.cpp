@@ -5,7 +5,7 @@
 
 #include "../BlueprintFunctionLibrary/UIBlueprintFunctionLibrary.h"
 #include "zSpace/UI/SelectCharacterBoxUserWidget.h"
-#include "../PlayerController/ZSPlayerController.h"
+#include "../PlayerController/ZSLoginPlayerController.h"
 #include "../Components/ManageWidgetsResolution.h"
 #include "../Game/ZSpaceGameInstance.h"
 #include "Components/WidgetSwitcher.h"
@@ -17,7 +17,7 @@ void USelectCharacterUserWidget::NativePreConstruct()
 {
 	Super::NativePreConstruct();
 
-	AZSPlayerController* PlayerController = Cast<AZSPlayerController>(GetOwningPlayer());
+	AZSLoginPlayerController* PlayerController = Cast<AZSLoginPlayerController>(GetOwningPlayer());
 	if (IsValid(PlayerController))
 	{
 		if (!PlayerController->OnEscButtonPressed.IsAlreadyBound(this, &USelectCharacterUserWidget::ToPreviousMenu))
@@ -31,7 +31,7 @@ void USelectCharacterUserWidget::NativeDestruct()
 {
 	Super::NativeDestruct();
 
-	AZSPlayerController* PlayerController = Cast<AZSPlayerController>(GetOwningPlayer());
+	AZSLoginPlayerController* PlayerController = Cast<AZSLoginPlayerController>(GetOwningPlayer());
 	if (IsValid(PlayerController))
 	{
 		PlayerController->OnEscButtonPressed.RemoveDynamic(this, &USelectCharacterUserWidget::ToPreviousMenu);
@@ -59,7 +59,7 @@ void USelectCharacterUserWidget::ToPreviousMenu()
 
 	ManageWidgetsResolution->CreateWidgetAndAddViewport(GetOwningPlayer(), WidgetSubClass, Resolution, Widget);
 
-	AZSPlayerController* PlayerController = Cast<AZSPlayerController>(GetOwningPlayer());
+	AZSLoginPlayerController* PlayerController = Cast<AZSLoginPlayerController>(GetOwningPlayer());
 	if (IsValid(PlayerController))
 	{
 		PlayerController->OnEscButtonPressed.RemoveDynamic(this, &USelectCharacterUserWidget::ToPreviousMenu);

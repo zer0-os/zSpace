@@ -3,7 +3,7 @@
 
 #include "zSpace/UI/SelectCharacterBoxUserWidget.h"
 
-#include "zSpace/PlayerController/ZSPlayerController.h"
+#include "zSpace/PlayerController/ZSLoginPlayerController.h"
 #include "zSpace/Types/CharacterMeshesDataAsset.h"
 #include "zSpace/Actors/PreviewCharacter.h"
 #include <Components/WidgetSwitcher.h>
@@ -93,7 +93,7 @@ void USelectCharacterBoxUserWidget::OnClickedDoneEditModeButton()
 	WidgetSwitcherEditMode->SetActiveWidget(EditModeButton);
 	bIsEditMode = false;
 	
-	AZSPlayerController* PC = GetOwningPlayer<AZSPlayerController>();
+	AZSLoginPlayerController* PC = GetOwningPlayer<AZSLoginPlayerController>();
 	if (IsValid(PC))
 	{
 		const FString UserSessionGUID = PC->GetUserSessionGUID();

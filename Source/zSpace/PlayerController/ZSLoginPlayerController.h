@@ -4,14 +4,14 @@
 
 #include "CoreMinimal.h"
 #include "OWSPlayerController.h"
-#include "ZSPlayerController.generated.h"
+#include "ZSLoginPlayerController.generated.h"
 
 /**
  * 
  */
 
 UCLASS()
-class ZSPACE_API AZSPlayerController : public AOWSPlayerController
+class ZSPACE_API AZSLoginPlayerController : public AOWSPlayerController
 {
 	GENERATED_BODY()
 
@@ -20,7 +20,7 @@ public:
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnEscButtonPressed);
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnGetAllCharacters, const TArray<FUserCharacter>&, UserCharacters);
 
-	AZSPlayerController();
+	AZSLoginPlayerController();
 
 	virtual  void BeginPlay() override;
 
