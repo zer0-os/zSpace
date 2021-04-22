@@ -3,11 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
-
-#include "ZSCustomButton.h"
 #include "../Types/UITypes.h"
 #include "Blueprint/UserWidget.h"
-#include "Components/EditableTextBox.h"
 
 #include "SelectCharacterBoxUserWidget.generated.h"
 
@@ -70,7 +67,10 @@ public:
 
 	UPROPERTY(BlueprintReadWrite)
 	uint8 bIsCreateCharacterMode : 1;
-	
+
+	UPROPERTY()
+	class APreviewCharacter* PreviewCharacter = nullptr;
+
 public:
 	UFUNCTION(BlueprintCallable)
 	void SetupWidget(const FCharacterSelectBoxInfo& CharacterSelectBoxInfo);
@@ -84,11 +84,13 @@ protected:
 	
 	UFUNCTION()
 	void OnClickedPreviousCharacterMesh();
+
+	UFUNCTION()
+	void OnClickedDoneEditModeButton();
 	
 	UFUNCTION(BlueprintCallable)
 	void ChangeCreateCharacterMode();
 
 	UFUNCTION(BlueprintCallable)
 	void ChangeNormalMode();
-	
 };
