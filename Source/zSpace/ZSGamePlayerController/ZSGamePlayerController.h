@@ -41,5 +41,12 @@ public:
 	// [Server]
 	UFUNCTION(BlueprintCallable)
 	void HideLoadingWidgetByCharacterName(const FString& NewCharacterName);
+
+	UFUNCTION(BlueprintPure)
+	FVector GetClosePlayerStart();
+
+	// [Server]
+	UFUNCTION(Server, Reliable, BlueprintCallable, WithValidation)
+	void ReTeleport();
 	
 };
