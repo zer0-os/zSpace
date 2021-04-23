@@ -56,7 +56,7 @@ void AZSLoginPlayerController::CheckCharacterCountAndAdd(int32 CheckCount, const
 			
 			NewCharacterName = "Generated User" + FString::FromInt(Number);
 			
-			CreateCharacter(UserSessionGUID, CharacterName, ClassName);
+			CreateCharacter(UserSessionGUID, NewCharacterName, ClassName);
 		}
 	}
 }
