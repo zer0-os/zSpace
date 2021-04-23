@@ -103,8 +103,8 @@ void UDetectSurfaceTypeComponent::PutFootOnGround(ECharacterFootType NewCharacte
 					{
 						PlayRandomSound(L_CharacterUnderFootSurfaceData, IterHitResult.Location);
 						SpawnParticle(L_CharacterUnderFootSurfaceData, IterHitResult.Location);
-						return;
 					}
+					return;
 				}
 			}
 		}
