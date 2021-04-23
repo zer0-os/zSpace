@@ -4,7 +4,7 @@
 #include "zSpace/UI/LoginUserWidgetBase.h"
 
 #include "../BlueprintFunctionLibrary/UIBlueprintFunctionLibrary.h"
-#include "../PlayerController/ZSPlayerController.h"
+#include "../PlayerController/ZSLoginPlayerController.h"
 #include "../Components/ManageWidgetsResolution.h"
 #include "Components/EditableTextBox.h"
 #include "../Game/ZSpaceGameInstance.h"
@@ -28,7 +28,7 @@ void ULoginUserWidgetBase::NativePreConstruct()
 		}
 	}
 
-	AZSPlayerController* PlayerController = Cast<AZSPlayerController>(GetOwningPlayer());
+	AZSLoginPlayerController* PlayerController = Cast<AZSLoginPlayerController>(GetOwningPlayer());
 	if (IsValid(PlayerController))
 	{
 		if (!PlayerController->OnEscButtonPressed.IsAlreadyBound(this, &ULoginUserWidgetBase::ToPreviousMenu))
@@ -42,7 +42,7 @@ void ULoginUserWidgetBase::NativeDestruct()
 {
 	Super::NativeDestruct();
 
-	AZSPlayerController* PlayerController = Cast<AZSPlayerController>(GetOwningPlayer());
+	AZSLoginPlayerController* PlayerController = Cast<AZSLoginPlayerController>(GetOwningPlayer());
 	if (IsValid(PlayerController))
 	{
 		PlayerController->OnEscButtonPressed.RemoveDynamic(this, &ULoginUserWidgetBase::ToPreviousMenu);
@@ -72,7 +72,7 @@ void ULoginUserWidgetBase::ToPreviousMenu()
 
 	ManageWidgetsResolution->CreateWidgetAndAddViewport(GetOwningPlayer(), WidgetSubClass, Resolution, Widget);
 
-	AZSPlayerController* PlayerController = Cast<AZSPlayerController>(GetOwningPlayer());
+	AZSLoginPlayerController* PlayerController = Cast<AZSLoginPlayerController>(GetOwningPlayer());
 	if (IsValid(PlayerController))
 	{
 		PlayerController->OnEscButtonPressed.RemoveDynamic(this, &ULoginUserWidgetBase::ToPreviousMenu);

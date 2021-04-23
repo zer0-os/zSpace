@@ -37,7 +37,7 @@ public:
 	class UTexture2D* ButtonPressedImage = nullptr;
 	
 	UPROPERTY(EditAnywhere, Category="Button")
-	FSlateSound ButtonPresedSound;  
+	FSlateSound ButtonPressedSound;  
 
 	UPROPERTY(EditAnywhere, Category="Button")
 	FSlateSound ButtonHoveredSound;  
