@@ -42,6 +42,9 @@ private:
 	
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, meta = (AllowPrivateAccess=true))
 	class UDetectSurfaceTypeComponent * DetectSurfaceTypeComponent = nullptr;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess=true))
+	TSoftObjectPtr<class USoundBase> SoundBaseAcceleration;
 
 public:
 
@@ -71,6 +74,7 @@ public:
 	///  Show a List of all players online across all instances.
 	UFUNCTION(Server, WithValidation, Unreliable)
 	void Server_ShowPlayersOnline();
+
 	
 };
 

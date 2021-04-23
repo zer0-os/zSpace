@@ -8,6 +8,7 @@
 #include "Components/InputComponent.h"
 #include "Components/DetectSurfaceTypeComponent/DetectSurfaceTypeComponent.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetSystemLibrary.h"
 
 AZSCharacterWithAbilities::AZSCharacterWithAbilities(const FObjectInitializer& NewObjectInitializer) : Super(NewObjectInitializer)
@@ -125,7 +126,13 @@ void AZSCharacterWithAbilities::Dodge()
 {
 	if(GetOWSMovementComponent())
 	{
-		GetOWSMovementComponent()->DoDodge();		
+		GetOWSMovementComponent()->DoDodge();
+		USoundBase * L_Acceleration = Cast<USoundBase>(SoundBaseAcceleration.LoadSynchronous());
+		checkf(nullptr != L_Acceleration, TEXT("The L_Acceleration is nullptr., Pleas Set Acceleration Sound."));
+		if(L_Acceleration)
+		{
+			UGameplayStatics::PlaySoundAtLocation(this, L_Acceleration, GetActorLocation());
+		}
 	}
 }
 
