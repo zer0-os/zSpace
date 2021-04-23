@@ -52,6 +52,11 @@ protected:
 	UFUNCTION()
 	void OnGetAllCharactersEvent(const TArray<FUserCharacter>& UserCharacters);
 
+	/**
+	 * @param Length Max Length 32
+	 */
+	FString GetRandomString(uint8 Length = 12);
+
 public:
 	UPROPERTY(BlueprintAssignable)
 	FOnEscButtonPressed OnEscButtonPressed;

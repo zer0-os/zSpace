@@ -4,6 +4,7 @@
 // ReSharper disable All
 #include "zSpace/PlayerController/ZSLoginPlayerController.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Kismet/KismetSystemLibrary.h"
 
 AZSLoginPlayerController::AZSLoginPlayerController()
 {
@@ -45,18 +46,12 @@ void AZSLoginPlayerController::CheckCharacterCountAndAdd(int32 CheckCount, const
 	if (UserCharacters.Num() < CheckCount)
 	{	
 		const int32 CreateCount = CheckCount - UserCharacters.Num();
-		FString NewCharacterName;
 		const FString ClassName = "MaleWarrior";
 		
 		for (int32 X(0); X < CreateCount; X++)
 		{
-			int32 RandomeNumberOne = UKismetMathLibrary::RandomInteger(512);
-			int32 RandomeNumberTwo = UKismetMathLibrary::RandomInteger(512);
-			int32 Number = RandomeNumberOne ^ RandomeNumberTwo;
-			
-			NewCharacterName = "Generated User" + FString::FromInt(Number);
-			
-			CreateCharacter(UserSessionGUID, CharacterName, ClassName);
+			FString NewCharacterName = GetRandomString(9);
+			CreateCharacter(UserSessionGUID, NewCharacterName, ClassName);
 		}
 	}
 }
@@ -64,6 +59,23 @@ void AZSLoginPlayerController::CheckCharacterCountAndAdd(int32 CheckCount, const
 void AZSLoginPlayerController::OnGetAllCharactersEvent(const TArray<FUserCharacter>& UserCharacters)
 {
 	CheckCharacterCountAndAdd(3, UserCharacters);
+}
+
+FString AZSLoginPlayerController::GetRandomString(uint8 Length)
+{
+	FGuid Guid = FGuid::NewGuid();
+	FString GuidString = Guid.ToString();
+
+	FString Result;
+	
+	for (uint8 X(0); X <= Length; X++)
+	{
+		int32 RandomIndex = UKismetMathLibrary::RandomInteger(GuidString.Len() - 1);
+		auto Char = GuidString.GetCharArray()[RandomIndex];
+		Result.AppendChar(Char);
+	}
+
+	return Result;
 }
 
 FString AZSLoginPlayerController::GetUserSessionGUID() const

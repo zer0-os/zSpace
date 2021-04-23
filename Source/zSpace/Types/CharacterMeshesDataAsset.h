@@ -9,7 +9,7 @@
 /**
  * 
  */
-UCLASS()
+UCLASS(BlueprintType, Blueprintable)
 class ZSPACE_API UCharacterMeshesDataAsset : public UDataAsset
 {
 	GENERATED_BODY()
