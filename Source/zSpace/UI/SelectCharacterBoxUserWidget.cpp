@@ -14,6 +14,7 @@
 #include <Components/TextBlock.h>
 #include <Components/Button.h>
 #include <Components/Image.h>
+#include "zSpace/zSpace.h"
 
 
 void USelectCharacterBoxUserWidget::NativePreConstruct()
@@ -98,11 +99,10 @@ void USelectCharacterBoxUserWidget::OnClickedDoneEditModeButton()
 	{
 		const FString UserSessionGUID = PC->GetUserSessionGUID();
 		const FString CharacterName = PC->GetCharacterName();
-		const FString FieldName = "MeshName";
 		const FString FieldValue = PreviewCharacter->GetCurrentMeshName().ToString();
 		
-		PC->AddOrUpdateCosmeticCustomCharacterData(UserSessionGUID, CharacterName, FieldName, FieldValue);
-		UKismetSystemLibrary::PrintString(this, FieldValue);
+		PC->AddOrUpdateCosmeticCustomCharacterData(UserSessionGUID, CharacterName, MESH_NAME, FieldValue);
+		// UKismetSystemLibrary::PrintString(this, FieldValue);
 	}
 }
 
