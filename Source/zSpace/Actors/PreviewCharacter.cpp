@@ -3,8 +3,7 @@
 
 #include "zSpace/Actors/PreviewCharacter.h"
 
-
-#include "Kismet/KismetMathLibrary.h"
+#include "Engine/SkeletalMesh.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "zSpace/Types/CharacterMeshesDataAsset.h"
 
@@ -28,7 +27,8 @@ void APreviewCharacter::BeginPlay()
 
 void APreviewCharacter::NextCharacterMesh()
 {
-	const TArray<USkeletalMesh*> Meshes = CharacterMeshesDataAsset->CharacterMeshes;
+	TArray<USkeletalMesh*> Meshes;
+	CharacterMeshesDataAsset->CharacterMeshAndName.GenerateKeyArray(Meshes);
 	if (CurrentCharacterMeshIndex + 1 > Meshes.Num() - 1)
 	{
 		CurrentCharacterMeshIndex = 0;
@@ -48,7 +48,8 @@ void APreviewCharacter::NextCharacterMesh()
 
 void APreviewCharacter::PreviousCharacterMesh()
 {
-	const TArray<USkeletalMesh*> Meshes = CharacterMeshesDataAsset->CharacterMeshes;
+	TArray<USkeletalMesh*> Meshes;
+	CharacterMeshesDataAsset->CharacterMeshAndName.GenerateKeyArray(Meshes);
 
 	if (CurrentCharacterMeshIndex - 1 < 0)
 	{
@@ -65,4 +66,34 @@ void APreviewCharacter::PreviousCharacterMesh()
 	}
 	
 	// UKismetSystemLibrary::PrintString(this, FString::FromInt(CurrentCharacterMeshIndex));
+}
+
+UCharacterMeshesDataAsset* APreviewCharacter::GetCharacterMeshesDataAsset() const
+{
+	return CharacterMeshesDataAsset;
+}
+
+FName APreviewCharacter::GetCurrentMeshName() const
+{
+	TArray<FName> Names;
+	CharacterMeshesDataAsset->CharacterMeshAndName.GenerateValueArray(Names);
+
+	if (Names.IsValidIndex(CurrentCharacterMeshIndex))
+	{
+		return Names[CurrentCharacterMeshIndex];
+	}
+	return NAME_None;
+}
+
+USkeletalMesh* APreviewCharacter::GetCurrentMesh() const
+{
+	TArray<USkeletalMesh*> Meshes;
+	CharacterMeshesDataAsset->CharacterMeshAndName.GenerateKeyArray(Meshes);
+
+	if (Meshes.IsValidIndex(CurrentCharacterMeshIndex))
+	{
+		return Meshes[CurrentCharacterMeshIndex];
+	}
+	
+	return nullptr;
 }
