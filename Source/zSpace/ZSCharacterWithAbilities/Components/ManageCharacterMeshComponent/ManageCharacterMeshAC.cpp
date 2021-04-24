@@ -7,6 +7,7 @@
 #include "GameFramework/Character.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Net/UnrealNetwork.h"
 #include "zSpace/Game/ZSpaceGameInstance.h"
 
 // Sets default values for this component's properties
@@ -25,12 +26,17 @@ void UManageCharacterMeshAC::BeginPlay()
 {
 	Super::BeginPlay();
 
+	OwnerCharacter = Cast<ACharacter>(GetOwner());
+	if (!IsValid(OwnerCharacter)) return;
+	
 	if (GetOwnerRole() == ROLE_AutonomousProxy)
 	{
-		OwnerCharacter = Cast<ACharacter>(GetOwner());
-		if (!IsValid(OwnerCharacter)) return;
-		
 		RequestCharacterMesh();
+	}
+
+	if (IsValid(CharacterMesh))
+	{
+		SetMesh(CharacterMesh);
 	}
 }
 
@@ -41,7 +47,7 @@ void UManageCharacterMeshAC::UpdateCharacterMesh(const FName& MeshName)
 	auto* Mesh = CharacterMeshesDataAsset->GetMeshByName(MeshName);
 	if (IsValid(Mesh))
 	{
-		Server_UpdateMesh(Mesh);
+		Server_SetCharacterMesh(Mesh);
 	}
 }
 
@@ -62,27 +68,52 @@ void UManageCharacterMeshAC::RequestCharacterMesh()
 	PC->GetCosmeticCustomCharacterData(UserSessionGUID, CharacterName);
 }
 
-void UManageCharacterMeshAC::Server_UpdateMesh_Implementation(USkeletalMesh* Mesh)
+void UManageCharacterMeshAC::OnRep_CharacterMesh()
 {
-	NetMulticast_UpdateMesh(Mesh);
+	// FString Text = "OnRep_" + GetNameSafe(CharacterMesh);
+
+	// ENetRole R = GetOwnerRole();
+	// switch (R)
+	// {
+	// case ROLE_SimulatedProxy: UKismetSystemLibrary::PrintString(this, Text + "   Simulated", true, true, FLinearColor::Red, 25.f); break;
+	// case ROLE_AutonomousProxy: UKismetSystemLibrary::PrintString(this, Text + "   Autonomous", true, true, FLinearColor::Red, 25.f); break;
+	// case ROLE_Authority: UKismetSystemLibrary::PrintString(this, Text + "   Server", true, true, FLinearColor::Red, 25.f); break;
+	// }
+
+	
+	SetMesh(CharacterMesh);
 }
 
-bool UManageCharacterMeshAC::Server_UpdateMesh_Validate(USkeletalMesh* Mesh)
-{
-	return true;
-}
-
-void UManageCharacterMeshAC::NetMulticast_UpdateMesh_Implementation(USkeletalMesh* Mesh)
+void UManageCharacterMeshAC::SetMesh(USkeletalMesh* Mesh)
 {
 	if (IsValid(Mesh))
 	{
 		if (IsValid(OwnerCharacter))
 		{
-			USkeletalMeshComponent* CharacterMesh = OwnerCharacter->GetMesh();
-			if (IsValid(CharacterMesh))
+			USkeletalMeshComponent* L_CharacterMesh = OwnerCharacter->GetMesh();
+			if (IsValid(L_CharacterMesh))
 			{
-				CharacterMesh->SetSkeletalMesh(Mesh);
+				L_CharacterMesh->SetSkeletalMesh(Mesh);
 			}
 		}
 	}
 }
+
+void UManageCharacterMeshAC::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	// DOREPLIFETIME(UManageCharacterMeshAC, CharacterMesh);
+	DOREPLIFETIME_CONDITION_NOTIFY(UManageCharacterMeshAC, CharacterMesh, COND_None, REPNOTIFY_Always);
+}
+
+void UManageCharacterMeshAC::Server_SetCharacterMesh_Implementation(USkeletalMesh* Mesh)
+{
+	CharacterMesh = Mesh;
+}
+
+bool UManageCharacterMeshAC::Server_SetCharacterMesh_Validate(USkeletalMesh* Mesh)
+{
+	return true;
+}
+
