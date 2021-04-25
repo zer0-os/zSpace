@@ -31,12 +31,10 @@ void USelectCharacterBoxUserWidget::NativePreConstruct()
 	}
 	if (IsValid(NextCharacterMesh))
 	{
-		NextCharacterMesh->SetVisibility(ESlateVisibility::Collapsed);
 		NextCharacterMesh->OnClicked.AddUniqueDynamic(this, &USelectCharacterBoxUserWidget::OnClickedNextCharacterMesh);
 	}
 	if (IsValid(PreviousCharacterMesh))
 	{
-		PreviousCharacterMesh->SetVisibility(ESlateVisibility::Collapsed);
 		PreviousCharacterMesh->OnClicked.AddUniqueDynamic(this, &USelectCharacterBoxUserWidget::OnClickedPreviousCharacterMesh);
 	}
 
@@ -45,6 +43,19 @@ void USelectCharacterBoxUserWidget::NativePreConstruct()
 	if (OutActors.IsValidIndex(0))
 	{
 		PreviewCharacter = Cast<APreviewCharacter>(OutActors[0]);
+	}
+}
+
+void USelectCharacterBoxUserWidget::NativeConstruct()
+{
+	Super::NativeConstruct();
+	if (IsValid(NextCharacterMesh))
+	{
+		NextCharacterMesh->SetVisibility(ESlateVisibility::Collapsed);
+	}
+	if (IsValid(PreviousCharacterMesh))
+	{
+		PreviousCharacterMesh->SetVisibility(ESlateVisibility::Collapsed);
 	}
 }
 

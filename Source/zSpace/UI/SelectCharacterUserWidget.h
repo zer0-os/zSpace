@@ -22,6 +22,8 @@ class ZSPACE_API USelectCharacterUserWidget : public UUserWidget, public IUIReso
 protected:
 	virtual void NativePreConstruct() override;
 
+	virtual void NativeConstruct() override;
+
 	virtual void NativeDestruct() override;
 
 	UFUNCTION()
@@ -55,6 +57,9 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<class UUserWidget> SelectCharacterBoxSubClass;
 
+	UPROPERTY(BlueprintReadWrite, Transient, BlueprintSetter=SetMainCharacterBox)
+	class UBorder* MainCharacterBox = nullptr;
+
 public:
 	UFUNCTION(BlueprintCallable, BlueprintCosmetic)
 	void CreateCharacterSelectBox(const FCharacterSelectBoxInfo& CharacterSelectBoxInfo, class UBorder* ParentBorder);
@@ -64,4 +69,7 @@ public:
 
 	UFUNCTION(BlueprintPure)
 	class USelectCharacterBoxUserWidget* GetSelectedCharacterBox() const;
+
+	UFUNCTION(BlueprintSetter)
+	void SetMainCharacterBox(class UBorder* NewValue);
 };
