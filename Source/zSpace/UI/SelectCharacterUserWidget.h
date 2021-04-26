@@ -48,17 +48,17 @@ public:
 	UPROPERTY(BlueprintReadWrite, meta=(BindWidgetOptional))
 	class UUserWidget* CreateNewCharacterWidget = nullptr;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	class UMediaPlayer* MediaPlayer = nullptr;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	class UMediaSource* MediaSource = nullptr;
-
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<class UUserWidget> SelectCharacterBoxSubClass;
 
 	UPROPERTY(BlueprintReadWrite, Transient, BlueprintSetter=SetMainCharacterBox)
 	class UBorder* MainCharacterBox = nullptr;
+	
+	UPROPERTY(BlueprintReadWrite, Transient)
+	class UBorder* LeftCharacterBox = nullptr;
+	
+	UPROPERTY(BlueprintReadWrite, Transient)
+	class UBorder* RightCharacterBox = nullptr;
 
 public:
 	UFUNCTION(BlueprintCallable, BlueprintCosmetic)
@@ -72,4 +72,10 @@ public:
 
 	UFUNCTION(BlueprintSetter)
 	void SetMainCharacterBox(class UBorder* NewValue);
+
+	UFUNCTION(BlueprintCallable)
+	void UpdateBorderToRight();
+	
+	UFUNCTION(BlueprintCallable)
+	void UpdateBorderToLeft();
 };
