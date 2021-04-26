@@ -3,15 +3,16 @@
 
 #include "zSpace/ZSGamePlayerController/ZSGamePlayerController.h"
 
-#include "OWSCharacterWithAbilities.h"
-#include "OWSGameMode.h"
-#include "Net/UnrealNetwork.h"
-#include "zSpace/Game/ZSpaceGameInstance.h"
 #include "zSpace/Game/WidgetLoadingManagerObject/WidgetLoadingManagerObject.h"
-#include "OWSPlayerState.h"
-#include "Blueprint/UserWidget.h"
+#include "zSpace/BlueprintFunctionLibrary/UIBlueprintFunctionLibrary.h"
+#include "zSpace/Game/ZSpaceGameInstance.h"
+#include "OWSCharacterWithAbilities.h"
 #include "GameFramework/PlayerStart.h"
 #include "Kismet/GameplayStatics.h"
+#include "Blueprint/UserWidget.h"
+#include "Net/UnrealNetwork.h"
+#include "OWSPlayerState.h"
+#include "OWSGameMode.h"
 
 void AZSGamePlayerController::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
@@ -119,6 +120,31 @@ FVector  AZSGamePlayerController::GetClosePlayerStart()
 	}
 	UE_LOG(LogTemp, Warning, TEXT("ZSpace Location = %s"),  *R_Location.ToString());
 	return R_Location;
+}
+
+void AZSGamePlayerController::SetupInputComponent()
+{
+	Super::SetupInputComponent();
+	
+	if (!IsValid(InputComponent)) return;
+
+	InputComponent->BindAction(FName("HideOrShowGameplayWidget"), IE_Pressed, this, &AZSGamePlayerController::HideOrShowGameplayWidget);
+}
+
+void AZSGamePlayerController::HideOrShowGameplayWidget()
+{
+	UUserWidget* Widget = UUIBlueprintFunctionLibrary::GetWidgetByWidgetType(this, EWidgetType::Gameplay);
+	if (IsValid(Widget))
+	{
+		if (Widget->IsInViewport())
+		{
+			Widget->RemoveFromParent();
+		}
+		else
+		{
+			Widget->AddToViewport();
+		}
+	}
 }
 
 bool AZSGamePlayerController::ReTeleport_Validate()
