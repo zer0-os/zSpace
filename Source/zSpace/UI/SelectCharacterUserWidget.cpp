@@ -3,6 +3,7 @@
 
 #include "zSpace/UI/SelectCharacterUserWidget.h"
 
+#include "ZSCustomButton.h"
 #include "../BlueprintFunctionLibrary/UIBlueprintFunctionLibrary.h"
 #include "zSpace/UI/SelectCharacterBoxUserWidget.h"
 #include "../PlayerController/ZSLoginPlayerController.h"
@@ -25,6 +26,15 @@ void USelectCharacterUserWidget::NativePreConstruct()
 			PlayerController->OnEscButtonPressed.AddDynamic(this, &USelectCharacterUserWidget::ToPreviousMenu);
 		}
 	}
+	if (IsValid(SelectCharacterMiddleCanvas))
+	{
+		MainCharacterBox = SelectCharacterMiddleCanvas;
+	}
+}
+
+void USelectCharacterUserWidget::NativeConstruct()
+{
+	Super::NativeConstruct();
 }
 
 void USelectCharacterUserWidget::NativeDestruct()
@@ -134,9 +144,14 @@ void USelectCharacterUserWidget::ShowCharacters(const TArray<FUserCharacter>& Us
 			auto* Child = Cast<USelectCharacterBoxUserWidget>(Border->GetChildAt(0));
 			if (IsValid(Child))
 			{
-				const bool bIsShowButtons =  Border == SelectCharacterMiddleCanvas;
+				const bool bIsShowButtons =  Border == MainCharacterBox;
 				Child->WidgetSwitcherEditMode->SetVisibility(bIsShowButtons ? ESlateVisibility::Visible : ESlateVisibility::Collapsed);
 				Child->WidgetSwitcherDoneEditMode->SetVisibility(bIsShowButtons ? ESlateVisibility::Visible : ESlateVisibility::Collapsed);
+				if (!bIsShowButtons)
+				{
+					Child->NextCharacterMesh->SetVisibility(ESlateVisibility::Collapsed);
+					Child->PreviousCharacterMesh->SetVisibility(ESlateVisibility::Collapsed);
+				}
 			}
 			
 		}
@@ -157,12 +172,17 @@ void USelectCharacterUserWidget::ShowCharacters(const TArray<FUserCharacter>& Us
 
 USelectCharacterBoxUserWidget* USelectCharacterUserWidget::GetSelectedCharacterBox() const
 {
-	if (IsValid(SelectCharacterMiddleCanvas))
+	if (IsValid(MainCharacterBox))
 	{
-		auto* Child = SelectCharacterMiddleCanvas->GetChildAt(0);
+		auto* Child = MainCharacterBox->GetChildAt(0);
 
 		return Cast<USelectCharacterBoxUserWidget>(Child);
 	}
 
 	return nullptr;
+}
+
+void USelectCharacterUserWidget::SetMainCharacterBox(UBorder* NewValue)
+{
+	MainCharacterBox = NewValue;
 }

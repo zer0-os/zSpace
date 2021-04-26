@@ -39,10 +39,20 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	class UCharacterMeshesDataAsset* CharacterMeshesDataAsset = nullptr;
 
-public:
-	UFUNCTION(NetMulticast, Reliable)
-	void NetMulticast_UpdateMesh(class USkeletalMesh* Mesh);
+	UPROPERTY(ReplicatedUsing=OnRep_CharacterMesh)
+	class USkeletalMesh* CharacterMesh = nullptr;
 
+	UFUNCTION()
+	void OnRep_CharacterMesh();
+
+public:
 	UFUNCTION(Server, Reliable, WithValidation)
-	void Server_UpdateMesh(class USkeletalMesh* Mesh);
+	void Server_SetCharacterMesh(class USkeletalMesh* Mesh);
+
+	UFUNCTION(BlueprintCallable)
+	void SetMesh(class USkeletalMesh* Mesh);
+
+protected:
+	virtual void GetLifetimeReplicatedProps(TArray <class FLifetimeProperty>& OutLifetimeProps) const override;
+	
 };

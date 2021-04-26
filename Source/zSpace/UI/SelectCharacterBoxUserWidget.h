@@ -19,6 +19,8 @@ class ZSPACE_API USelectCharacterBoxUserWidget : public UUserWidget
 protected:
 	virtual void NativePreConstruct() override;
 
+	virtual void NativeConstruct() override;
+
 public:
 	UPROPERTY(BlueprintReadWrite, meta=(BindWidget))
 	class UTextBlock* PlayerLevel = nullptr;
