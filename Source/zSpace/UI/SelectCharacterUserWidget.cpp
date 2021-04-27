@@ -164,6 +164,7 @@ void USelectCharacterUserWidget::ShowCharacters(const TArray<FUserCharacter>& Us
 			if (IsValid(Child))
 			{
 				Child->RemoveFromParent();
+				UKismetSystemLibrary::PrintString(this, "+++++++++++++++");
 			}
 		}
 	};
