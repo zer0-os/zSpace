@@ -25,12 +25,12 @@ void USelectCharacterUserWidget::NativePreConstruct()
 		PlayerController->OnEscButtonPressed.AddUniqueDynamic(this, &USelectCharacterUserWidget::ToPreviousMenu);
 	}
 
-	const bool bIsValidBorders = IsValid(SelectCharacterMiddleCanvas) && IsValid(SelectCharacterRightCanvas) && IsValid(SelectCharacterLeftCanvas);
+	const bool bIsValidBorders = IsValid(SelectCharacterMiddleBorder) && IsValid(SelectCharacterRightBorder) && IsValid(SelectCharacterLeftBorder);
 	if (bIsValidBorders)
 	{
-		MainCharacterBox = SelectCharacterMiddleCanvas;
-		RightCharacterBox = SelectCharacterRightCanvas;
-		LeftCharacterBox = SelectCharacterLeftCanvas;
+		MainCharacterBox = SelectCharacterMiddleBorder;
+		RightCharacterBox = SelectCharacterRightBorder;
+		LeftCharacterBox = SelectCharacterLeftBorder;
 	}
 }
 
@@ -170,17 +170,30 @@ void USelectCharacterUserWidget::ShowCharacters(const TArray<FUserCharacter>& Us
 
 	CheckAndCreate(CurrentCharacterIndex, MainCharacterBox);
 
-	// Right
-	const bool bIsRightBordersEqual = RightCharacterBox == SelectCharacterRightCanvas;
-	int8 Value = bIsRightBordersEqual ? 1 : -1;
-	CheckAndCreate(CurrentCharacterIndex + Value, RightCharacterBox);
+	if (LastChangeCharacterDirection == EChangeCharacterDirection::ToLeft)
+	{
+		// Right
+		const bool bIsRightBordersEqual = RightCharacterBox == SelectCharacterRightBorder;
+		int8 Value = bIsRightBordersEqual ? -1 : 1;
+		CheckAndCreate(CurrentCharacterIndex + Value, RightCharacterBox);
 
-	// Left
-	const bool bIsLeftBordersEqual = LeftCharacterBox == SelectCharacterLeftCanvas;
-	Value = bIsLeftBordersEqual ? -1 : 1;
-	CheckAndCreate(CurrentCharacterIndex + Value, LeftCharacterBox);
-	
-	// UKismetSystemLibrary::PrintString(this, FString::FromInt(CurrentCharacterIndex));
+		// Left
+		const bool bIsLeftBordersEqual = LeftCharacterBox == SelectCharacterLeftBorder;
+		Value = bIsLeftBordersEqual ? 1 : -1;
+		CheckAndCreate(CurrentCharacterIndex + Value, LeftCharacterBox);
+	}
+	else
+	{
+		// Right
+		const bool bIsRightBordersEqual = RightCharacterBox == SelectCharacterRightBorder;
+		int8 Value = bIsRightBordersEqual ? 1 : -1;
+		CheckAndCreate(CurrentCharacterIndex + Value, RightCharacterBox);
+
+		// Left
+		const bool bIsLeftBordersEqual = LeftCharacterBox == SelectCharacterLeftBorder;
+		Value = bIsLeftBordersEqual ? -1 : 1;
+		CheckAndCreate(CurrentCharacterIndex + Value, LeftCharacterBox);
+	}
 }
 
 USelectCharacterBoxUserWidget* USelectCharacterUserWidget::GetSelectedCharacterBox() const
@@ -202,14 +215,21 @@ void USelectCharacterUserWidget::SetMainCharacterBox(UBorder* NewValue)
 
 void USelectCharacterUserWidget::UpdateBorderToRight()
 {
-	LeftCharacterBox = SelectCharacterRightCanvas;
-	MainCharacterBox = SelectCharacterLeftCanvas;
-	RightCharacterBox = SelectCharacterMiddleCanvas;
+	LeftCharacterBox = AnimationBorderLeft;
+	MainCharacterBox = SelectCharacterLeftBorder;
+	RightCharacterBox = SelectCharacterMiddleBorder;
+	
+	LastChangeCharacterDirection = EChangeCharacterDirection::ToRight;
 }
 
 void USelectCharacterUserWidget::UpdateBorderToLeft()
 {
-	MainCharacterBox = SelectCharacterRightCanvas;
-	RightCharacterBox = SelectCharacterLeftCanvas;
-	LeftCharacterBox = SelectCharacterMiddleCanvas;
+	if (LastChangeCharacterDirection == EChangeCharacterDirection::ToRight)
+	{
+		LeftCharacterBox = SelectCharacterLeftBorder;
+		MainCharacterBox = SelectCharacterMiddleBorder;
+		RightCharacterBox = SelectCharacterRightBorder;
+	}
+	
+	LastChangeCharacterDirection = EChangeCharacterDirection::ToLeft;
 }
