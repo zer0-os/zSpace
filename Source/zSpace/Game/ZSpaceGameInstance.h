@@ -27,17 +27,15 @@ public:
 	// [Client]
 	UFUNCTION(BlueprintCosmetic)
 	void CreateWidgetLoadingManagerObject();
+	
+	UFUNCTION(BlueprintPure)
+	class UWidgetLoadingManagerObject * GetWidgetLoadingManagerObject() const ;
 
 protected:
 	
 	virtual void Init() override;
 
-public:
-
-	UFUNCTION(BlueprintPure)
-	class UWidgetLoadingManagerObject * GetWidgetLoadingManagerObject() const ;
 	
-
 protected:
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="UI")
@@ -64,5 +62,9 @@ protected:
 	 */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="UI")
 	TSubclassOf<class UUserWidget> LoadingWidgetSubClass;
+
+public:
+	UPROPERTY(BlueprintReadWrite, Category = "Sessions")
+	FString CharacterName;
 
 };

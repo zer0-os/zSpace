@@ -3,43 +3,47 @@
 
 #include "zSpace/UI/SelectCharacterUserWidget.h"
 
+#include "ZSCustomButton.h"
 #include "../BlueprintFunctionLibrary/UIBlueprintFunctionLibrary.h"
-#include "../PlayerController/ZSPlayerController.h"
+#include "zSpace/UI/SelectCharacterBoxUserWidget.h"
+#include "../PlayerController/ZSLoginPlayerController.h"
 #include "../Components/ManageWidgetsResolution.h"
-#include <MediaAssets/Public/MediaSource.h>
-#include <MediaAssets/Public/MediaPlayer.h>
-#include "SelectCharacterBoxUserWidget.h"
-#include <Kismet/KismetSystemLibrary.h>
 #include "../Game/ZSpaceGameInstance.h"
-#include <Components/BorderSlot.h>
+#include "Components/WidgetSwitcher.h"
+#include "Components/BorderSlot.h"
 #include "Components/Border.h"
 #include "../Types/UITypes.h"
-#include "Components/WidgetSwitcher.h"
+#include "Kismet/KismetSystemLibrary.h"
 
 void USelectCharacterUserWidget::NativePreConstruct()
 {
 	Super::NativePreConstruct();
 
-	if (IsValid(MediaPlayer) && IsValid(MediaSource))
-	{
-		MediaPlayer->OpenSource(MediaSource);
-	}
-
-	AZSPlayerController* PlayerController = Cast<AZSPlayerController>(GetOwningPlayer());
+	AZSLoginPlayerController* PlayerController = Cast<AZSLoginPlayerController>(GetOwningPlayer());
 	if (IsValid(PlayerController))
 	{
-		if (!PlayerController->OnEscButtonPressed.IsAlreadyBound(this, &USelectCharacterUserWidget::ToPreviousMenu))
-		{
-			PlayerController->OnEscButtonPressed.AddDynamic(this, &USelectCharacterUserWidget::ToPreviousMenu);
-		}
+		PlayerController->OnEscButtonPressed.AddUniqueDynamic(this, &USelectCharacterUserWidget::ToPreviousMenu);
 	}
+
+	const bool bIsValidBorders = IsValid(SelectCharacterMiddleCanvas) && IsValid(SelectCharacterRightCanvas) && IsValid(SelectCharacterLeftCanvas);
+	if (bIsValidBorders)
+	{
+		MainCharacterBox = SelectCharacterMiddleCanvas;
+		RightCharacterBox = SelectCharacterRightCanvas;
+		LeftCharacterBox = SelectCharacterLeftCanvas;
+	}
+}
+
+void USelectCharacterUserWidget::NativeConstruct()
+{
+	Super::NativeConstruct();
 }
 
 void USelectCharacterUserWidget::NativeDestruct()
 {
 	Super::NativeDestruct();
 
-	AZSPlayerController* PlayerController = Cast<AZSPlayerController>(GetOwningPlayer());
+	AZSLoginPlayerController* PlayerController = Cast<AZSLoginPlayerController>(GetOwningPlayer());
 	if (IsValid(PlayerController))
 	{
 		PlayerController->OnEscButtonPressed.RemoveDynamic(this, &USelectCharacterUserWidget::ToPreviousMenu);
@@ -67,7 +71,7 @@ void USelectCharacterUserWidget::ToPreviousMenu()
 
 	ManageWidgetsResolution->CreateWidgetAndAddViewport(GetOwningPlayer(), WidgetSubClass, Resolution, Widget);
 
-	AZSPlayerController* PlayerController = Cast<AZSPlayerController>(GetOwningPlayer());
+	AZSLoginPlayerController* PlayerController = Cast<AZSLoginPlayerController>(GetOwningPlayer());
 	if (IsValid(PlayerController))
 	{
 		PlayerController->OnEscButtonPressed.RemoveDynamic(this, &USelectCharacterUserWidget::ToPreviousMenu);
@@ -132,6 +136,8 @@ void USelectCharacterUserWidget::ShowCharacters(const TArray<FUserCharacter>& Us
 {
 	auto CheckAndCreate = [this, UserCharacters](const int32 CheckIndex, UBorder* Border) -> void
 	{
+		if (!IsValid(Border)) return;
+		
 		if (UserCharacters.IsValidIndex(CheckIndex))
 		{
 			FCharacterSelectBoxInfo	CharacterInfo;	
@@ -142,11 +148,15 @@ void USelectCharacterUserWidget::ShowCharacters(const TArray<FUserCharacter>& Us
 			auto* Child = Cast<USelectCharacterBoxUserWidget>(Border->GetChildAt(0));
 			if (IsValid(Child))
 			{
-				const bool bIsShowButtons =  Border == SelectCharacterMiddleCanvas;
+				const bool bIsShowButtons =  Border == MainCharacterBox;
 				Child->WidgetSwitcherEditMode->SetVisibility(bIsShowButtons ? ESlateVisibility::Visible : ESlateVisibility::Collapsed);
 				Child->WidgetSwitcherDoneEditMode->SetVisibility(bIsShowButtons ? ESlateVisibility::Visible : ESlateVisibility::Collapsed);
-			}
-			
+				if (!bIsShowButtons)
+				{
+					Child->NextCharacterMesh->SetVisibility(ESlateVisibility::Collapsed);
+					Child->PreviousCharacterMesh->SetVisibility(ESlateVisibility::Collapsed);
+				}
+			}	
 		}
 		else
 		{
@@ -158,19 +168,48 @@ void USelectCharacterUserWidget::ShowCharacters(const TArray<FUserCharacter>& Us
 		}
 	};
 
-	CheckAndCreate(CurrentCharacterIndex, SelectCharacterMiddleCanvas);
-	CheckAndCreate(CurrentCharacterIndex - 1, SelectCharacterLeftCanvas);
-	CheckAndCreate(CurrentCharacterIndex + 1, SelectCharacterRightCanvas);
+	CheckAndCreate(CurrentCharacterIndex, MainCharacterBox);
+
+	// Right
+	const bool bIsRightBordersEqual = RightCharacterBox == SelectCharacterRightCanvas;
+	int8 Value = bIsRightBordersEqual ? 1 : -1;
+	CheckAndCreate(CurrentCharacterIndex + Value, RightCharacterBox);
+
+	// Left
+	const bool bIsLeftBordersEqual = LeftCharacterBox == SelectCharacterLeftCanvas;
+	Value = bIsLeftBordersEqual ? -1 : 1;
+	CheckAndCreate(CurrentCharacterIndex + Value, LeftCharacterBox);
+	
+	// UKismetSystemLibrary::PrintString(this, FString::FromInt(CurrentCharacterIndex));
 }
 
 USelectCharacterBoxUserWidget* USelectCharacterUserWidget::GetSelectedCharacterBox() const
 {
-	if (IsValid(SelectCharacterMiddleCanvas))
+	if (IsValid(MainCharacterBox))
 	{
-		auto* Child = SelectCharacterMiddleCanvas->GetChildAt(0);
+		auto* Child = MainCharacterBox->GetChildAt(0);
 
 		return Cast<USelectCharacterBoxUserWidget>(Child);
 	}
 
 	return nullptr;
+}
+
+void USelectCharacterUserWidget::SetMainCharacterBox(UBorder* NewValue)
+{
+	MainCharacterBox = NewValue;
+}
+
+void USelectCharacterUserWidget::UpdateBorderToRight()
+{
+	LeftCharacterBox = SelectCharacterRightCanvas;
+	MainCharacterBox = SelectCharacterLeftCanvas;
+	RightCharacterBox = SelectCharacterMiddleCanvas;
+}
+
+void USelectCharacterUserWidget::UpdateBorderToLeft()
+{
+	MainCharacterBox = SelectCharacterRightCanvas;
+	RightCharacterBox = SelectCharacterLeftCanvas;
+	LeftCharacterBox = SelectCharacterMiddleCanvas;
 }

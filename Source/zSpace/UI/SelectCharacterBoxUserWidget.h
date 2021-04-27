@@ -5,7 +5,6 @@
 #include "CoreMinimal.h"
 #include "../Types/UITypes.h"
 #include "Blueprint/UserWidget.h"
-#include "Components/EditableTextBox.h"
 
 #include "SelectCharacterBoxUserWidget.generated.h"
 
@@ -19,6 +18,8 @@ class ZSPACE_API USelectCharacterBoxUserWidget : public UUserWidget
 
 protected:
 	virtual void NativePreConstruct() override;
+
+	virtual void NativeConstruct() override;
 
 public:
 	UPROPERTY(BlueprintReadWrite, meta=(BindWidget))
@@ -56,13 +57,22 @@ public:
 	
 	UPROPERTY(BlueprintReadWrite, meta=(BindWidget))
 	class UEditableTextBox* NewCharacterName = nullptr;
+	
+	UPROPERTY(BlueprintReadWrite, meta=(BindWidget))
+	class UZSCustomButton* NextCharacterMesh = nullptr;
+	
+	UPROPERTY(BlueprintReadWrite, meta=(BindWidget))
+	class UZSCustomButton* PreviousCharacterMesh = nullptr;
 
 	UPROPERTY(BlueprintReadWrite)
 	uint8 bIsEditMode : 1;
 
 	UPROPERTY(BlueprintReadWrite)
 	uint8 bIsCreateCharacterMode : 1;
-	
+
+	UPROPERTY()
+	class APreviewCharacter* PreviewCharacter = nullptr;
+
 public:
 	UFUNCTION(BlueprintCallable)
 	void SetupWidget(const FCharacterSelectBoxInfo& CharacterSelectBoxInfo);
@@ -71,10 +81,18 @@ protected:
 	UFUNCTION()
 	void OnClickedEditModeButton();
 	
+	UFUNCTION()
+	void OnClickedNextCharacterMesh();
+	
+	UFUNCTION()
+	void OnClickedPreviousCharacterMesh();
+
+	UFUNCTION()
+	void OnClickedDoneEditModeButton();
+	
 	UFUNCTION(BlueprintCallable)
 	void ChangeCreateCharacterMode();
 
 	UFUNCTION(BlueprintCallable)
 	void ChangeNormalMode();
-	
 };

@@ -4,3 +4,5 @@
 
 //#include "Engine.h"
 #include "CoreMinimal.h"
+
+#define MESH_NAME FString("MeshName")

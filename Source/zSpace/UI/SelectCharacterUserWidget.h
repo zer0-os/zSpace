@@ -5,11 +5,9 @@
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
 #include "zSpace/Types/UITypes.h"
-#include "../Interfaces/UIResolutionInterface.h"
 #include "OWSPlayerController.h"
 #include "SelectCharacterBoxUserWidget.h"
-#include "Chaos/AABB.h"
-#include "Chaos/AABB.h"
+#include "../Interfaces/UIResolutionInterface.h"
 
 #include "SelectCharacterUserWidget.generated.h"
 
@@ -23,6 +21,8 @@ class ZSPACE_API USelectCharacterUserWidget : public UUserWidget, public IUIReso
 
 protected:
 	virtual void NativePreConstruct() override;
+
+	virtual void NativeConstruct() override;
 
 	virtual void NativeDestruct() override;
 
@@ -48,15 +48,18 @@ public:
 	UPROPERTY(BlueprintReadWrite, meta=(BindWidgetOptional))
 	class UUserWidget* CreateNewCharacterWidget = nullptr;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	class UMediaPlayer* MediaPlayer = nullptr;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	class UMediaSource* MediaSource = nullptr;
-
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<class UUserWidget> SelectCharacterBoxSubClass;
+
+	UPROPERTY(BlueprintReadWrite, Transient, BlueprintSetter=SetMainCharacterBox)
+	class UBorder* MainCharacterBox = nullptr;
 	
+	UPROPERTY(BlueprintReadWrite, Transient)
+	class UBorder* LeftCharacterBox = nullptr;
+	
+	UPROPERTY(BlueprintReadWrite, Transient)
+	class UBorder* RightCharacterBox = nullptr;
+
 public:
 	UFUNCTION(BlueprintCallable, BlueprintCosmetic)
 	void CreateCharacterSelectBox(const FCharacterSelectBoxInfo& CharacterSelectBoxInfo, class UBorder* ParentBorder);
@@ -66,5 +69,13 @@ public:
 
 	UFUNCTION(BlueprintPure)
 	class USelectCharacterBoxUserWidget* GetSelectedCharacterBox() const;
+
+	UFUNCTION(BlueprintSetter)
+	void SetMainCharacterBox(class UBorder* NewValue);
+
+	UFUNCTION(BlueprintCallable)
+	void UpdateBorderToRight();
 	
+	UFUNCTION(BlueprintCallable)
+	void UpdateBorderToLeft();
 };
