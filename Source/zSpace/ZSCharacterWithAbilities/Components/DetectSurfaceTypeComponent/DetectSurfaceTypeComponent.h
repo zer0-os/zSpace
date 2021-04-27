@@ -55,11 +55,15 @@ private:
 	void PlayRandomSound(const FCharacterUnderFootSurfaceData & NewCharacterUnderFootSurfaceData, const FVector & NewLocation);
 	
 	void SpawnParticle(const FCharacterUnderFootSurfaceData & NewCharacterUnderFootSurfaceData, const FVector & NewLocation);
+
 	
 public:	
 
 	UFUNCTION(BlueprintCallable)
 	void PutFootOnGround(ECharacterFootType NewCharacterFootType);
+	
+	UFUNCTION()
+	void OnMovementModeChanged ( EMovementMode NewPreviousMovementMode, uint8 NewPreviousCustomMode );
 		
 };
 

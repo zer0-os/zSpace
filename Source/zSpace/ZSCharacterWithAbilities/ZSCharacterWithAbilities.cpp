@@ -5,13 +5,14 @@
 
 #include "OWSGameMode.h"
 #include "Camera/CameraComponent.h"
+#include "Components/CharacterMovementComponent/ZSCharacterMovementComponent.h"
 #include "Components/InputComponent.h"
 #include "Components/DetectSurfaceTypeComponent/DetectSurfaceTypeComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetSystemLibrary.h"
 
-AZSCharacterWithAbilities::AZSCharacterWithAbilities(const FObjectInitializer& NewObjectInitializer) : Super(NewObjectInitializer)
+AZSCharacterWithAbilities::AZSCharacterWithAbilities(const FObjectInitializer& NewObjectInitializer) : Super(NewObjectInitializer.SetDefaultSubobjectClass<UZSCharacterMovementComponent>(ACharacter::CharacterMovementComponentName))
 {
 	SpringArmComponent = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArmComponent"));
 	checkf(nullptr != SpringArmComponent, TEXT("The SpringArmComponent is nullptr."));

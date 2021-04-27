@@ -3,6 +3,29 @@
 
 #include "zSpace/ZSCharacterWithAbilities/Components/DetectSurfaceTypeComponent/CharacterUnderFootSurfaceDA/CharacterUnderFootSurfaceDA.h"
 
+FFootHitGroundData::FFootHitGroundData()
+{
+	MovementMode = EMovementMode::MOVE_None;
+	PreviousMovementMode = EMovementMode::MOVE_None;
+	SoundBase = nullptr;
+}
+
+bool FFootHitGroundData::operator==(const FFootHitGroundData& NewFootHitGroundData)
+{
+	return NewFootHitGroundData.MovementMode == MovementMode && NewFootHitGroundData.SoundBase == SoundBase;
+}
+
+bool operator==(EMovementMode& NewMovementMode, const FFootHitGroundData& NewFootHitGroundDataB)
+{
+	return NewMovementMode == NewFootHitGroundDataB.MovementMode;
+}
+
+bool operator==(const FFootHitGroundData& NewFootHitGroundDataA, EMovementMode& NewMovementModeB)
+{
+	return NewFootHitGroundDataA.MovementMode == NewMovementModeB;
+}
+
+
 TArray<FCharacterUnderFootSurfaceData> UCharacterUnderFootSurfaceDA::GetCharacterUnderFootSurfaceDataArray() const
 {
 	return CharacterUnderFootSurfaceDataArray;
@@ -26,4 +49,19 @@ FCharacterUnderFootSurfaceData UCharacterUnderFootSurfaceDA::GetCharacterUnderFo
 		}
 	}
 	return R_CharacterUnderFootSurfaceData;	
+}
+
+FFootHitGroundData UCharacterUnderFootSurfaceDA::GetFootHitGroundDataByMovementMode( EMovementMode MovementMode, bool& NewIsValid)
+{
+	NewIsValid = false;
+	FFootHitGroundData R_FootHitGroundData;
+	for(const FFootHitGroundData & Iter : FootHitGroundDataArray)
+	{
+		if(Iter == MovementMode)
+		{
+			NewIsValid = true;
+			R_FootHitGroundData = Iter;
+		}
+	}
+	return R_FootHitGroundData;
 }

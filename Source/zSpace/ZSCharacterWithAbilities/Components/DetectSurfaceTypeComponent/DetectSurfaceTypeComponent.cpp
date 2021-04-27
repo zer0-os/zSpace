@@ -8,6 +8,7 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "PhysicalMaterials/PhysicalMaterial.h"
 #include "Particles/ParticleSystem.h"
+#include "zSpace/ZSCharacterWithAbilities/Components/CharacterMovementComponent/ZSCharacterMovementComponent.h"
 
 // Sets default values for this component's properties
 UDetectSurfaceTypeComponent::UDetectSurfaceTypeComponent()
@@ -19,7 +20,15 @@ UDetectSurfaceTypeComponent::UDetectSurfaceTypeComponent()
 	//EObjectTypeQuery> >  ObjectTypes
 	ObjectTypes.Add( UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_GameTraceChannel4));
 	ObjectTypes.Add( UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_WorldStatic));
-	
+	ACharacter * L_Character = Cast<ACharacter>(GetOwner());
+	if(L_Character)
+	{
+		UZSCharacterMovementComponent * MovementComponent = Cast<UZSCharacterMovementComponent>(L_Character->GetCharacterMovement());
+		if(MovementComponent)
+		{
+			MovementComponent->OnMovementModeChangedDelegate.AddDynamic(this, &UDetectSurfaceTypeComponent::OnMovementModeChanged);
+		}
+	}
 	// ...
 }
 
@@ -111,6 +120,7 @@ void UDetectSurfaceTypeComponent::PutFootOnGround(ECharacterFootType NewCharacte
 	}
 }
 
+
 void UDetectSurfaceTypeComponent::PlayRandomSound(const FCharacterUnderFootSurfaceData & NewCharacterUnderFootSurfaceData, const FVector & NewLocation)
 {
 	const int32 L_Num = NewCharacterUnderFootSurfaceData.SurfaceSoundBaseArray.Num();
@@ -129,5 +139,24 @@ void UDetectSurfaceTypeComponent::SpawnParticle(const FCharacterUnderFootSurface
 	if(L_ParticleSystem)
 	{
 		UGameplayStatics::SpawnEmitterAtLocation(GetOwner(), L_ParticleSystem, NewLocation);
+	}
+}
+
+void UDetectSurfaceTypeComponent::OnMovementModeChanged(EMovementMode NewPreviousMovementMode, uint8 NewPreviousCustomMode)
+{
+	checkf(nullptr != CharacterUnderFootSurfaceDA, TEXT("The CharacterUnderFootSurfaceDA is nulltrp. Please set data asset."));
+	if(IsValid(CharacterUnderFootSurfaceDA))
+	{
+		bool L_IsStatus = false;
+		const FFootHitGroundData L_FootHitGroundData =  CharacterUnderFootSurfaceDA->GetFootHitGroundDataByMovementMode(NewPreviousMovementMode, L_IsStatus);
+		if(L_IsStatus && NewPreviousCustomMode == L_FootHitGroundData.PreviousMovementMode)
+		{
+			USoundBase * L_SoundBase = 	L_FootHitGroundData.SoundBase.LoadSynchronous();
+			checkf(nullptr != L_SoundBase, TEXT("The L_SoundBase is nulltrp. Please "));
+			if(IsValid(L_SoundBase))
+			{
+				UGameplayStatics::PlaySoundAtLocation(GetOwner(), L_SoundBase, GetOwner()->GetActorLocation());
+			}
+		}
 	}
 }
