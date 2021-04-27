@@ -13,6 +13,7 @@
 #include "Components/BorderSlot.h"
 #include "Components/Border.h"
 #include "../Types/UITypes.h"
+#include "Kismet/KismetSystemLibrary.h"
 
 void USelectCharacterUserWidget::NativePreConstruct()
 {
@@ -21,14 +22,15 @@ void USelectCharacterUserWidget::NativePreConstruct()
 	AZSLoginPlayerController* PlayerController = Cast<AZSLoginPlayerController>(GetOwningPlayer());
 	if (IsValid(PlayerController))
 	{
-		if (!PlayerController->OnEscButtonPressed.IsAlreadyBound(this, &USelectCharacterUserWidget::ToPreviousMenu))
-		{
-			PlayerController->OnEscButtonPressed.AddDynamic(this, &USelectCharacterUserWidget::ToPreviousMenu);
-		}
+		PlayerController->OnEscButtonPressed.AddUniqueDynamic(this, &USelectCharacterUserWidget::ToPreviousMenu);
 	}
-	if (IsValid(SelectCharacterMiddleCanvas))
+
+	const bool bIsValidBorders = IsValid(SelectCharacterMiddleCanvas) && IsValid(SelectCharacterRightCanvas) && IsValid(SelectCharacterLeftCanvas);
+	if (bIsValidBorders)
 	{
 		MainCharacterBox = SelectCharacterMiddleCanvas;
+		RightCharacterBox = SelectCharacterRightCanvas;
+		LeftCharacterBox = SelectCharacterLeftCanvas;
 	}
 }
 
@@ -134,6 +136,8 @@ void USelectCharacterUserWidget::ShowCharacters(const TArray<FUserCharacter>& Us
 {
 	auto CheckAndCreate = [this, UserCharacters](const int32 CheckIndex, UBorder* Border) -> void
 	{
+		if (!IsValid(Border)) return;
+		
 		if (UserCharacters.IsValidIndex(CheckIndex))
 		{
 			FCharacterSelectBoxInfo	CharacterInfo;	
@@ -152,8 +156,7 @@ void USelectCharacterUserWidget::ShowCharacters(const TArray<FUserCharacter>& Us
 					Child->NextCharacterMesh->SetVisibility(ESlateVisibility::Collapsed);
 					Child->PreviousCharacterMesh->SetVisibility(ESlateVisibility::Collapsed);
 				}
-			}
-			
+			}	
 		}
 		else
 		{
@@ -165,9 +168,19 @@ void USelectCharacterUserWidget::ShowCharacters(const TArray<FUserCharacter>& Us
 		}
 	};
 
-	CheckAndCreate(CurrentCharacterIndex, SelectCharacterMiddleCanvas);
-	CheckAndCreate(CurrentCharacterIndex - 1, SelectCharacterLeftCanvas);
-	CheckAndCreate(CurrentCharacterIndex + 1, SelectCharacterRightCanvas);
+	CheckAndCreate(CurrentCharacterIndex, MainCharacterBox);
+
+	// Right
+	const bool bIsRightBordersEqual = RightCharacterBox == SelectCharacterRightCanvas;
+	int8 Value = bIsRightBordersEqual ? 1 : -1;
+	CheckAndCreate(CurrentCharacterIndex + Value, RightCharacterBox);
+
+	// Left
+	const bool bIsLeftBordersEqual = LeftCharacterBox == SelectCharacterLeftCanvas;
+	Value = bIsLeftBordersEqual ? -1 : 1;
+	CheckAndCreate(CurrentCharacterIndex + Value, LeftCharacterBox);
+	
+	// UKismetSystemLibrary::PrintString(this, FString::FromInt(CurrentCharacterIndex));
 }
 
 USelectCharacterBoxUserWidget* USelectCharacterUserWidget::GetSelectedCharacterBox() const
@@ -185,4 +198,18 @@ USelectCharacterBoxUserWidget* USelectCharacterUserWidget::GetSelectedCharacterB
 void USelectCharacterUserWidget::SetMainCharacterBox(UBorder* NewValue)
 {
 	MainCharacterBox = NewValue;
+}
+
+void USelectCharacterUserWidget::UpdateBorderToRight()
+{
+	LeftCharacterBox = SelectCharacterRightCanvas;
+	MainCharacterBox = SelectCharacterLeftCanvas;
+	RightCharacterBox = SelectCharacterMiddleCanvas;
+}
+
+void USelectCharacterUserWidget::UpdateBorderToLeft()
+{
+	MainCharacterBox = SelectCharacterRightCanvas;
+	RightCharacterBox = SelectCharacterLeftCanvas;
+	LeftCharacterBox = SelectCharacterMiddleCanvas;
 }
