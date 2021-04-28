@@ -142,14 +142,15 @@ void UDetectSurfaceTypeComponent::SpawnParticle(const FCharacterUnderFootSurface
 	}
 }
 
-void UDetectSurfaceTypeComponent::OnMovementModeChanged(EMovementMode NewPreviousMovementMode, uint8 NewPreviousCustomMode)
+void UDetectSurfaceTypeComponent::OnMovementModeChanged(EMovementMode NewPreviousMovementMode, EMovementMode NewCurrentMovementMode, uint8 NewPreviousCustomMode)
 {
+	//UE_LOG(LogTemp, Warning, TEXT("NewPreviousMovementMode = %s,   NewCurrentMovementMode = %s"), *UEnum::GetValueAsString<EMovementMode>(NewPreviousMovementMode), *UEnum::GetValueAsString<EMovementMode>(NewCurrentMovementMode));
 	checkf(nullptr != CharacterUnderFootSurfaceDA, TEXT("The CharacterUnderFootSurfaceDA is nulltrp. Please set data asset."));
 	if(IsValid(CharacterUnderFootSurfaceDA))
 	{
 		bool L_IsStatus = false;
-		const FFootHitGroundData L_FootHitGroundData =  CharacterUnderFootSurfaceDA->GetFootHitGroundDataByMovementMode(NewPreviousMovementMode, L_IsStatus);
-		if(L_IsStatus && NewPreviousCustomMode == L_FootHitGroundData.PreviousMovementMode)
+		const FFootHitGroundData L_FootHitGroundData =  CharacterUnderFootSurfaceDA->GetFootHitGroundDataByMovementMode(NewPreviousMovementMode, NewCurrentMovementMode, L_IsStatus);
+		if(L_IsStatus)
 		{
 			USoundBase * L_SoundBase = 	L_FootHitGroundData.SoundBase.LoadSynchronous();
 			checkf(nullptr != L_SoundBase, TEXT("The L_SoundBase is nulltrp. Please "));

@@ -63,7 +63,7 @@ public:
 	void PutFootOnGround(ECharacterFootType NewCharacterFootType);
 	
 	UFUNCTION()
-	void OnMovementModeChanged ( EMovementMode NewPreviousMovementMode, uint8 NewPreviousCustomMode );
+	void OnMovementModeChanged ( EMovementMode NewPreviousMovementMode, EMovementMode NewCurrentMovementMode, uint8 NewPreviousCustomMode );
 		
 };
 

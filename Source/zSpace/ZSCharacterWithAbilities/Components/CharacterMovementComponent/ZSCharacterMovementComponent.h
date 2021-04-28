@@ -20,7 +20,7 @@ public:
 
 	virtual void OnMovementModeChanged ( EMovementMode NewPreviousMovementMode, uint8 NewPreviousCustomMode ) override;
 
-	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FMovementModeChanged, EMovementMode, PreviousMovementMode, uint8, PreviousCustomMode);
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FMovementModeChanged, EMovementMode, PreviousMovementMode, EMovementMode, CurrentMovementMode,  uint8, PreviousCustomMode);
 
 	UPROPERTY(BlueprintAssignable)
 	FMovementModeChanged OnMovementModeChangedDelegate;
