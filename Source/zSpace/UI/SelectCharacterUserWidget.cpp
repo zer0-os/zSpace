@@ -13,6 +13,7 @@
 #include "Components/BorderSlot.h"
 #include "Components/Border.h"
 #include "../Types/UITypes.h"
+#include "Kismet/KismetSystemLibrary.h"
 
 void USelectCharacterUserWidget::NativePreConstruct()
 {
@@ -21,14 +22,15 @@ void USelectCharacterUserWidget::NativePreConstruct()
 	AZSLoginPlayerController* PlayerController = Cast<AZSLoginPlayerController>(GetOwningPlayer());
 	if (IsValid(PlayerController))
 	{
-		if (!PlayerController->OnEscButtonPressed.IsAlreadyBound(this, &USelectCharacterUserWidget::ToPreviousMenu))
-		{
-			PlayerController->OnEscButtonPressed.AddDynamic(this, &USelectCharacterUserWidget::ToPreviousMenu);
-		}
+		PlayerController->OnEscButtonPressed.AddUniqueDynamic(this, &USelectCharacterUserWidget::ToPreviousMenu);
 	}
-	if (IsValid(SelectCharacterMiddleCanvas))
+
+	const bool bIsValidBorders = IsValid(SelectCharacterMiddleBorder) && IsValid(SelectCharacterRightBorder) && IsValid(SelectCharacterLeftBorder);
+	if (bIsValidBorders)
 	{
-		MainCharacterBox = SelectCharacterMiddleCanvas;
+		MainCharacterBox = SelectCharacterMiddleBorder;
+		RightCharacterBox = SelectCharacterRightBorder;
+		LeftCharacterBox = SelectCharacterLeftBorder;
 	}
 }
 
@@ -134,6 +136,8 @@ void USelectCharacterUserWidget::ShowCharacters(const TArray<FUserCharacter>& Us
 {
 	auto CheckAndCreate = [this, UserCharacters](const int32 CheckIndex, UBorder* Border) -> void
 	{
+		if (!IsValid(Border)) return;
+		
 		if (UserCharacters.IsValidIndex(CheckIndex))
 		{
 			FCharacterSelectBoxInfo	CharacterInfo;	
@@ -152,8 +156,7 @@ void USelectCharacterUserWidget::ShowCharacters(const TArray<FUserCharacter>& Us
 					Child->NextCharacterMesh->SetVisibility(ESlateVisibility::Collapsed);
 					Child->PreviousCharacterMesh->SetVisibility(ESlateVisibility::Collapsed);
 				}
-			}
-			
+			}	
 		}
 		else
 		{
@@ -161,13 +164,37 @@ void USelectCharacterUserWidget::ShowCharacters(const TArray<FUserCharacter>& Us
 			if (IsValid(Child))
 			{
 				Child->RemoveFromParent();
+				UKismetSystemLibrary::PrintString(this, "+++++++++++++++");
 			}
 		}
 	};
 
-	CheckAndCreate(CurrentCharacterIndex, SelectCharacterMiddleCanvas);
-	CheckAndCreate(CurrentCharacterIndex - 1, SelectCharacterLeftCanvas);
-	CheckAndCreate(CurrentCharacterIndex + 1, SelectCharacterRightCanvas);
+	CheckAndCreate(CurrentCharacterIndex, MainCharacterBox);
+
+	if (LastChangeCharacterDirection == EChangeCharacterDirection::ToLeft)
+	{
+		// Right
+		const bool bIsRightBordersEqual = RightCharacterBox == SelectCharacterRightBorder;
+		int8 Value = bIsRightBordersEqual ? -1 : 1;
+		CheckAndCreate(CurrentCharacterIndex + Value, RightCharacterBox);
+
+		// Left
+		const bool bIsLeftBordersEqual = LeftCharacterBox == SelectCharacterLeftBorder;
+		Value = bIsLeftBordersEqual ? 1 : -1;
+		CheckAndCreate(CurrentCharacterIndex + Value, LeftCharacterBox);
+	}
+	else
+	{
+		// Right
+		const bool bIsRightBordersEqual = RightCharacterBox == SelectCharacterRightBorder;
+		int8 Value = bIsRightBordersEqual ? 1 : -1;
+		CheckAndCreate(CurrentCharacterIndex + Value, RightCharacterBox);
+
+		// Left
+		const bool bIsLeftBordersEqual = LeftCharacterBox == SelectCharacterLeftBorder;
+		Value = bIsLeftBordersEqual ? -1 : 1;
+		CheckAndCreate(CurrentCharacterIndex + Value, LeftCharacterBox);
+	}
 }
 
 USelectCharacterBoxUserWidget* USelectCharacterUserWidget::GetSelectedCharacterBox() const
@@ -185,4 +212,25 @@ USelectCharacterBoxUserWidget* USelectCharacterUserWidget::GetSelectedCharacterB
 void USelectCharacterUserWidget::SetMainCharacterBox(UBorder* NewValue)
 {
 	MainCharacterBox = NewValue;
+}
+
+void USelectCharacterUserWidget::UpdateBorderToRight()
+{
+	LeftCharacterBox = AnimationBorderLeft;
+	MainCharacterBox = SelectCharacterLeftBorder;
+	RightCharacterBox = SelectCharacterMiddleBorder;
+	
+	LastChangeCharacterDirection = EChangeCharacterDirection::ToRight;
+}
+
+void USelectCharacterUserWidget::UpdateBorderToLeft()
+{
+	if (LastChangeCharacterDirection == EChangeCharacterDirection::ToRight)
+	{
+		LeftCharacterBox = SelectCharacterLeftBorder;
+		MainCharacterBox = SelectCharacterMiddleBorder;
+		RightCharacterBox = SelectCharacterRightBorder;
+	}
+	
+	LastChangeCharacterDirection = EChangeCharacterDirection::ToLeft;
 }

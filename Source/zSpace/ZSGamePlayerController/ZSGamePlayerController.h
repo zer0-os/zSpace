@@ -37,7 +37,6 @@ public:
 	UFUNCTION(Client, Reliable, BlueprintCallable)
 	void Client_HideLoadingWidget();
 
-	
 	// [Server]
 	UFUNCTION(BlueprintCallable)
 	void HideLoadingWidgetByCharacterName(const FString& NewCharacterName);
@@ -48,5 +47,10 @@ public:
 	// [Server]
 	UFUNCTION(Server, Reliable, BlueprintCallable, WithValidation)
 	void ReTeleport();
+
+protected:
+	virtual void SetupInputComponent() override;
 	
+	UFUNCTION(BlueprintCallable, BlueprintCosmetic)
+	void HideOrShowGameplayWidget();
 };

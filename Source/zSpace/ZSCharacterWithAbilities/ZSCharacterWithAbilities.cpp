@@ -5,13 +5,14 @@
 
 #include "OWSGameMode.h"
 #include "Camera/CameraComponent.h"
+#include "Components/CharacterMovementComponent/ZSCharacterMovementComponent.h"
 #include "Components/InputComponent.h"
 #include "Components/DetectSurfaceTypeComponent/DetectSurfaceTypeComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetSystemLibrary.h"
 
-AZSCharacterWithAbilities::AZSCharacterWithAbilities(const FObjectInitializer& NewObjectInitializer) : Super(NewObjectInitializer)
+AZSCharacterWithAbilities::AZSCharacterWithAbilities(const FObjectInitializer& NewObjectInitializer) : Super(NewObjectInitializer.SetDefaultSubobjectClass<UZSCharacterMovementComponent>(ACharacter::CharacterMovementComponentName))
 {
 	SpringArmComponent = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArmComponent"));
 	checkf(nullptr != SpringArmComponent, TEXT("The SpringArmComponent is nullptr."));
@@ -96,7 +97,7 @@ void AZSCharacterWithAbilities::StopJumping()
 
 void AZSCharacterWithAbilities::MoveForward(float NewValue)
 {
-	UE_LOG(LogTemp, Log, TEXT("*************** The NewValue = %f *******************"), NewValue);
+	//UE_LOG(LogTemp, Log, TEXT("*************** The NewValue = %f *******************"), NewValue);
 	// DataTable'/Game/AbilitySystem/Abilities/MyGameplayTagsTable.MyGameplayTagsTable'
 	const FGameplayTag L_GameplayTag = FGameplayTag::RequestGameplayTag(FName("Combat.IsAttackingCannotMove"));
 	const bool L_HasMatchingGameplayTag =   AbilitySystem ?  AbilitySystem->HasMatchingGameplayTag(L_GameplayTag) : false;
