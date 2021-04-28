@@ -46,6 +46,16 @@ public:
 	UFUNCTION(BlueprintCallable, Category="UI")
 	void RemoveFromParentWidgets(TMap<EResolution, class UUserWidget*>& Widgets);
 
+	UFUNCTION(BlueprintGetter, BlueprintCosmetic)
+	bool GetIsGameplayWidgetHidden() const;
+
+	UFUNCTION(BlueprintSetter, BlueprintCosmetic)
+	void SetIsGameplayWidgetHidden(bool NewValue);
+	
+protected:
+	UPROPERTY(BlueprintReadWrite, BlueprintGetter=GetIsGameplayWidgetHidden, BlueprintSetter=SetIsGameplayWidgetHidden)
+	uint8 bIsGameplayWidgetHidden : 1;
+	
 private:
 	UPROPERTY()
 	TMap<EResolution, class UUserWidget*> EmptyWidgets;
