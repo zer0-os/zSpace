@@ -13,6 +13,6 @@ void UZSCharacterMovementComponent::OnMovementModeChanged(EMovementMode NewPrevi
 {
 	//FString L_CharacterMode = UEnum::GetValueAsString<EMovementMode>(PreviousMovementMode);
 	//UE_LOG(LogTemp, Warning, TEXT("************* PreviousMovementMode = %s, PreviousCustomMode = %d"), *L_CharacterMode, PreviousCustomMode);
-	OnMovementModeChangedDelegate.Broadcast(NewPreviousMovementMode, NewPreviousCustomMode);
+	OnMovementModeChangedDelegate.Broadcast(NewPreviousMovementMode, MovementMode, NewPreviousCustomMode);
 	Super::OnMovementModeChanged(NewPreviousMovementMode, NewPreviousCustomMode);
 }
