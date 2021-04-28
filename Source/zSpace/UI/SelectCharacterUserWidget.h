@@ -8,6 +8,7 @@
 #include "OWSPlayerController.h"
 #include "SelectCharacterBoxUserWidget.h"
 #include "../Interfaces/UIResolutionInterface.h"
+#include "zSpace/Components/ManageWidgetsResolution.h"
 
 #include "SelectCharacterUserWidget.generated.h"
 
@@ -84,6 +85,7 @@ public:
 	UFUNCTION(BlueprintSetter)
 	void SetMainCharacterBox(class UBorder* NewValue);
 
+protected:
 	UFUNCTION(BlueprintCallable)
 	void UpdateBorderToRight();
 	
@@ -93,7 +95,12 @@ public:
 	UFUNCTION(BlueprintPure)
 	TArray<UBorder*> GetBoxBorders() const;
 
-protected:
 	UPROPERTY(BlueprintReadOnly)
 	EChangeCharacterDirection LastChangeCharacterDirection = EChangeCharacterDirection::None;
+
+	UPROPERTY(BlueprintReadOnly)
+	class UManageWidgetsResolution* ManageWidgetsResolution = nullptr;
+
+	UFUNCTION(BlueprintCallable)
+	virtual void PlayAnimationChangeCharacter(class UWidgetAnimation* ChangeAnimation, EChangeCharacterDirection AnimationDirection);
 };

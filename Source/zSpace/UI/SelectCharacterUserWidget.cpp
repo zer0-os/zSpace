@@ -32,6 +32,12 @@ void USelectCharacterUserWidget::NativePreConstruct()
 		RightCharacterBox = SelectCharacterRightBorder;
 		LeftCharacterBox = SelectCharacterLeftBorder;
 	}
+
+	UZSpaceGameInstance* GameInstance = Cast<UZSpaceGameInstance>(GetGameInstance());
+	if (GameInstance)
+	{
+		ManageWidgetsResolution = GameInstance->GetManageWidgetsResolution();
+	}
 }
 
 void USelectCharacterUserWidget::NativeConstruct()
@@ -73,10 +79,6 @@ void USelectCharacterUserWidget::ToPreviousMenu()
 		return;
 	}
 	
-	UZSpaceGameInstance* GameInstance = GetGameInstance<UZSpaceGameInstance>();
-	if (!IsValid(GameInstance)) return;
-
-	UManageWidgetsResolution* ManageWidgetsResolution = GameInstance->GetManageWidgetsResolution();
 	if (!IsValid(ManageWidgetsResolution)) return;
 
 	const EResolution Resolution = UUIBlueprintFunctionLibrary::GetCurrentScreenResolutionEnum(this);
@@ -128,7 +130,6 @@ void USelectCharacterUserWidget::CreateCharacterSelectBox(const FCharacterSelect
 	if (IsValid(CharacterBox))
 	{
 		CharacterBox->SetupWidget(CharacterSelectBoxInfo);
-		// CharacterBox->SetVisibility(ESlateVisibility::Visible);
 		return;
 	}
 
@@ -181,7 +182,6 @@ void USelectCharacterUserWidget::ShowCharacters(const TArray<FUserCharacter>& Us
 			if (IsValid(Child))
 			{
 				Child->RemoveFromParent();
-				// Child->SetVisibility(ESlateVisibility::Hidden);
 			}
 		}
 	};
@@ -264,9 +264,6 @@ void USelectCharacterUserWidget::UpdateBorderToRight()
 
 void USelectCharacterUserWidget::UpdateBorderToLeft()
 {
-	if (LastChangeCharacterDirection == EChangeCharacterDirection::ToRight)
-	{
-	}
 	LeftCharacterBox = SelectCharacterLeftBorder;
 	MainCharacterBox = SelectCharacterMiddleBorder;
 	RightCharacterBox = SelectCharacterRightBorder;
@@ -284,4 +281,19 @@ TArray<UBorder*> USelectCharacterUserWidget::GetBoxBorders() const
 	Result.Add(AnimationBorderLeft);
 
 	return Result;
+}
+
+void USelectCharacterUserWidget::PlayAnimationChangeCharacter(UWidgetAnimation* ChangeAnimation,
+	EChangeCharacterDirection AnimationDirection)
+{
+	EUMGSequencePlayMode::Type UMGSequencePlayMode = EUMGSequencePlayMode::Forward;
+	
+	switch (AnimationDirection)
+	{
+	case EChangeCharacterDirection::ToRight: UMGSequencePlayMode = EUMGSequencePlayMode::Forward; break;
+	case EChangeCharacterDirection::ToLeft: UMGSequencePlayMode = EUMGSequencePlayMode::Reverse; break;
+	default: ;
+	}
+
+	PlayAnimation(ChangeAnimation, 0.f, 1, UMGSequencePlayMode, 1.f, false);
 }
