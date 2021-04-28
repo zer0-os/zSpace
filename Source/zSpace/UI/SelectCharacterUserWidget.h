@@ -11,6 +11,14 @@
 
 #include "SelectCharacterUserWidget.generated.h"
 
+UENUM(BlueprintType)
+enum class EChangeCharacterDirection : uint8
+{
+	None,
+	ToRight,
+	ToLeft,
+};
+
 /**
  * 
  */
@@ -37,13 +45,19 @@ protected:
 
 public:
 	UPROPERTY(BlueprintReadWrite, meta=(BindWidget))
-	class UBorder* SelectCharacterMiddleCanvas = nullptr;
+	class UBorder* SelectCharacterMiddleBorder = nullptr;
 
 	UPROPERTY(BlueprintReadWrite, meta=(BindWidget))
-	class UBorder* SelectCharacterRightCanvas = nullptr;
+	class UBorder* SelectCharacterRightBorder = nullptr;
 
 	UPROPERTY(BlueprintReadWrite, meta=(BindWidget))
-	class UBorder* SelectCharacterLeftCanvas = nullptr;
+	class UBorder* SelectCharacterLeftBorder = nullptr;
+
+	UPROPERTY(BlueprintReadWrite, meta=(BindWidget))
+	class UBorder* AnimationBorderRight = nullptr;
+	
+	UPROPERTY(BlueprintReadWrite, meta=(BindWidget))
+	class UBorder* AnimationBorderLeft = nullptr;
 	
 	UPROPERTY(BlueprintReadWrite, meta=(BindWidgetOptional))
 	class UUserWidget* CreateNewCharacterWidget = nullptr;
@@ -78,4 +92,14 @@ public:
 	
 	UFUNCTION(BlueprintCallable)
 	void UpdateBorderToLeft();
+
+protected:
+	UPROPERTY(BlueprintReadOnly)
+	EChangeCharacterDirection LastChangeCharacterDirection = EChangeCharacterDirection::None;
+	
+	UPROPERTY(BlueprintReadOnly)
+	EChangeCharacterDirection SelectChangeCharacterDirection = EChangeCharacterDirection::None;
+
+	bool bIsRevert = false;
+	
 };
