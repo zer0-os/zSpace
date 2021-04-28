@@ -54,6 +54,8 @@ public:
 	UFUNCTION()
 	void LookUp(float NewValue);
 
+	void JumpIntoWater();
+	
 	virtual void Jump() override;
 
 	virtual void StopJumping() override;
@@ -75,6 +77,7 @@ public:
 	UFUNCTION(Server, WithValidation, Unreliable)
 	void Server_ShowPlayersOnline();
 
+	
 	
 };
 
