@@ -54,9 +54,6 @@ public:
 	class UBorder* SelectCharacterLeftBorder = nullptr;
 
 	UPROPERTY(BlueprintReadWrite, meta=(BindWidget))
-	class UBorder* AnimationBorderRight = nullptr;
-	
-	UPROPERTY(BlueprintReadWrite, meta=(BindWidget))
 	class UBorder* AnimationBorderLeft = nullptr;
 	
 	UPROPERTY(BlueprintReadWrite, meta=(BindWidgetOptional))
@@ -93,13 +90,10 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void UpdateBorderToLeft();
 
+	UFUNCTION(BlueprintPure)
+	TArray<UBorder*> GetBoxBorders() const;
+
 protected:
 	UPROPERTY(BlueprintReadOnly)
 	EChangeCharacterDirection LastChangeCharacterDirection = EChangeCharacterDirection::None;
-	
-	UPROPERTY(BlueprintReadOnly)
-	EChangeCharacterDirection SelectChangeCharacterDirection = EChangeCharacterDirection::None;
-
-	bool bIsRevert = false;
-	
 };

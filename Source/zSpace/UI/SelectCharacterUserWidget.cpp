@@ -48,6 +48,21 @@ void USelectCharacterUserWidget::NativeDestruct()
 	{
 		PlayerController->OnEscButtonPressed.RemoveDynamic(this, &USelectCharacterUserWidget::ToPreviousMenu);
 	}
+
+	TArray<UBorder*> Borders = GetBoxBorders();
+	for (UBorder* Border : Borders)
+	{
+		if (!IsValid(Border)) continue;
+		
+		auto Children = Border->GetAllChildren();
+		for (auto* Child : Children)
+		{
+			if (IsValid(Child))
+			{
+				Child->RemoveFromParent();
+			}
+		}
+	}
 }
 
 void USelectCharacterUserWidget::ToPreviousMenu()
@@ -113,6 +128,7 @@ void USelectCharacterUserWidget::CreateCharacterSelectBox(const FCharacterSelect
 	if (IsValid(CharacterBox))
 	{
 		CharacterBox->SetupWidget(CharacterSelectBoxInfo);
+		// CharacterBox->SetVisibility(ESlateVisibility::Visible);
 		return;
 	}
 
@@ -160,40 +176,63 @@ void USelectCharacterUserWidget::ShowCharacters(const TArray<FUserCharacter>& Us
 		}
 		else
 		{
+			UKismetSystemLibrary::PrintString(this, GetNameSafe(Border));
 			auto* Child = Border->GetChildAt(0);
 			if (IsValid(Child))
 			{
 				Child->RemoveFromParent();
-				UKismetSystemLibrary::PrintString(this, "+++++++++++++++");
+				// Child->SetVisibility(ESlateVisibility::Hidden);
 			}
 		}
 	};
 
+	auto GetLastOrFirstIndex = [this, &UserCharacters](const uint8& Index) -> uint8
+	{
+		if (Index == -1)
+		{
+			return  UserCharacters.Num() - 1;
+		}
+		else if (Index >= UserCharacters.Num())
+		{
+			return 0;
+		}
+		else
+		{
+			return Index;
+		}
+	};
+
 	CheckAndCreate(CurrentCharacterIndex, MainCharacterBox);
+	uint8 Index;
+	uint8 Value;
 
 	if (LastChangeCharacterDirection == EChangeCharacterDirection::ToLeft)
 	{
 		// Right
 		const bool bIsRightBordersEqual = RightCharacterBox == SelectCharacterRightBorder;
-		int8 Value = bIsRightBordersEqual ? -1 : 1;
-		CheckAndCreate(CurrentCharacterIndex + Value, RightCharacterBox);
+		Value = bIsRightBordersEqual ? -1 : 1;
+		Index = CurrentCharacterIndex + Value;
+		CheckAndCreate(GetLastOrFirstIndex(Index), RightCharacterBox);
 
 		// Left
 		const bool bIsLeftBordersEqual = LeftCharacterBox == SelectCharacterLeftBorder;
 		Value = bIsLeftBordersEqual ? 1 : -1;
-		CheckAndCreate(CurrentCharacterIndex + Value, LeftCharacterBox);
+		Index = CurrentCharacterIndex + Value;
+		CheckAndCreate(GetLastOrFirstIndex(Index), LeftCharacterBox);
 	}
 	else
 	{
 		// Right
 		const bool bIsRightBordersEqual = RightCharacterBox == SelectCharacterRightBorder;
-		int8 Value = bIsRightBordersEqual ? 1 : -1;
-		CheckAndCreate(CurrentCharacterIndex + Value, RightCharacterBox);
+		Value = bIsRightBordersEqual ? 1 : -1;
+		Index = CurrentCharacterIndex + Value;
+		CheckAndCreate(GetLastOrFirstIndex(Index), RightCharacterBox);
 
 		// Left
 		const bool bIsLeftBordersEqual = LeftCharacterBox == SelectCharacterLeftBorder;
 		Value = bIsLeftBordersEqual ? -1 : 1;
-		CheckAndCreate(CurrentCharacterIndex + Value, LeftCharacterBox);
+		Index = CurrentCharacterIndex + Value;
+		CheckAndCreate(GetLastOrFirstIndex(Index), LeftCharacterBox);
 	}
 }
 
@@ -227,10 +266,22 @@ void USelectCharacterUserWidget::UpdateBorderToLeft()
 {
 	if (LastChangeCharacterDirection == EChangeCharacterDirection::ToRight)
 	{
-		LeftCharacterBox = SelectCharacterLeftBorder;
-		MainCharacterBox = SelectCharacterMiddleBorder;
-		RightCharacterBox = SelectCharacterRightBorder;
 	}
+	LeftCharacterBox = SelectCharacterLeftBorder;
+	MainCharacterBox = SelectCharacterMiddleBorder;
+	RightCharacterBox = SelectCharacterRightBorder;
 	
 	LastChangeCharacterDirection = EChangeCharacterDirection::ToLeft;
+}
+
+TArray<UBorder*> USelectCharacterUserWidget::GetBoxBorders() const
+{
+	TArray<UBorder*> Result;
+
+	Result.Add(SelectCharacterMiddleBorder);
+	Result.Add(SelectCharacterRightBorder);
+	Result.Add(SelectCharacterLeftBorder);
+	Result.Add(AnimationBorderLeft);
+
+	return Result;
 }
