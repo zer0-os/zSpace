@@ -5,13 +5,15 @@
 
 #include "OWSGameMode.h"
 #include "Camera/CameraComponent.h"
+#include "Components/CharacterMovementComponent/ZSCharacterMovementComponent.h"
 #include "Components/InputComponent.h"
 #include "Components/DetectSurfaceTypeComponent/DetectSurfaceTypeComponent.h"
+#include "GameFramework/PhysicsVolume.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetSystemLibrary.h"
 
-AZSCharacterWithAbilities::AZSCharacterWithAbilities(const FObjectInitializer& NewObjectInitializer) : Super(NewObjectInitializer)
+AZSCharacterWithAbilities::AZSCharacterWithAbilities(const FObjectInitializer& NewObjectInitializer) : Super(NewObjectInitializer.SetDefaultSubobjectClass<UZSCharacterMovementComponent>(ACharacter::CharacterMovementComponentName))
 {
 	SpringArmComponent = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArmComponent"));
 	checkf(nullptr != SpringArmComponent, TEXT("The SpringArmComponent is nullptr."));
@@ -84,8 +86,32 @@ void AZSCharacterWithAbilities::LookUp(float NewValue)
 	}
 }
 
+void AZSCharacterWithAbilities::JumpIntoWater()
+{
+	APhysicsVolume * L_PhysicsVolume = GetPawnPhysicsVolume();
+	UCharacterMovementComponent * MovementComponent = GetCharacterMovement();	
+	if( IsValid(L_PhysicsVolume)
+		&& L_PhysicsVolume->bWaterVolume
+		&& IsValid(MovementComponent))
+	{
+		FVector R_Origin;
+		FVector R_BoxExtent;
+		L_PhysicsVolume->GetActorBounds(false, R_Origin, R_BoxExtent, false);
+		R_Origin = (R_BoxExtent.Z * FVector::UpVector) + R_Origin;
+		FVector L_ActorLocation = GetActorLocation();
+		//UKismetSystemLibrary::DrawDebugSphere(this, L_ActorLocation, 25, 12, FLinearColor::Red, 5);
+		//UKismetSystemLibrary::DrawDebugSphere(this, R_Origin, 25, 12, FLinearColor::Black, 5);
+		L_ActorLocation.Z += 80;
+		if(L_ActorLocation.Z >= R_Origin.Z)
+		{
+			MovementComponent->SetMovementMode(EMovementMode::MOVE_Walking);
+		}
+	}
+}
+
 void AZSCharacterWithAbilities::Jump()
 {
+	JumpIntoWater();
 	Super::Jump();
 }
 
@@ -140,6 +166,7 @@ void AZSCharacterWithAbilities::ShowPlayersOnline()
 {
 	Server_ShowPlayersOnline();
 }
+
 
 void AZSCharacterWithAbilities::Server_ShowPlayersOnline_Implementation()
 {

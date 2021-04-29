@@ -5,6 +5,7 @@
 
 #include "zSpace/Game/WidgetLoadingManagerObject/WidgetLoadingManagerObject.h"
 #include "zSpace/BlueprintFunctionLibrary/UIBlueprintFunctionLibrary.h"
+#include "zSpace/Components/ManageWidgetsResolution.h"
 #include "zSpace/Game/ZSpaceGameInstance.h"
 #include "OWSCharacterWithAbilities.h"
 #include "GameFramework/PlayerStart.h"
@@ -136,12 +137,20 @@ void AZSGamePlayerController::HideOrShowGameplayWidget()
 	UUserWidget* Widget = UUIBlueprintFunctionLibrary::GetWidgetByWidgetType(this, EWidgetType::Gameplay);
 	if (IsValid(Widget))
 	{
+		UZSpaceGameInstance* GameInstance = Cast<UZSpaceGameInstance>(UGameplayStatics::GetGameInstance(this));
+		if (!IsValid(GameInstance)) return;
+
+		UManageWidgetsResolution* ManageWidgetsResolution = GameInstance->GetManageWidgetsResolution();
+		if (!IsValid(ManageWidgetsResolution)) return;
+		
 		if (Widget->IsInViewport())
 		{
+			ManageWidgetsResolution->SetIsGameplayWidgetHidden(true);
 			Widget->RemoveFromParent();
 		}
 		else
 		{
+			ManageWidgetsResolution->SetIsGameplayWidgetHidden(false);
 			Widget->AddToViewport();
 		}
 	}

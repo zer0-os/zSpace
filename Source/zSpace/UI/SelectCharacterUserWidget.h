@@ -8,8 +8,17 @@
 #include "OWSPlayerController.h"
 #include "SelectCharacterBoxUserWidget.h"
 #include "../Interfaces/UIResolutionInterface.h"
+#include "zSpace/Components/ManageWidgetsResolution.h"
 
 #include "SelectCharacterUserWidget.generated.h"
+
+UENUM(BlueprintType)
+enum class EChangeCharacterDirection : uint8
+{
+	None,
+	ToRight,
+	ToLeft,
+};
 
 /**
  * 
@@ -37,13 +46,16 @@ protected:
 
 public:
 	UPROPERTY(BlueprintReadWrite, meta=(BindWidget))
-	class UBorder* SelectCharacterMiddleCanvas = nullptr;
+	class UBorder* SelectCharacterMiddleBorder = nullptr;
 
 	UPROPERTY(BlueprintReadWrite, meta=(BindWidget))
-	class UBorder* SelectCharacterRightCanvas = nullptr;
+	class UBorder* SelectCharacterRightBorder = nullptr;
 
 	UPROPERTY(BlueprintReadWrite, meta=(BindWidget))
-	class UBorder* SelectCharacterLeftCanvas = nullptr;
+	class UBorder* SelectCharacterLeftBorder = nullptr;
+
+	UPROPERTY(BlueprintReadWrite, meta=(BindWidget))
+	class UBorder* AnimationBorderLeft = nullptr;
 	
 	UPROPERTY(BlueprintReadWrite, meta=(BindWidgetOptional))
 	class UUserWidget* CreateNewCharacterWidget = nullptr;
@@ -73,9 +85,22 @@ public:
 	UFUNCTION(BlueprintSetter)
 	void SetMainCharacterBox(class UBorder* NewValue);
 
+protected:
 	UFUNCTION(BlueprintCallable)
 	void UpdateBorderToRight();
 	
 	UFUNCTION(BlueprintCallable)
 	void UpdateBorderToLeft();
+
+	UFUNCTION(BlueprintPure)
+	TArray<UBorder*> GetBoxBorders() const;
+
+	UPROPERTY(BlueprintReadOnly)
+	EChangeCharacterDirection LastChangeCharacterDirection = EChangeCharacterDirection::None;
+
+	UPROPERTY(BlueprintReadOnly)
+	class UManageWidgetsResolution* ManageWidgetsResolution = nullptr;
+
+	UFUNCTION(BlueprintCallable)
+	virtual void PlayAnimationChangeCharacter(class UWidgetAnimation* ChangeAnimation, EChangeCharacterDirection AnimationDirection);
 };

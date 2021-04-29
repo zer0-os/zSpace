@@ -25,12 +25,18 @@ void USelectCharacterUserWidget::NativePreConstruct()
 		PlayerController->OnEscButtonPressed.AddUniqueDynamic(this, &USelectCharacterUserWidget::ToPreviousMenu);
 	}
 
-	const bool bIsValidBorders = IsValid(SelectCharacterMiddleCanvas) && IsValid(SelectCharacterRightCanvas) && IsValid(SelectCharacterLeftCanvas);
+	const bool bIsValidBorders = IsValid(SelectCharacterMiddleBorder) && IsValid(SelectCharacterRightBorder) && IsValid(SelectCharacterLeftBorder);
 	if (bIsValidBorders)
 	{
-		MainCharacterBox = SelectCharacterMiddleCanvas;
-		RightCharacterBox = SelectCharacterRightCanvas;
-		LeftCharacterBox = SelectCharacterLeftCanvas;
+		MainCharacterBox = SelectCharacterMiddleBorder;
+		RightCharacterBox = SelectCharacterRightBorder;
+		LeftCharacterBox = SelectCharacterLeftBorder;
+	}
+
+	UZSpaceGameInstance* GameInstance = Cast<UZSpaceGameInstance>(GetGameInstance());
+	if (GameInstance)
+	{
+		ManageWidgetsResolution = GameInstance->GetManageWidgetsResolution();
 	}
 }
 
@@ -48,6 +54,21 @@ void USelectCharacterUserWidget::NativeDestruct()
 	{
 		PlayerController->OnEscButtonPressed.RemoveDynamic(this, &USelectCharacterUserWidget::ToPreviousMenu);
 	}
+
+	TArray<UBorder*> Borders = GetBoxBorders();
+	for (UBorder* Border : Borders)
+	{
+		if (!IsValid(Border)) continue;
+		
+		auto Children = Border->GetAllChildren();
+		for (auto* Child : Children)
+		{
+			if (IsValid(Child))
+			{
+				Child->RemoveFromParent();
+			}
+		}
+	}
 }
 
 void USelectCharacterUserWidget::ToPreviousMenu()
@@ -58,10 +79,6 @@ void USelectCharacterUserWidget::ToPreviousMenu()
 		return;
 	}
 	
-	UZSpaceGameInstance* GameInstance = GetGameInstance<UZSpaceGameInstance>();
-	if (!IsValid(GameInstance)) return;
-
-	UManageWidgetsResolution* ManageWidgetsResolution = GameInstance->GetManageWidgetsResolution();
 	if (!IsValid(ManageWidgetsResolution)) return;
 
 	const EResolution Resolution = UUIBlueprintFunctionLibrary::GetCurrentScreenResolutionEnum(this);
@@ -160,6 +177,7 @@ void USelectCharacterUserWidget::ShowCharacters(const TArray<FUserCharacter>& Us
 		}
 		else
 		{
+			UKismetSystemLibrary::PrintString(this, GetNameSafe(Border));
 			auto* Child = Border->GetChildAt(0);
 			if (IsValid(Child))
 			{
@@ -168,19 +186,54 @@ void USelectCharacterUserWidget::ShowCharacters(const TArray<FUserCharacter>& Us
 		}
 	};
 
+	auto GetLastOrFirstIndex = [this, &UserCharacters](const uint8& Index) -> uint8
+	{
+		if (Index == -1)
+		{
+			return  UserCharacters.Num() - 1;
+		}
+		else if (Index >= UserCharacters.Num())
+		{
+			return 0;
+		}
+		else
+		{
+			return Index;
+		}
+	};
+
 	CheckAndCreate(CurrentCharacterIndex, MainCharacterBox);
+	uint8 Index;
+	uint8 Value;
 
-	// Right
-	const bool bIsRightBordersEqual = RightCharacterBox == SelectCharacterRightCanvas;
-	int8 Value = bIsRightBordersEqual ? 1 : -1;
-	CheckAndCreate(CurrentCharacterIndex + Value, RightCharacterBox);
+	if (LastChangeCharacterDirection == EChangeCharacterDirection::ToLeft)
+	{
+		// Right
+		const bool bIsRightBordersEqual = RightCharacterBox == SelectCharacterRightBorder;
+		Value = bIsRightBordersEqual ? -1 : 1;
+		Index = CurrentCharacterIndex + Value;
+		CheckAndCreate(GetLastOrFirstIndex(Index), RightCharacterBox);
 
-	// Left
-	const bool bIsLeftBordersEqual = LeftCharacterBox == SelectCharacterLeftCanvas;
-	Value = bIsLeftBordersEqual ? -1 : 1;
-	CheckAndCreate(CurrentCharacterIndex + Value, LeftCharacterBox);
-	
-	// UKismetSystemLibrary::PrintString(this, FString::FromInt(CurrentCharacterIndex));
+		// Left
+		const bool bIsLeftBordersEqual = LeftCharacterBox == SelectCharacterLeftBorder;
+		Value = bIsLeftBordersEqual ? 1 : -1;
+		Index = CurrentCharacterIndex + Value;
+		CheckAndCreate(GetLastOrFirstIndex(Index), LeftCharacterBox);
+	}
+	else
+	{
+		// Right
+		const bool bIsRightBordersEqual = RightCharacterBox == SelectCharacterRightBorder;
+		Value = bIsRightBordersEqual ? 1 : -1;
+		Index = CurrentCharacterIndex + Value;
+		CheckAndCreate(GetLastOrFirstIndex(Index), RightCharacterBox);
+
+		// Left
+		const bool bIsLeftBordersEqual = LeftCharacterBox == SelectCharacterLeftBorder;
+		Value = bIsLeftBordersEqual ? -1 : 1;
+		Index = CurrentCharacterIndex + Value;
+		CheckAndCreate(GetLastOrFirstIndex(Index), LeftCharacterBox);
+	}
 }
 
 USelectCharacterBoxUserWidget* USelectCharacterUserWidget::GetSelectedCharacterBox() const
@@ -202,14 +255,45 @@ void USelectCharacterUserWidget::SetMainCharacterBox(UBorder* NewValue)
 
 void USelectCharacterUserWidget::UpdateBorderToRight()
 {
-	LeftCharacterBox = SelectCharacterRightCanvas;
-	MainCharacterBox = SelectCharacterLeftCanvas;
-	RightCharacterBox = SelectCharacterMiddleCanvas;
+	LeftCharacterBox = AnimationBorderLeft;
+	MainCharacterBox = SelectCharacterLeftBorder;
+	RightCharacterBox = SelectCharacterMiddleBorder;
+	
+	LastChangeCharacterDirection = EChangeCharacterDirection::ToRight;
 }
 
 void USelectCharacterUserWidget::UpdateBorderToLeft()
 {
-	MainCharacterBox = SelectCharacterRightCanvas;
-	RightCharacterBox = SelectCharacterLeftCanvas;
-	LeftCharacterBox = SelectCharacterMiddleCanvas;
+	LeftCharacterBox = SelectCharacterLeftBorder;
+	MainCharacterBox = SelectCharacterMiddleBorder;
+	RightCharacterBox = SelectCharacterRightBorder;
+	
+	LastChangeCharacterDirection = EChangeCharacterDirection::ToLeft;
+}
+
+TArray<UBorder*> USelectCharacterUserWidget::GetBoxBorders() const
+{
+	TArray<UBorder*> Result;
+
+	Result.Add(SelectCharacterMiddleBorder);
+	Result.Add(SelectCharacterRightBorder);
+	Result.Add(SelectCharacterLeftBorder);
+	Result.Add(AnimationBorderLeft);
+
+	return Result;
+}
+
+void USelectCharacterUserWidget::PlayAnimationChangeCharacter(UWidgetAnimation* ChangeAnimation,
+	EChangeCharacterDirection AnimationDirection)
+{
+	EUMGSequencePlayMode::Type UMGSequencePlayMode = EUMGSequencePlayMode::Forward;
+	
+	switch (AnimationDirection)
+	{
+	case EChangeCharacterDirection::ToRight: UMGSequencePlayMode = EUMGSequencePlayMode::Forward; break;
+	case EChangeCharacterDirection::ToLeft: UMGSequencePlayMode = EUMGSequencePlayMode::Reverse; break;
+	default: ;
+	}
+
+	PlayAnimation(ChangeAnimation, 0.f, 1, UMGSequencePlayMode, 1.f, false);
 }
