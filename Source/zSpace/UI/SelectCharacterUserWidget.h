@@ -38,12 +38,6 @@ protected:
 	UFUNCTION()
 	void ToPreviousMenu();
 
-	UFUNCTION(BlueprintCallable)
-	void ShowCreateNewCharacterWidget(TSubclassOf<class UUserWidget> Class);
-	
-	UFUNCTION(BlueprintCallable)
-	void HideCreateNewCharacterWidget();
-
 public:
 	UPROPERTY(BlueprintReadWrite, meta=(BindWidget))
 	class UBorder* SelectCharacterMiddleBorder = nullptr;
@@ -57,9 +51,6 @@ public:
 	UPROPERTY(BlueprintReadWrite, meta=(BindWidget))
 	class UBorder* AnimationBorderLeft = nullptr;
 	
-	UPROPERTY(BlueprintReadWrite, meta=(BindWidgetOptional))
-	class UUserWidget* CreateNewCharacterWidget = nullptr;
-
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<class UUserWidget> SelectCharacterBoxSubClass;
 
@@ -103,4 +94,7 @@ protected:
 
 	UFUNCTION(BlueprintCallable)
 	virtual void PlayAnimationChangeCharacter(class UWidgetAnimation* ChangeAnimation, EChangeCharacterDirection AnimationDirection);
+
+	UFUNCTION(BlueprintCallable)
+	void ResetBoxesTransform();
 };

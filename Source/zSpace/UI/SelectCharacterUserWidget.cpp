@@ -73,12 +73,6 @@ void USelectCharacterUserWidget::NativeDestruct()
 
 void USelectCharacterUserWidget::ToPreviousMenu()
 {
-	if(IsValid(CreateNewCharacterWidget) && CreateNewCharacterWidget->IsInViewport())
-	{
-		CreateNewCharacterWidget->RemoveFromParent();
-		return;
-	}
-	
 	if (!IsValid(ManageWidgetsResolution)) return;
 
 	const EResolution Resolution = UUIBlueprintFunctionLibrary::GetCurrentScreenResolutionEnum(this);
@@ -95,30 +89,6 @@ void USelectCharacterUserWidget::ToPreviousMenu()
 	}
 
 	RemoveFromParent();
-}
-
-void USelectCharacterUserWidget::ShowCreateNewCharacterWidget(TSubclassOf<UUserWidget> Class)
-{
-	if (IsValid(CreateNewCharacterWidget))
-	{
-		CreateNewCharacterWidget->AddToViewport();
-	}
-	else
-	{
-		CreateNewCharacterWidget = CreateWidget<UUserWidget>(GetOwningPlayer(), Class);
-		if (IsValid(CreateNewCharacterWidget))
-		{
-			CreateNewCharacterWidget->AddToViewport();
-		}
-	}
-}
-
-void USelectCharacterUserWidget::HideCreateNewCharacterWidget()
-{
-	if (IsValid(CreateNewCharacterWidget))
-	{
-		CreateNewCharacterWidget->RemoveFromParent();
-	}
 }
 
 void USelectCharacterUserWidget::CreateCharacterSelectBox(const FCharacterSelectBoxInfo& CharacterSelectBoxInfo, UBorder* ParentBorder)
@@ -186,13 +156,13 @@ void USelectCharacterUserWidget::ShowCharacters(const TArray<FUserCharacter>& Us
 		}
 	};
 
-	auto GetLastOrFirstIndex = [this, &UserCharacters](const uint8& Index) -> uint8
+	auto GetLastOrFirstIndex = [this, &UserCharacters](const int8& Index) -> uint8
 	{
-		if (Index == -1)
+		if (Index < 0)
 		{
 			return  UserCharacters.Num() - 1;
 		}
-		else if (Index >= UserCharacters.Num())
+		else if (Index > UserCharacters.Num() - 1)
 		{
 			return 0;
 		}
@@ -201,13 +171,30 @@ void USelectCharacterUserWidget::ShowCharacters(const TArray<FUserCharacter>& Us
 			return Index;
 		}
 	};
+	
+	int8 Index;
+	int8 Value;
 
 	CheckAndCreate(CurrentCharacterIndex, MainCharacterBox);
-	uint8 Index;
-	uint8 Value;
+	if (LastChangeCharacterDirection == EChangeCharacterDirection::None)
+	{
+		Index = CurrentCharacterIndex + 1;
+		CheckAndCreate(GetLastOrFirstIndex(Index), RightCharacterBox);
 
+		Index = CurrentCharacterIndex - 1;
+		CheckAndCreate(GetLastOrFirstIndex(Index), LeftCharacterBox);
+
+		return;
+	}
+	
 	if (LastChangeCharacterDirection == EChangeCharacterDirection::ToLeft)
 	{
+		// Index = CurrentCharacterIndex - 1;
+		// CheckAndCreate(GetLastOrFirstIndex(Index), RightCharacterBox);
+
+		// Index = CurrentCharacterIndex + 1;
+		// CheckAndCreate(GetLastOrFirstIndex(Index), LeftCharacterBox);
+		
 		// Right
 		const bool bIsRightBordersEqual = RightCharacterBox == SelectCharacterRightBorder;
 		Value = bIsRightBordersEqual ? -1 : 1;
@@ -220,7 +207,7 @@ void USelectCharacterUserWidget::ShowCharacters(const TArray<FUserCharacter>& Us
 		Index = CurrentCharacterIndex + Value;
 		CheckAndCreate(GetLastOrFirstIndex(Index), LeftCharacterBox);
 	}
-	else
+	else if (LastChangeCharacterDirection == EChangeCharacterDirection::ToRight)
 	{
 		// Right
 		const bool bIsRightBordersEqual = RightCharacterBox == SelectCharacterRightBorder;
@@ -296,4 +283,22 @@ void USelectCharacterUserWidget::PlayAnimationChangeCharacter(UWidgetAnimation* 
 	}
 
 	PlayAnimation(ChangeAnimation, 0.f, 1, UMGSequencePlayMode, 1.f, false);
+}
+
+void USelectCharacterUserWidget::ResetBoxesTransform()
+{
+	TArray<UBorder*> Boxes = GetBoxBorders();
+	for (UBorder* Border : Boxes)
+	{
+		if (IsValid(Border))
+		{
+			Border->SetRenderTransform(FWidgetTransform());
+		}
+	}
+	
+	MainCharacterBox = SelectCharacterMiddleBorder;
+	RightCharacterBox = SelectCharacterRightBorder;
+	LeftCharacterBox = SelectCharacterLeftBorder;
+
+	LastChangeCharacterDirection = EChangeCharacterDirection::None;
 }
