@@ -148,15 +148,31 @@ void UDetectSurfaceTypeComponent::OnMovementModeChanged(EMovementMode NewPreviou
 	checkf(nullptr != CharacterUnderFootSurfaceDA, TEXT("The CharacterUnderFootSurfaceDA is nulltrp. Please set data asset."));
 	if(IsValid(CharacterUnderFootSurfaceDA))
 	{
-		bool L_IsStatus = false;
-		const FFootHitGroundData L_FootHitGroundData =  CharacterUnderFootSurfaceDA->GetFootHitGroundDataByMovementMode(NewPreviousMovementMode, NewCurrentMovementMode, L_IsStatus);
-		if(L_IsStatus)
+		const FVector L_Start = GetFootLocationByCharacterFootType(ECharacterFootType::LEFT);
+		const FVector L_End = (FVector::UpVector * - 250) + L_Start;
+		TArray<AActor *> L_ActorsToIgnore;
+		TArray<FHitResult> L_OutHits;
+		const bool bIsBlocking = UKismetSystemLibrary::LineTraceMultiForObjects(GetOwner(), L_Start, L_End, ObjectTypes, true, L_ActorsToIgnore, EDrawDebugTrace::None, L_OutHits, true);
+		if(bIsBlocking)
 		{
-			USoundBase * L_SoundBase = 	L_FootHitGroundData.SoundBase.LoadSynchronous();
-			checkf(nullptr != L_SoundBase, TEXT("The L_SoundBase is nulltrp. Please "));
-			if(IsValid(L_SoundBase))
+			for(const FHitResult & IterHitResult : L_OutHits)
 			{
-				UGameplayStatics::PlaySoundAtLocation(GetOwner(), L_SoundBase, GetOwner()->GetActorLocation());
+				if(IterHitResult.bBlockingHit && IterHitResult.PhysMaterial.IsValid() )
+				{
+					UPhysicalMaterial * L_PhysicalMaterial = IterHitResult.PhysMaterial.Get();
+					bool L_IsStatus = false;
+					const FFootHitGroundData L_FootHitGroundData =  CharacterUnderFootSurfaceDA->GetFootHitGroundDataByMovementMode(NewPreviousMovementMode, NewCurrentMovementMode, L_PhysicalMaterial, L_IsStatus);
+					if(L_IsStatus)
+					{
+						USoundBase * L_SoundBase = 	L_FootHitGroundData.SoundBase.LoadSynchronous();
+						checkf(nullptr != L_SoundBase, TEXT("The L_SoundBase is nulltrp. Please "));
+						if(IsValid(L_SoundBase))
+						{
+							UGameplayStatics::PlaySoundAtLocation(GetOwner(), L_SoundBase, L_Start);
+						}
+					}
+					return;
+				}
 			}
 		}
 	}

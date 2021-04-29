@@ -19,6 +19,10 @@ struct FFootHitGroundEqualData
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TEnumAsByte<EMovementMode> MovementMode;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPhysicalMaterial * PhysicalMaterial = nullptr;
+
 	
 };
 
@@ -35,6 +39,9 @@ struct FFootHitGroundData
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TEnumAsByte<EMovementMode> MovementMode;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess=true))
+	UPhysicalMaterial *  PhysicalMaterial = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TSoftObjectPtr<class USoundBase> SoundBase;
@@ -93,6 +100,6 @@ public:
 	FCharacterUnderFootSurfaceData GetCharacterUnderFootSurfaceDataByPhysicsType(const class UPhysicalMaterial * NewPhysicalMaterial, bool & NewIsValid);
 
 	UFUNCTION(BlueprintCallable)
-	FFootHitGroundData GetFootHitGroundDataByMovementMode(EMovementMode NewPreviousMovementMode, EMovementMode NewCurrentMovementMode, bool & NewIsValid);
+	FFootHitGroundData GetFootHitGroundDataByMovementMode(EMovementMode NewPreviousMovementMode, EMovementMode NewCurrentMovementMode, UPhysicalMaterial * NewPhysicalMaterial, bool & NewIsValid);
 	
 };
