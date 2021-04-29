@@ -1,0 +1,38 @@
+{
+	"FileVersion": 3,
+	"Version": 1,
+	"VersionName": "1.0",
+	"FriendlyName": "Etherlinker",
+	"Description": "Interact with Ethereum blockchain from Unreal Engine 4",
+	"Category": "Other",
+	"CreatedBy": "Ruslan Nazirov",
+	"CreatedByURL": "",
+	"DocsURL": "",
+	"MarketplaceURL": "com.epicgames.launcher://ue/marketplace/content/e029bbf9d6b04f95b9d9ef52e3934be5",
+	"SupportURL": "",
+	"EngineVersion": "4.26.0",
+	"CanContainContent": true,
+	"Installed": true,
+	"Modules": [
+		{
+			"Name": "EtherlinkerEditor",
+			"Type": "Editor",
+			"LoadingPhase": "Default",
+			"WhitelistPlatforms": [
+				"Win64",
+				"Win32",
+				"Mac"
+			]
+		},
+		{
+			"Name": "Etherlinker",
+			"Type": "Runtime",
+			"LoadingPhase": "Default",
+			"WhitelistPlatforms": [
+				"Win64",
+				"Win32",
+				"Mac"
+			]
+		}
+	]
+}
