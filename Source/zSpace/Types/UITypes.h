@@ -34,7 +34,7 @@ public:
 };
 
 USTRUCT(BlueprintType)
-struct ZSPACE_API FResolutionAndWidgetSturct
+struct ZSPACE_API FResolutionAndWidgetStruct
 {
 	GENERATED_USTRUCT_BODY()
 
@@ -50,7 +50,7 @@ class ZSPACE_API UResolutionAndWidgetDataAsset : public UDataAsset
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	FResolutionAndWidgetSturct ResolutionAndWidget;
+	FResolutionAndWidgetStruct ResolutionAndWidget;
 
 	UFUNCTION(BlueprintPure)
 	TSubclassOf<class UUserWidget> GetWidget(EResolution ResolutionEnum);
