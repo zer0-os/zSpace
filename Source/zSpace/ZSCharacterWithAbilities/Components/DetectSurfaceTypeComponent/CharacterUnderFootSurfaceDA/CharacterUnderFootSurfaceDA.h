@@ -7,6 +7,25 @@
 #include "Engine/EngineTypes.h"
 #include "CharacterUnderFootSurfaceDA.generated.h"
 
+USTRUCT(BlueprintType)
+struct FFootHitGroundEqualData
+{
+	GENERATED_BODY()
+	
+	FFootHitGroundEqualData();
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TEnumAsByte<EMovementMode> PreviousMovementMode;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TEnumAsByte<EMovementMode> MovementMode;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPhysicalMaterial * PhysicalMaterial = nullptr;
+
+	
+};
+
 
 USTRUCT(BlueprintType)
 struct FFootHitGroundData
@@ -20,22 +39,24 @@ struct FFootHitGroundData
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TEnumAsByte<EMovementMode> MovementMode;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess=true))
+	UPhysicalMaterial *  PhysicalMaterial = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TSoftObjectPtr<class USoundBase> SoundBase;
 
 	bool operator==(const FFootHitGroundData& NewFootHitGroundData);
 	
-	friend  bool operator==(EMovementMode& NewMovementMode, const FFootHitGroundData& NewFootHitGroundDataB);
+	friend  bool operator==(FFootHitGroundEqualData & NewFootHitGroundEqualData, const FFootHitGroundData& NewFootHitGroundDataB);
 	
-	friend  bool operator==( const FFootHitGroundData& NewFootHitGroundDataA, EMovementMode& NewMovementModeB);
+	friend  bool operator==( const FFootHitGroundData& NewFootHitGroundDataA, FFootHitGroundEqualData & NewFootHitGroundEqualDataB);
 	
 };
 
+bool operator==(FFootHitGroundEqualData & NewFootHitGroundEqualData, const FFootHitGroundData& NewFootHitGroundDataB);
 
-bool operator==(EMovementMode& NewMovementMode, const FFootHitGroundData& NewFootHitGroundDataB);
-
-bool operator==( const FFootHitGroundData& NewFootHitGroundDataA, EMovementMode& NewMovementModeB);
+bool operator==( const FFootHitGroundData& NewFootHitGroundDataA, FFootHitGroundEqualData & NewFootHitGroundEqualDataB);
 
 USTRUCT(BlueprintType)
 struct FCharacterUnderFootSurfaceData
@@ -79,6 +100,6 @@ public:
 	FCharacterUnderFootSurfaceData GetCharacterUnderFootSurfaceDataByPhysicsType(const class UPhysicalMaterial * NewPhysicalMaterial, bool & NewIsValid);
 
 	UFUNCTION(BlueprintCallable)
-	FFootHitGroundData GetFootHitGroundDataByMovementMode(EMovementMode MovementMode, bool & NewIsValid);
+	FFootHitGroundData GetFootHitGroundDataByMovementMode(EMovementMode NewPreviousMovementMode, EMovementMode NewCurrentMovementMode, UPhysicalMaterial * NewPhysicalMaterial, bool & NewIsValid);
 	
 };

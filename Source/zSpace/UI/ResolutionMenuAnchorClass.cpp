@@ -31,7 +31,7 @@ void UResolutionMenuAnchorClass::OnSelectResolution(UZSCustomButton* Button)
 	if (IsValid(Button))
 	{
 		const FString Resolution = UUIBlueprintFunctionLibrary::GetResolutionByEnum(this, Button->Resolution, EWindowMode::Type::Windowed);
-		UKismetSystemLibrary::PrintString(this, Resolution);
+		// UKismetSystemLibrary::PrintString(this, Resolution);
 		const FString Command = "r.SetRes " + Resolution;
 		
 
@@ -45,7 +45,7 @@ void UResolutionMenuAnchorClass::OnSelectResolution(UZSCustomButton* Button)
 			// UKismetSystemLibrary::PrintString(this, GetNameSafe(ResolutionAndWidgetDataAsset));
 			
  			ManageWidgetsResolution->CreateWidgetAndAddViewport(GetOwningPlayer(), WidgetSubClass, ResolutionEnum, NewWidget);
-			UKismetSystemLibrary::PrintString(this, GetNameSafe(NewWidget));
+			// UKismetSystemLibrary::PrintString(this, GetNameSafe(NewWidget));
 		}
 
 	}

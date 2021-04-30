@@ -27,6 +27,9 @@ public:
 	UPROPERTY(BlueprintReadWrite, meta=(BindWidgetOptional))
 	class UEditableTextBox* txtPassword = nullptr;
 
+	UPROPERTY(BlueprintReadWrite, meta=(BindWidgetOptional))
+	class UCanvasPanel* CentralPart = nullptr; 
+
 	UFUNCTION()
 	void OnTextCommitted(const FText& Text, ETextCommit::Type CommitMethod);
 
