@@ -87,6 +87,25 @@ FVector UDetectSurfaceTypeComponent::GetFootLocationByCharacterFootType(ECharact
 }
 
 
+FRotator UDetectSurfaceTypeComponent::GetFootRotationByCharacterFootType(ECharacterFootType NewCharacterFootType)
+{
+	USkeletalMeshComponent * L_SkeletalMeshComponent = GetSkeletalMesh();
+	FRotator R_Rotation = FRotator::ZeroRotator;
+
+	if(L_SkeletalMeshComponent)
+	{
+		if(ECharacterFootType::LEFT == NewCharacterFootType)
+		{
+			R_Rotation = L_SkeletalMeshComponent->GetSocketRotation(FName(LeftFootBoneName));
+		}
+		else if(ECharacterFootType::RIGHT == NewCharacterFootType)
+		{
+			R_Rotation = L_SkeletalMeshComponent->GetSocketRotation(FName(RightFootBoneName));
+		}
+	}
+	return R_Rotation;
+}
+
 void UDetectSurfaceTypeComponent::PutFootOnGround(ECharacterFootType NewCharacterFootType)
 {
 	// const FString L_CharacterFootType = UEnum::GetValueAsString(NewCharacterFootType);
@@ -95,6 +114,10 @@ void UDetectSurfaceTypeComponent::PutFootOnGround(ECharacterFootType NewCharacte
 	const FVector L_End = (FVector::UpVector * - 250) + L_Start;
 	TArray<AActor *> L_ActorsToIgnore;
 	TArray<FHitResult> L_OutHits;
+
+	FRotator L_Rotation = GetFootRotationByCharacterFootType(NewCharacterFootType);
+	L_Rotation.Yaw += -90;
+
 	const bool bIsBlocking = UKismetSystemLibrary::LineTraceMultiForObjects(GetOwner(), L_Start, L_End, ObjectTypes, true, L_ActorsToIgnore, EDrawDebugTrace::None, L_OutHits, true);
 	if(bIsBlocking)
 	{
@@ -112,6 +135,7 @@ void UDetectSurfaceTypeComponent::PutFootOnGround(ECharacterFootType NewCharacte
 					{
 						PlayRandomSound(L_CharacterUnderFootSurfaceData, IterHitResult.Location);
 						SpawnParticle(L_CharacterUnderFootSurfaceData, IterHitResult.Location);
+						SpawnFootStepDecal(L_CharacterUnderFootSurfaceData, IterHitResult.Location, L_Rotation);
 					}
 					return;
 				}
@@ -139,6 +163,17 @@ void UDetectSurfaceTypeComponent::SpawnParticle(const FCharacterUnderFootSurface
 	if(L_ParticleSystem)
 	{
 		UGameplayStatics::SpawnEmitterAtLocation(GetOwner(), L_ParticleSystem, NewLocation);
+	}
+}
+
+void UDetectSurfaceTypeComponent::SpawnFootStepDecal(const FCharacterUnderFootSurfaceData& NewCharacterUnderFootSurfaceData, const FVector& NewLocation, const FRotator& NewRotation)
+{
+	UMaterialInstance* L_FootStepMaterial = NewCharacterUnderFootSurfaceData.SurfaceFootStepMaterial.LoadSynchronous();
+	if (L_FootStepMaterial)
+	{
+		UKismetSystemLibrary::PrintString(GetOwner(), L_FootStepMaterial->GetName());
+		FVector Size = FVector(10, 15, 20);
+		UGameplayStatics::SpawnDecalAtLocation(GetOwner(), L_FootStepMaterial, Size, NewLocation, NewRotation, 10);
 	}
 }
 
