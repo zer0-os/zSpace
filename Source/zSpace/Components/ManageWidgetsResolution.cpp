@@ -124,3 +124,13 @@ void UManageWidgetsResolution::RemoveFromParentWidgets(TMap<EResolution, class U
 	}
 }
 
+bool UManageWidgetsResolution::GetIsGameplayWidgetHidden() const
+{
+	return bIsGameplayWidgetHidden;
+}
+
+void UManageWidgetsResolution::SetIsGameplayWidgetHidden(bool NewValue)
+{
+	bIsGameplayWidgetHidden = NewValue;	
+}
+

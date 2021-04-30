@@ -6,6 +6,9 @@
 #include "UObject/NoExportTypes.h"
 #include <Engine/DataAsset.h>
 #include <UObject/Object.h>
+
+#include "Engine/CanvasRenderTarget2D.h"
+
 #include "UITypes.generated.h"
 
 
@@ -34,7 +37,7 @@ public:
 };
 
 USTRUCT(BlueprintType)
-struct ZSPACE_API FResolutionAndWidgetSturct
+struct ZSPACE_API FResolutionAndWidgetStruct
 {
 	GENERATED_USTRUCT_BODY()
 
@@ -50,7 +53,7 @@ class ZSPACE_API UResolutionAndWidgetDataAsset : public UDataAsset
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	FResolutionAndWidgetSturct ResolutionAndWidget;
+	FResolutionAndWidgetStruct ResolutionAndWidget;
 
 	UFUNCTION(BlueprintPure)
 	TSubclassOf<class UUserWidget> GetWidget(EResolution ResolutionEnum);
@@ -131,6 +134,32 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	class USoundBase* MenuSound = nullptr;
+};
+
+UENUM(BlueprintType)
+enum class EPreviewCharacterPosition : uint8
+{
+	L_1,
+	L_2,
+	L_3,
+	L_4,
+	L_5,
+	Middle,
+	R_1,
+	R_2,
+	R_3,
+	R_4,
+	R_5,
+};
+
+UCLASS(BlueprintType)
+class ZSPACE_API URenderTargetAndPosition : public UDataAsset
+{
+	GENERATED_BODY()
+public:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TMap<EPreviewCharacterPosition, UTextureRenderTarget2D*> RenderTargetAndPosition;
+	
 };
 
 

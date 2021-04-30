@@ -4,7 +4,59 @@
 
 #include "CoreMinimal.h"
 #include "Engine/DataAsset.h"
+#include "Engine/EngineTypes.h"
 #include "CharacterUnderFootSurfaceDA.generated.h"
+
+USTRUCT(BlueprintType)
+struct FFootHitGroundEqualData
+{
+	GENERATED_BODY()
+	
+	FFootHitGroundEqualData();
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TEnumAsByte<EMovementMode> PreviousMovementMode;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TEnumAsByte<EMovementMode> MovementMode;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPhysicalMaterial * PhysicalMaterial = nullptr;
+
+	
+};
+
+
+USTRUCT(BlueprintType)
+struct FFootHitGroundData
+{
+	GENERATED_BODY()
+
+	FFootHitGroundData();
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TEnumAsByte<EMovementMode> PreviousMovementMode;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TEnumAsByte<EMovementMode> MovementMode;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess=true))
+	UPhysicalMaterial *  PhysicalMaterial = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSoftObjectPtr<class USoundBase> SoundBase;
+
+	bool operator==(const FFootHitGroundData& NewFootHitGroundData);
+	
+	friend  bool operator==(FFootHitGroundEqualData & NewFootHitGroundEqualData, const FFootHitGroundData& NewFootHitGroundDataB);
+	
+	friend  bool operator==( const FFootHitGroundData& NewFootHitGroundDataA, FFootHitGroundEqualData & NewFootHitGroundEqualDataB);
+	
+};
+
+bool operator==(FFootHitGroundEqualData & NewFootHitGroundEqualData, const FFootHitGroundData& NewFootHitGroundDataB);
+
+bool operator==( const FFootHitGroundData& NewFootHitGroundDataA, FFootHitGroundEqualData & NewFootHitGroundEqualDataB);
 
 USTRUCT(BlueprintType)
 struct FCharacterUnderFootSurfaceData
@@ -20,8 +72,6 @@ struct FCharacterUnderFootSurfaceData
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess=true))
 	TSoftObjectPtr<class UParticleSystem > SurfaceParticleSystem;
-
-	
 	
 };
 
@@ -37,6 +87,9 @@ private:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta=(AllowPrivateAccess=true))
 	TArray<FCharacterUnderFootSurfaceData> CharacterUnderFootSurfaceDataArray;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess=true))
+	TArray<FFootHitGroundData>	FootHitGroundDataArray;
 
 public:
 
@@ -45,5 +98,8 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	FCharacterUnderFootSurfaceData GetCharacterUnderFootSurfaceDataByPhysicsType(const class UPhysicalMaterial * NewPhysicalMaterial, bool & NewIsValid);
+
+	UFUNCTION(BlueprintCallable)
+	FFootHitGroundData GetFootHitGroundDataByMovementMode(EMovementMode NewPreviousMovementMode, EMovementMode NewCurrentMovementMode, UPhysicalMaterial * NewPhysicalMaterial, bool & NewIsValid);
 	
 };

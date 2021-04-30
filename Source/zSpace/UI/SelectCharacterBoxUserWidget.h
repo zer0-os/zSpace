@@ -73,6 +73,15 @@ public:
 	UPROPERTY()
 	class APreviewCharacter* PreviewCharacter = nullptr;
 
+	UPROPERTY(BlueprintReadOnly)
+	class USelectCharacterUserWidget* SelectCharacterUserWidget = nullptr;
+
+	UPROPERTY(Replicated, ReplicatedUsing=OnRep_PreviewCharacterPosition)
+	EPreviewCharacterPosition PreviewCharacterPosition;
+
+	UFUNCTION()
+	void OnRep_PreviewCharacterPosition();
+	
 public:
 	UFUNCTION(BlueprintCallable)
 	void SetupWidget(const FCharacterSelectBoxInfo& CharacterSelectBoxInfo);
@@ -95,4 +104,9 @@ protected:
 
 	UFUNCTION(BlueprintCallable)
 	void ChangeNormalMode();
+
+	UFUNCTION(BlueprintPure)
+	APreviewCharacter* GetPreviewCharacterByEnum(EPreviewCharacterPosition P_PreviewCharacterPosition) const;
+
+	virtual void GetLifetimeReplicatedProps(TArray <class FLifetimeProperty>& OutLifetimeProps) const override;
 };

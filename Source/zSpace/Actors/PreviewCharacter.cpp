@@ -3,9 +3,10 @@
 
 #include "zSpace/Actors/PreviewCharacter.h"
 
-#include "Engine/SkeletalMesh.h"
-#include "Kismet/KismetSystemLibrary.h"
 #include "zSpace/Types/CharacterMeshesDataAsset.h"
+#include "Components/SceneCaptureComponent2D.h"
+#include "Kismet/KismetSystemLibrary.h"
+#include "Engine/SkeletalMesh.h"
 
 // Sets default values
 APreviewCharacter::APreviewCharacter()
@@ -13,10 +14,31 @@ APreviewCharacter::APreviewCharacter()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
 
+	Root = CreateDefaultSubobject<USceneComponent>("Root");
+	SetRootComponent(Root);
+
+	SceneCaptureComponent2D = CreateDefaultSubobject<USceneCaptureComponent2D>("SceneCaptureComponent2D");
+	SceneCaptureComponent2D->SetupAttachment(RootComponent);
+	
 	PreviewCharacterMeshComponent = CreateDefaultSubobject<USkeletalMeshComponent>("PreviewCharacterMesh");
-	SetRootComponent(PreviewCharacterMeshComponent);
+	PreviewCharacterMeshComponent->SetupAttachment(RootComponent);
 
 	RotatingMovementComponent = CreateDefaultSubobject<URotatingMovementComponent>("RotatingMovementComponent");
+}
+
+void APreviewCharacter::OnConstruction(const FTransform& Transform)
+{
+	Super::OnConstruction(Transform);
+
+	if (IsValid(RenderTargetAndPosition))
+	{
+		auto Data =  RenderTargetAndPosition->RenderTargetAndPosition;
+		UTextureRenderTarget2D* const* RenderTarget = Data.Find(PreviewCharacterPosition);
+		if (RenderTarget)
+		{
+			SceneCaptureComponent2D->TextureTarget = *RenderTarget;
+		}	
+	}
 }
 
 // Called when the game starts or when spawned
