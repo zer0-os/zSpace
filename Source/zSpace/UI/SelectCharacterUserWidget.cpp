@@ -106,6 +106,8 @@ void USelectCharacterUserWidget::CreateCharacterSelectBox(const FCharacterSelect
 	auto* NewWidget = CreateWidget<USelectCharacterBoxUserWidget>(GetOwningPlayer(), SelectCharacterBoxSubClass);
 	if (IsValid(NewWidget))
 	{
+		NewWidget->SelectCharacterUserWidget = this;
+		
 		UPanelSlot* PanelSlot = ParentBorder->AddChild(NewWidget);
 		UBorderSlot* BorderPanelSlot = Cast<UBorderSlot>(PanelSlot);
 		if (IsValid(BorderPanelSlot))
@@ -121,9 +123,9 @@ void USelectCharacterUserWidget::CreateCharacterSelectBox(const FCharacterSelect
 
 void USelectCharacterUserWidget::ShowCharacters(const TArray<FUserCharacter>& UserCharacters, const int32 CurrentCharacterIndex)
 {
-	auto CheckAndCreate = [this, UserCharacters](const int32 CheckIndex, UBorder* Border) -> void
+	auto CheckAndCreate = [this, UserCharacters](const int32 CheckIndex, UBorder* Border) -> USelectCharacterBoxUserWidget*
 	{
-		if (!IsValid(Border)) return;
+		if (!IsValid(Border)) return nullptr;
 		
 		if (UserCharacters.IsValidIndex(CheckIndex))
 		{
@@ -143,17 +145,21 @@ void USelectCharacterUserWidget::ShowCharacters(const TArray<FUserCharacter>& Us
 					Child->NextCharacterMesh->SetVisibility(ESlateVisibility::Collapsed);
 					Child->PreviousCharacterMesh->SetVisibility(ESlateVisibility::Collapsed);
 				}
-			}	
+				SetPreviewCharacterPositionByCharacterBox(Child);
+				return Child;
+			}
 		}
 		else
 		{
-			UKismetSystemLibrary::PrintString(this, GetNameSafe(Border));
-			auto* Child = Border->GetChildAt(0);
+			auto* Child = Cast<USelectCharacterBoxUserWidget>(Border->GetChildAt(0));
 			if (IsValid(Child))
 			{
 				Child->RemoveFromParent();
+				return Child;
 			}
 		}
+
+		return nullptr;
 	};
 
 	auto GetLastOrFirstIndex = [this, &UserCharacters](const int8& Index) -> uint8
@@ -171,7 +177,7 @@ void USelectCharacterUserWidget::ShowCharacters(const TArray<FUserCharacter>& Us
 			return Index;
 		}
 	};
-	
+
 	int8 Index;
 	int8 Value;
 
@@ -301,4 +307,24 @@ void USelectCharacterUserWidget::ResetBoxesTransform()
 	LeftCharacterBox = SelectCharacterLeftBorder;
 
 	LastChangeCharacterDirection = EChangeCharacterDirection::None;
+}
+
+void USelectCharacterUserWidget::SetPreviewCharacterPositionByCharacterBox(USelectCharacterBoxUserWidget* Widget)
+{
+	if (Widget == LeftCharacterBox->GetChildAt(0))
+	{
+		Widget->PreviewCharacterPosition = EPreviewCharacterPosition::L_1;
+		return;
+	}
+
+	if (Widget == MainCharacterBox->GetChildAt(0))
+	{
+		Widget->PreviewCharacterPosition = EPreviewCharacterPosition::Middle;
+		return;
+	}
+
+	if (Widget == RightCharacterBox->GetChildAt(0))
+	{
+		Widget->PreviewCharacterPosition = EPreviewCharacterPosition::R_1;
+	}
 }

@@ -8,11 +8,13 @@
 #include "zSpace/Actors/PreviewCharacter.h"
 #include <Components/WidgetSwitcher.h>
 #include "Components/EditableTextBox.h"
+#include "SelectCharacterUserWidget.h"
 #include "zSpace/UI/ZSCustomButton.h"
 #include "zSpace/UI/ZSpaceButton.h"
 #include "Kismet/GameplayStatics.h"
 #include <Components/TextBlock.h>
 #include <Components/Button.h>
+#include "Net/UnrealNetwork.h"
 #include <Components/Image.h>
 #include "zSpace/zSpace.h"
 
@@ -37,13 +39,8 @@ void USelectCharacterBoxUserWidget::NativePreConstruct()
 	{
 		PreviousCharacterMesh->OnClicked.AddUniqueDynamic(this, &USelectCharacterBoxUserWidget::OnClickedPreviousCharacterMesh);
 	}
-
-	TArray<AActor*> OutActors;
-	UGameplayStatics::GetAllActorsOfClass(this, APreviewCharacter::StaticClass(), OutActors);
-	if (OutActors.IsValidIndex(0))
-	{
-		PreviewCharacter = Cast<APreviewCharacter>(OutActors[0]);
-	}
+	
+	PreviewCharacter = GetPreviewCharacterByEnum(EPreviewCharacterPosition::Middle);
 }
 
 void USelectCharacterBoxUserWidget::NativeConstruct()
@@ -57,6 +54,11 @@ void USelectCharacterBoxUserWidget::NativeConstruct()
 	{
 		PreviousCharacterMesh->SetVisibility(ESlateVisibility::Collapsed);
 	}
+}
+
+void USelectCharacterBoxUserWidget::OnRep_PreviewCharacterPosition()
+{
+	// UKismetSystemLibrary::PrintString(this, "++++++++++++");
 }
 
 void USelectCharacterBoxUserWidget::SetupWidget(const FCharacterSelectBoxInfo& CharacterSelectBoxInfo)
@@ -113,7 +115,6 @@ void USelectCharacterBoxUserWidget::OnClickedDoneEditModeButton()
 		const FString FieldValue = PreviewCharacter->GetCurrentMeshName().ToString();
 		
 		PC->AddOrUpdateCosmeticCustomCharacterData(UserSessionGUID, CharacterName, MESH_NAME, FieldValue);
-		// UKismetSystemLibrary::PrintString(this, FieldValue);
 	}
 }
 
@@ -141,4 +142,30 @@ void USelectCharacterBoxUserWidget::ChangeNormalMode()
 	CreateCharacterNameSwitcher->SetActiveWidget(PlayerName);
 
 	NewCharacterName->SetText(FText::FromString(""));
+}
+
+APreviewCharacter* USelectCharacterBoxUserWidget::GetPreviewCharacterByEnum(
+	const EPreviewCharacterPosition P_PreviewCharacterPosition) const
+{
+	TArray<AActor*> OutActors;
+	UGameplayStatics::GetAllActorsOfClass(this, APreviewCharacter::StaticClass(), OutActors);
+	for (AActor* Actor : OutActors)
+	{
+		APreviewCharacter* L_PreviewCharacter = Cast<APreviewCharacter>(Actor);
+		if (IsValid(L_PreviewCharacter) && L_PreviewCharacter->PreviewCharacterPosition == P_PreviewCharacterPosition)
+		{
+			return L_PreviewCharacter;
+		}
+	}
+
+	return nullptr;
+}
+
+void USelectCharacterBoxUserWidget::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(USelectCharacterBoxUserWidget, PreviewCharacterPosition);
+
+	// DOREPLIFETIME_CONDITION_NOTIFY(USelectCharacterBoxUserWidget, PreviewCharacterPosition, COND_None, REPNOTIFY_OnChanged);
 }

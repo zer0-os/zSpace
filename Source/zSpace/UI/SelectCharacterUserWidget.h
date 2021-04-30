@@ -97,4 +97,6 @@ protected:
 
 	UFUNCTION(BlueprintCallable)
 	void ResetBoxesTransform();
+
+	virtual void SetPreviewCharacterPositionByCharacterBox(USelectCharacterBoxUserWidget* Widget);
 };
