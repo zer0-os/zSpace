@@ -71,8 +71,10 @@ struct FCharacterUnderFootSurfaceData
 	TArray<TSoftObjectPtr<class USoundBase >> SurfaceSoundBaseArray;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess=true))
-	TSoftObjectPtr<class UParticleSystem > SurfaceParticleSystem;
+	TSoftObjectPtr<class UParticleSystem > SurfaceParticleSystem;	
 	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess=true))
+	TSoftObjectPtr<class UMaterialInstance > SurfaceFootStepMaterial;	
 };
 
 /**
