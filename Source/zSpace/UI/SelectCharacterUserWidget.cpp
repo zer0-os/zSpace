@@ -69,6 +69,8 @@ void USelectCharacterUserWidget::NativeDestruct()
 			}
 		}
 	}
+
+	ResetBoxesTransform();
 }
 
 void USelectCharacterUserWidget::ToPreviousMenu()

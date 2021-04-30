@@ -166,6 +166,4 @@ void USelectCharacterBoxUserWidget::GetLifetimeReplicatedProps(TArray<FLifetimeP
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(USelectCharacterBoxUserWidget, PreviewCharacterPosition);
-
-	// DOREPLIFETIME_CONDITION_NOTIFY(USelectCharacterBoxUserWidget, PreviewCharacterPosition, COND_None, REPNOTIFY_OnChanged);
 }
