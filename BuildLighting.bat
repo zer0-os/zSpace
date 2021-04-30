@@ -18,6 +18,7 @@ call %UE4_PATH%\Engine\Binaries\Win64\UE4Editor-Cmd.exe ^
  -MapsOnly ^
  -ProjectOnly ^
  -AllowCommandletRendering 
+ -UNATTENDED
  
  
  
