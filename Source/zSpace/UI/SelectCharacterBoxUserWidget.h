@@ -30,6 +30,9 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, meta=(BindWidget))
 	class UImage* BackgroundImage = nullptr;
+	
+	UPROPERTY(BlueprintReadWrite, meta=(BindWidget))
+	class UImage* CharacterRenderImage = nullptr;
 
 	UPROPERTY(BlueprintReadWrite, meta=(BindWidget))
 	class UZSpaceButton* SelectButton = nullptr;
@@ -76,15 +79,16 @@ public:
 	UPROPERTY(BlueprintReadOnly)
 	class USelectCharacterUserWidget* SelectCharacterUserWidget = nullptr;
 
-	UPROPERTY(Replicated, ReplicatedUsing=OnRep_PreviewCharacterPosition)
+protected:
+	UPROPERTY(BlueprintSetter=SetPreviewCharacterPosition, BlueprintReadWrite)
 	EPreviewCharacterPosition PreviewCharacterPosition;
-
-	UFUNCTION()
-	void OnRep_PreviewCharacterPosition();
 	
 public:
 	UFUNCTION(BlueprintCallable)
 	void SetupWidget(const FCharacterSelectBoxInfo& CharacterSelectBoxInfo);
+	
+	UFUNCTION(BlueprintSetter)
+	void SetPreviewCharacterPosition(EPreviewCharacterPosition NewValue);
 
 protected:
 	UFUNCTION()
@@ -107,6 +111,4 @@ protected:
 
 	UFUNCTION(BlueprintPure)
 	APreviewCharacter* GetPreviewCharacterByEnum(EPreviewCharacterPosition P_PreviewCharacterPosition) const;
-
-	virtual void GetLifetimeReplicatedProps(TArray <class FLifetimeProperty>& OutLifetimeProps) const override;
 };

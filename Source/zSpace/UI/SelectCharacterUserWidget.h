@@ -63,6 +63,9 @@ public:
 	UPROPERTY(BlueprintReadWrite, Transient)
 	class UBorder* RightCharacterBox = nullptr;
 
+	UPROPERTY(BlueprintReadOnly)
+	TArray<uint8> UseCharacterIndex;
+
 public:
 	UFUNCTION(BlueprintCallable, BlueprintCosmetic)
 	void CreateCharacterSelectBox(const FCharacterSelectBoxInfo& CharacterSelectBoxInfo, class UBorder* ParentBorder);

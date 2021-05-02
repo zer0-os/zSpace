@@ -17,6 +17,7 @@
 #include "Net/UnrealNetwork.h"
 #include <Components/Image.h>
 #include "zSpace/zSpace.h"
+#include "zSpace/BlueprintFunctionLibrary/OWSBlueprintFunctionLibrary.h"
 
 
 void USelectCharacterBoxUserWidget::NativePreConstruct()
@@ -40,7 +41,7 @@ void USelectCharacterBoxUserWidget::NativePreConstruct()
 		PreviousCharacterMesh->OnClicked.AddUniqueDynamic(this, &USelectCharacterBoxUserWidget::OnClickedPreviousCharacterMesh);
 	}
 	
-	PreviewCharacter = GetPreviewCharacterByEnum(EPreviewCharacterPosition::Middle);
+	// PreviewCharacter = GetPreviewCharacterByEnum(EPreviewCharacterPosition::Middle);
 }
 
 void USelectCharacterBoxUserWidget::NativeConstruct()
@@ -56,9 +57,32 @@ void USelectCharacterBoxUserWidget::NativeConstruct()
 	}
 }
 
-void USelectCharacterBoxUserWidget::OnRep_PreviewCharacterPosition()
+void USelectCharacterBoxUserWidget::SetPreviewCharacterPosition(EPreviewCharacterPosition NewValue)
 {
-	// UKismetSystemLibrary::PrintString(this, "++++++++++++");
+	PreviewCharacterPosition = NewValue;
+	PreviewCharacter = GetPreviewCharacterByEnum(PreviewCharacterPosition);
+	
+	auto* RenderTargetAndPosition = PreviewCharacter->GetRenderTargetAndPosition();
+	if (IsValid(RenderTargetAndPosition))
+	{
+		auto Data =  RenderTargetAndPosition->RenderTargetAndPosition;
+		UTextureRenderTarget2D* const* RenderTarget = Data.Find(PreviewCharacterPosition);
+		if (RenderTarget)
+		{
+			UMaterialInterface* Mat = Cast<UMaterialInterface>(CharacterRenderImage->Brush.GetResourceObject());
+			UMaterialInstanceDynamic* DynamicMaterial = Cast<UMaterialInstanceDynamic>(Mat);
+			if (!IsValid(DynamicMaterial))
+			{
+				DynamicMaterial = UMaterialInstanceDynamic::Create(Mat,this, *Mat->GetName());
+				CharacterRenderImage->SetBrushFromMaterial(DynamicMaterial);
+			}
+			if (IsValid(DynamicMaterial))
+			{
+				DynamicMaterial->SetTextureParameterValue("RenderTarget", *RenderTarget);
+			}
+		}	
+	}
+	// CreateDynamicMaterialInstance
 }
 
 void USelectCharacterBoxUserWidget::SetupWidget(const FCharacterSelectBoxInfo& CharacterSelectBoxInfo)
@@ -113,8 +137,10 @@ void USelectCharacterBoxUserWidget::OnClickedDoneEditModeButton()
 		const FString UserSessionGUID = PC->GetUserSessionGUID();
 		const FString CharacterName = PC->GetCharacterName();
 		const FString FieldValue = PreviewCharacter->GetCurrentMeshName().ToString();
+
+		const FString FieldName = UOWSBlueprintFunctionLibrary::GetMeshFieldName(this, CharacterName);
 		
-		PC->AddOrUpdateCosmeticCustomCharacterData(UserSessionGUID, CharacterName, MESH_NAME, FieldValue);
+		PC->AddOrUpdateCosmeticCustomCharacterData(UserSessionGUID, CharacterName, FieldName, FieldValue);
 	}
 }
 
@@ -159,11 +185,4 @@ APreviewCharacter* USelectCharacterBoxUserWidget::GetPreviewCharacterByEnum(
 	}
 
 	return nullptr;
-}
-
-void USelectCharacterBoxUserWidget::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
-{
-	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-
-	DOREPLIFETIME(USelectCharacterBoxUserWidget, PreviewCharacterPosition);
 }

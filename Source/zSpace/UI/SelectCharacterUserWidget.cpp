@@ -148,6 +148,7 @@ void USelectCharacterUserWidget::ShowCharacters(const TArray<FUserCharacter>& Us
 					Child->PreviousCharacterMesh->SetVisibility(ESlateVisibility::Collapsed);
 				}
 				SetPreviewCharacterPositionByCharacterBox(Child);
+				UseCharacterIndex.AddUnique(CheckIndex);
 				return Child;
 			}
 		}
@@ -182,6 +183,8 @@ void USelectCharacterUserWidget::ShowCharacters(const TArray<FUserCharacter>& Us
 
 	int8 Index;
 	int8 Value;
+
+	UseCharacterIndex.Empty();
 
 	CheckAndCreate(CurrentCharacterIndex, MainCharacterBox);
 	if (LastChangeCharacterDirection == EChangeCharacterDirection::None)
@@ -315,18 +318,18 @@ void USelectCharacterUserWidget::SetPreviewCharacterPositionByCharacterBox(USele
 {
 	if (Widget == LeftCharacterBox->GetChildAt(0))
 	{
-		Widget->PreviewCharacterPosition = EPreviewCharacterPosition::L_1;
+		Widget->SetPreviewCharacterPosition(EPreviewCharacterPosition::L_1);
 		return;
 	}
 
 	if (Widget == MainCharacterBox->GetChildAt(0))
 	{
-		Widget->PreviewCharacterPosition = EPreviewCharacterPosition::Middle;
+		Widget->SetPreviewCharacterPosition(EPreviewCharacterPosition::Middle);
 		return;
 	}
 
 	if (Widget == RightCharacterBox->GetChildAt(0))
 	{
-		Widget->PreviewCharacterPosition = EPreviewCharacterPosition::R_1;
+		Widget->SetPreviewCharacterPosition(EPreviewCharacterPosition::R_1);
 	}
 }
