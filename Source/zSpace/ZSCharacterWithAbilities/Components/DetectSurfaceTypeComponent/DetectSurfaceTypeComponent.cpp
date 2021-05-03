@@ -163,10 +163,7 @@ void UDetectSurfaceTypeComponent::SpawnFootStepDecal(const FCharacterUnderFootSu
 	UMaterialInstance* L_FootStepMaterial = NewCharacterUnderFootSurfaceData.SurfaceFootStepMaterial.LoadSynchronous();
 	if (L_FootStepMaterial)
 	{
-		//UKismetSystemLibrary::PrintString(GetOwner(), L_FootStepMaterial->GetName());
-		const FVector L_Size = FVector(10, 15, 20);
-		//UKismetSystemLibrary::DrawDebugSphere(this, NewLocation, 25, 12, FLinearColor::Red, 5);
-		UGameplayStatics::SpawnDecalAtLocation(GetOwner(), L_FootStepMaterial, L_Size, NewLocation, NewRotation, 10);
+		UGameplayStatics::SpawnDecalAtLocation(GetOwner(), L_FootStepMaterial, NewCharacterUnderFootSurfaceData.DecalSize, NewLocation, NewRotation);
 	}
 }
 
