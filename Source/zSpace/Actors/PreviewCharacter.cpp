@@ -64,8 +64,6 @@ void APreviewCharacter::NextCharacterMesh()
 	{
 		PreviewCharacterMeshComponent->SetSkeletalMesh(Meshes[CurrentCharacterMeshIndex]);
 	}
-
-	// UKismetSystemLibrary::PrintString(this, FString::FromInt(CurrentCharacterMeshIndex));
 }
 
 void APreviewCharacter::PreviousCharacterMesh()
@@ -86,8 +84,6 @@ void APreviewCharacter::PreviousCharacterMesh()
 	{
 		PreviewCharacterMeshComponent->SetSkeletalMesh(Meshes[CurrentCharacterMeshIndex]);
 	}
-	
-	// UKismetSystemLibrary::PrintString(this, FString::FromInt(CurrentCharacterMeshIndex));
 }
 
 UCharacterMeshesDataAsset* APreviewCharacter::GetCharacterMeshesDataAsset() const

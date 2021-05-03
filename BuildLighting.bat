@@ -20,6 +20,8 @@ call %UE4_PATH%\Engine\Binaries\Win64\UE4Editor-Cmd.exe ^
  -AllowCommandletRendering ^
  -UNATTENDED
  
+ if %errorlevel% NEQ 0 exit /b %errorlevel%
+ 
  
  
 

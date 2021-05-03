@@ -3,12 +3,6 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "UObject/NoExportTypes.h"
-#include <Engine/DataAsset.h>
-#include <UObject/Object.h>
-
-#include "Engine/CanvasRenderTarget2D.h"
-
 #include "UITypes.generated.h"
 
 
@@ -102,8 +96,24 @@ enum class EWidgetType : uint8
 	SelectCharacter,
 };
 
+UENUM(BlueprintType)
+enum class EPreviewCharacterPosition : uint8
+{
+	L_1,
+	L_2,
+	L_3,
+	L_4,
+	L_5,
+	Middle,
+	R_1,
+	R_2,
+	R_3,
+	R_4,
+	R_5,
+};
+
 USTRUCT(BlueprintType)
-struct ZSPACE_API FCharacterSelectBoxInfo
+struct ZSPACE_API FCharacterInfoForUI
 {
 	GENERATED_USTRUCT_BODY()
 public:
@@ -115,6 +125,9 @@ public:
 
 	UPROPERTY(BlueprintReadWrite)
 	UTexture2D* BackgroundImage = nullptr;
+	
+	UPROPERTY(BlueprintReadOnly)
+	EPreviewCharacterPosition PreviewCharacterDirection;
 };
 
 USTRUCT(BlueprintType)
@@ -134,22 +147,6 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	class USoundBase* MenuSound = nullptr;
-};
-
-UENUM(BlueprintType)
-enum class EPreviewCharacterPosition : uint8
-{
-	L_1,
-	L_2,
-	L_3,
-	L_4,
-	L_5,
-	Middle,
-	R_1,
-	R_2,
-	R_3,
-	R_4,
-	R_5,
 };
 
 UCLASS(BlueprintType)
