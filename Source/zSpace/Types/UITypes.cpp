@@ -3,6 +3,10 @@
 
 #include "zSpace/Types/UITypes.h"
 
+#include "zSpace/UI/SelectCharacterUserWidget.h"
+#include "Engine/CanvasRenderTarget2D.h"
+#include "UObject/NoExportTypes.h"
+
 FIntPoint UConvertEResolutionToFIntPointOrViceVersa::GetIntPoint(const UObject* WorldContext, EResolution Resolution)
 {
 	switch (Resolution)
