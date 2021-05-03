@@ -2,10 +2,10 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
-#include "../Types/UITypes.h"
-#include "Blueprint/UserWidget.h"
+#include "zSpace/Types/UITypes.h"
 
+#include "CoreMinimal.h"
+#include "Blueprint/UserWidget.h"
 #include "SelectCharacterBoxUserWidget.generated.h"
 
 /**
@@ -30,6 +30,9 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, meta=(BindWidget))
 	class UImage* BackgroundImage = nullptr;
+	
+	UPROPERTY(BlueprintReadWrite, meta=(BindWidget))
+	class UImage* CharacterRenderImage = nullptr;
 
 	UPROPERTY(BlueprintReadWrite, meta=(BindWidget))
 	class UZSpaceButton* SelectButton = nullptr;
@@ -76,15 +79,22 @@ public:
 	UPROPERTY(BlueprintReadOnly)
 	class USelectCharacterUserWidget* SelectCharacterUserWidget = nullptr;
 
-	UPROPERTY(Replicated, ReplicatedUsing=OnRep_PreviewCharacterPosition)
+protected:
+	UPROPERTY(BlueprintSetter=SetPreviewCharacterPosition, BlueprintReadWrite)
 	EPreviewCharacterPosition PreviewCharacterPosition;
 
-	UFUNCTION()
-	void OnRep_PreviewCharacterPosition();
+	UPROPERTY(BlueprintReadOnly, BlueprintGetter=GetCharacterInfoForUI)
+	FCharacterInfoForUI CharacterInfoForUI;
 	
 public:
 	UFUNCTION(BlueprintCallable)
-	void SetupWidget(const FCharacterSelectBoxInfo& CharacterSelectBoxInfo);
+	void SetupWidget(const FCharacterInfoForUI& Data);
+	
+	UFUNCTION(BlueprintSetter)
+	void SetPreviewCharacterPosition(EPreviewCharacterPosition NewValue);
+
+	UFUNCTION(BlueprintGetter)
+	const FCharacterInfoForUI& GetCharacterInfoForUI() const { return CharacterInfoForUI; };
 
 protected:
 	UFUNCTION()
@@ -107,6 +117,4 @@ protected:
 
 	UFUNCTION(BlueprintPure)
 	APreviewCharacter* GetPreviewCharacterByEnum(EPreviewCharacterPosition P_PreviewCharacterPosition) const;
-
-	virtual void GetLifetimeReplicatedProps(TArray <class FLifetimeProperty>& OutLifetimeProps) const override;
 };

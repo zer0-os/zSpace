@@ -6,6 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "GameFramework/RotatingMovementComponent.h"
 #include "zSpace/Types/UITypes.h"
+#include "zSpace/UI/SelectCharacterBoxUserWidget.h"
 
 #include "PreviewCharacter.generated.h"
 
@@ -63,5 +64,8 @@ public:
 	FName GetCurrentMeshName() const;
 	
 	UFUNCTION(BlueprintPure)
-	class USkeletalMesh* GetCurrentMesh() const;	
+	class USkeletalMesh* GetCurrentMesh() const;
+
+	UFUNCTION(BlueprintPure)
+	FORCEINLINE class URenderTargetAndPosition*	GetRenderTargetAndPosition() const { return  RenderTargetAndPosition; }
 };

@@ -5,6 +5,7 @@
 #include "zSpace/PlayerController/ZSLoginPlayerController.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include "zSpace/BlueprintFunctionLibrary/OWSBlueprintFunctionLibrary.h"
 
 AZSLoginPlayerController::AZSLoginPlayerController()
 {
@@ -76,6 +77,35 @@ FString AZSLoginPlayerController::GetRandomString(uint8 Length)
 	}
 
 	return Result;
+}
+
+FCustomCharacterDataStruct AZSLoginPlayerController::GetCustomCharacterDataMeshByName(FString Character_Name) const
+{
+	FString CustomFieldName = UOWSBlueprintFunctionLibrary::GetMeshFieldName(this, Character_Name);
+	
+	for (const auto &Data : CustomCharacterDataMeshArray)
+	{
+		if (Data.CustomFieldName == CustomFieldName)
+		{
+			return Data;
+		}
+	}
+
+	return FCustomCharacterDataStruct();
+}
+
+void AZSLoginPlayerController::UpdateOrAddCustomCharacterDataMesh(const FCustomCharacterDataStruct& NewData)
+{
+	for (auto &Data : CustomCharacterDataMeshArray)
+	{
+		if (Data.CustomFieldName == NewData.CustomFieldName)
+		{
+			Data = NewData;
+			return;
+		}
+	}
+
+	CustomCharacterDataMeshArray.Add(NewData);
 }
 
 FString AZSLoginPlayerController::GetUserSessionGUID() const
