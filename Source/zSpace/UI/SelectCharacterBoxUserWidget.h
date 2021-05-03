@@ -2,10 +2,10 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
-#include "../Types/UITypes.h"
-#include "Blueprint/UserWidget.h"
+#include "zSpace/Types/UITypes.h"
 
+#include "CoreMinimal.h"
+#include "Blueprint/UserWidget.h"
 #include "SelectCharacterBoxUserWidget.generated.h"
 
 /**
@@ -82,13 +82,19 @@ public:
 protected:
 	UPROPERTY(BlueprintSetter=SetPreviewCharacterPosition, BlueprintReadWrite)
 	EPreviewCharacterPosition PreviewCharacterPosition;
+
+	UPROPERTY(BlueprintReadOnly, BlueprintGetter=GetCharacterInfoForUI)
+	FCharacterInfoForUI CharacterInfoForUI;
 	
 public:
 	UFUNCTION(BlueprintCallable)
-	void SetupWidget(const FCharacterSelectBoxInfo& CharacterSelectBoxInfo);
+	void SetupWidget(const FCharacterInfoForUI& Data);
 	
 	UFUNCTION(BlueprintSetter)
 	void SetPreviewCharacterPosition(EPreviewCharacterPosition NewValue);
+
+	UFUNCTION(BlueprintGetter)
+	const FCharacterInfoForUI& GetCharacterInfoForUI() const { return CharacterInfoForUI; };
 
 protected:
 	UFUNCTION()

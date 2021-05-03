@@ -3,21 +3,20 @@
 
 #include "zSpace/UI/SelectCharacterBoxUserWidget.h"
 
+#include "zSpace/BlueprintFunctionLibrary/OWSBlueprintFunctionLibrary.h"
 #include "zSpace/PlayerController/ZSLoginPlayerController.h"
 #include "zSpace/Types/CharacterMeshesDataAsset.h"
 #include "zSpace/Actors/PreviewCharacter.h"
-#include <Components/WidgetSwitcher.h>
+#include "Engine/CanvasRenderTarget2D.h"
 #include "Components/EditableTextBox.h"
 #include "SelectCharacterUserWidget.h"
+#include <Components/WidgetSwitcher.h>
 #include "zSpace/UI/ZSCustomButton.h"
 #include "zSpace/UI/ZSpaceButton.h"
 #include "Kismet/GameplayStatics.h"
 #include <Components/TextBlock.h>
 #include <Components/Button.h>
-#include "Net/UnrealNetwork.h"
 #include <Components/Image.h>
-#include "zSpace/zSpace.h"
-#include "zSpace/BlueprintFunctionLibrary/OWSBlueprintFunctionLibrary.h"
 
 
 void USelectCharacterBoxUserWidget::NativePreConstruct()
@@ -61,6 +60,8 @@ void USelectCharacterBoxUserWidget::SetPreviewCharacterPosition(EPreviewCharacte
 {
 	PreviewCharacterPosition = NewValue;
 	PreviewCharacter = GetPreviewCharacterByEnum(PreviewCharacterPosition);
+
+	if (!IsValid(PreviewCharacter)) return;
 	
 	auto* RenderTargetAndPosition = PreviewCharacter->GetRenderTargetAndPosition();
 	if (IsValid(RenderTargetAndPosition))
@@ -82,13 +83,15 @@ void USelectCharacterBoxUserWidget::SetPreviewCharacterPosition(EPreviewCharacte
 			}
 		}	
 	}
-	// CreateDynamicMaterialInstance
+	CharacterInfoForUI.PreviewCharacterDirection = PreviewCharacterPosition;
 }
 
-void USelectCharacterBoxUserWidget::SetupWidget(const FCharacterSelectBoxInfo& CharacterSelectBoxInfo)
+void USelectCharacterBoxUserWidget::SetupWidget(const FCharacterInfoForUI& Data)
 {
-	PlayerName->SetText(FText::FromString(CharacterSelectBoxInfo.CharacterName));
-	PlayerLevel->SetText(FText::FromString(CharacterSelectBoxInfo.CharacterLevel));
+	PlayerName->SetText(FText::FromString(Data.CharacterName));
+	PlayerLevel->SetText(FText::FromString(Data.CharacterLevel));
+
+	CharacterInfoForUI = Data;
 }
 
 void USelectCharacterBoxUserWidget::OnClickedEditModeButton()

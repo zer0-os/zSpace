@@ -6,6 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "GameFramework/RotatingMovementComponent.h"
 #include "zSpace/Types/UITypes.h"
+#include "zSpace/UI/SelectCharacterBoxUserWidget.h"
 
 #include "PreviewCharacter.generated.h"
 

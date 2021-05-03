@@ -3,17 +3,19 @@
 
 #include "zSpace/UI/SelectCharacterUserWidget.h"
 
-#include "ZSCustomButton.h"
 #include "../BlueprintFunctionLibrary/UIBlueprintFunctionLibrary.h"
-#include "zSpace/UI/SelectCharacterBoxUserWidget.h"
 #include "../PlayerController/ZSLoginPlayerController.h"
+#include "zSpace/UI/SelectCharacterBoxUserWidget.h"
 #include "../Components/ManageWidgetsResolution.h"
+#include "zSpace/Actors/PreviewCharacter.h"
+#include "Kismet/KismetSystemLibrary.h"
 #include "../Game/ZSpaceGameInstance.h"
 #include "Components/WidgetSwitcher.h"
+#include "zSpace/UI/ZSCustomButton.h"
+#include "Kismet/GameplayStatics.h"
 #include "Components/BorderSlot.h"
 #include "Components/Border.h"
 #include "../Types/UITypes.h"
-#include "Kismet/KismetSystemLibrary.h"
 
 void USelectCharacterUserWidget::NativePreConstruct()
 {
@@ -93,7 +95,7 @@ void USelectCharacterUserWidget::ToPreviousMenu()
 	RemoveFromParent();
 }
 
-void USelectCharacterUserWidget::CreateCharacterSelectBox(const FCharacterSelectBoxInfo& CharacterSelectBoxInfo, UBorder* ParentBorder)
+void USelectCharacterUserWidget::CreateCharacterSelectBox(const FCharacterInfoForUI& CharacterSelectBoxInfo, UBorder* ParentBorder)
 {
 	if (!IsValid(ParentBorder)) return;
 	check(SelectCharacterBoxSubClass);
@@ -131,7 +133,7 @@ void USelectCharacterUserWidget::ShowCharacters(const TArray<FUserCharacter>& Us
 		
 		if (UserCharacters.IsValidIndex(CheckIndex))
 		{
-			FCharacterSelectBoxInfo	CharacterInfo;	
+			FCharacterInfoForUI	CharacterInfo;	
 			const FUserCharacter& UserCharacter = UserCharacters[CheckIndex];
 			CharacterInfo.CharacterName = UserCharacter.CharacterName;
 			CharacterInfo.CharacterLevel = FString::FromInt(UserCharacter.Level);
@@ -148,7 +150,6 @@ void USelectCharacterUserWidget::ShowCharacters(const TArray<FUserCharacter>& Us
 					Child->PreviousCharacterMesh->SetVisibility(ESlateVisibility::Collapsed);
 				}
 				SetPreviewCharacterPositionByCharacterBox(Child);
-				UseCharacterIndex.AddUnique(CheckIndex);
 				return Child;
 			}
 		}
@@ -184,8 +185,6 @@ void USelectCharacterUserWidget::ShowCharacters(const TArray<FUserCharacter>& Us
 	int8 Index;
 	int8 Value;
 
-	UseCharacterIndex.Empty();
-
 	CheckAndCreate(CurrentCharacterIndex, MainCharacterBox);
 	if (LastChangeCharacterDirection == EChangeCharacterDirection::None)
 	{
@@ -200,12 +199,6 @@ void USelectCharacterUserWidget::ShowCharacters(const TArray<FUserCharacter>& Us
 	
 	if (LastChangeCharacterDirection == EChangeCharacterDirection::ToLeft)
 	{
-		// Index = CurrentCharacterIndex - 1;
-		// CheckAndCreate(GetLastOrFirstIndex(Index), RightCharacterBox);
-
-		// Index = CurrentCharacterIndex + 1;
-		// CheckAndCreate(GetLastOrFirstIndex(Index), LeftCharacterBox);
-		
 		// Right
 		const bool bIsRightBordersEqual = RightCharacterBox == SelectCharacterRightBorder;
 		Value = bIsRightBordersEqual ? -1 : 1;
@@ -249,6 +242,43 @@ USelectCharacterBoxUserWidget* USelectCharacterUserWidget::GetSelectedCharacterB
 void USelectCharacterUserWidget::SetMainCharacterBox(UBorder* NewValue)
 {
 	MainCharacterBox = NewValue;
+}
+
+TArray<FCharacterInfoForUI> USelectCharacterUserWidget::GetCharactersInfoData()
+{	
+	TArray<FCharacterInfoForUI> Result;
+
+	auto AddData = [this, &Result](UBorder* Border) -> void
+	{
+		const auto Data = GetCharacterInfoForUI(Border);
+		if (Data.Key)
+		{
+			Result.Add(Data.Value);
+		}
+	};
+	
+	AddData(LeftCharacterBox);
+	AddData(MainCharacterBox);
+	AddData(RightCharacterBox);
+	
+	return Result;
+}
+
+APreviewCharacter* USelectCharacterUserWidget::GetPreviewCharacterByEnum(
+	EPreviewCharacterPosition P_PreviewCharacterPosition) const
+{
+	TArray<AActor*> OutActors;
+	UGameplayStatics::GetAllActorsOfClass(this, APreviewCharacter::StaticClass(), OutActors);
+	for (AActor* Actor : OutActors)
+	{
+		APreviewCharacter* L_PreviewCharacter = Cast<APreviewCharacter>(Actor);
+		if (IsValid(L_PreviewCharacter) && L_PreviewCharacter->PreviewCharacterPosition == P_PreviewCharacterPosition)
+		{
+			return L_PreviewCharacter;
+		}
+	}
+
+	return nullptr;	
 }
 
 void USelectCharacterUserWidget::UpdateBorderToRight()
@@ -332,4 +362,18 @@ void USelectCharacterUserWidget::SetPreviewCharacterPositionByCharacterBox(USele
 	{
 		Widget->SetPreviewCharacterPosition(EPreviewCharacterPosition::R_1);
 	}
+}
+
+TPair<bool, FCharacterInfoForUI> USelectCharacterUserWidget::GetCharacterInfoForUI(const UBorder* Border) const
+{
+	if (IsValid(Border))
+	{
+		USelectCharacterBoxUserWidget* Child = Cast<USelectCharacterBoxUserWidget>(Border->GetChildAt(0));
+		if (IsValid(Child))
+		{
+			return TPair<bool, FCharacterInfoForUI>(true, Child->GetCharacterInfoForUI());
+		}
+	}
+
+	return TPair<bool, FCharacterInfoForUI>(false, FCharacterInfoForUI());
 }
