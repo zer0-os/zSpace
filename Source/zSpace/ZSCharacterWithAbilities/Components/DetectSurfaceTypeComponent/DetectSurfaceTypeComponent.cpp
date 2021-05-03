@@ -94,6 +94,7 @@ FRotator UDetectSurfaceTypeComponent::GetFootRotationByCharacterFootType(ECharac
 	{
 		R_Rotation = GetOwner()->GetActorRotation();
 		R_Rotation.Pitch = -90;
+		R_Rotation.Yaw += 180;
 	}
 	return R_Rotation;
 }
@@ -163,7 +164,7 @@ void UDetectSurfaceTypeComponent::SpawnFootStepDecal(const FCharacterUnderFootSu
 	if (L_FootStepMaterial)
 	{
 		//UKismetSystemLibrary::PrintString(GetOwner(), L_FootStepMaterial->GetName());
-		const FVector L_Size = FVector(10, 15, 30);
+		const FVector L_Size = FVector(10, 15, 20);
 		//UKismetSystemLibrary::DrawDebugSphere(this, NewLocation, 25, 12, FLinearColor::Red, 5);
 		UGameplayStatics::SpawnDecalAtLocation(GetOwner(), L_FootStepMaterial, L_Size, NewLocation, NewRotation, 10);
 	}
