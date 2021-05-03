@@ -66,8 +66,6 @@ void UBackgroundVideoUserWidget::CheckVideoAndPlay(FBackgroundVideo BackgroundVi
  			{
  				MediaPlayer->OpenSource(BackgroundVideoInfo.MediaSource);
  				MediaSource = BackgroundVideoInfo.MediaSource;
- 				
- 				// UKismetSystemLibrary::PrintString(this, "NEW_1");
  			}
  		}
  	}
@@ -78,7 +76,6 @@ void UBackgroundVideoUserWidget::CheckVideoAndPlay(FBackgroundVideo BackgroundVi
 		{
  			MediaPlayer->OpenSource(BackgroundVideoInfo.MediaSource);
  			MediaSource = BackgroundVideoInfo.MediaSource;
- 			// UKismetSystemLibrary::PrintString(this, "NEW_2");
 		}
 	}
 

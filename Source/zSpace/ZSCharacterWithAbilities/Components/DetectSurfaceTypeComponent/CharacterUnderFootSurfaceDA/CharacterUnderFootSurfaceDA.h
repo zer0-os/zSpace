@@ -74,7 +74,10 @@ struct FCharacterUnderFootSurfaceData
 	TSoftObjectPtr<class UParticleSystem > SurfaceParticleSystem;	
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess=true))
-	TSoftObjectPtr<class UMaterialInstance > SurfaceFootStepMaterial;	
+	TSoftObjectPtr<class UMaterialInstance > SurfaceFootStepMaterial;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess=true))
+	FVector DecalSize;
 };
 
 /**
