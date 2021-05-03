@@ -89,19 +89,12 @@ FVector UDetectSurfaceTypeComponent::GetFootLocationByCharacterFootType(ECharact
 
 FRotator UDetectSurfaceTypeComponent::GetFootRotationByCharacterFootType(ECharacterFootType NewCharacterFootType)
 {
-	USkeletalMeshComponent * L_SkeletalMeshComponent = GetSkeletalMesh();
 	FRotator R_Rotation = FRotator::ZeroRotator;
-
-	if(L_SkeletalMeshComponent)
+	if(GetOwner())
 	{
-		if(ECharacterFootType::LEFT == NewCharacterFootType)
-		{
-			R_Rotation = L_SkeletalMeshComponent->GetSocketRotation(FName(LeftFootBoneName));
-		}
-		else if(ECharacterFootType::RIGHT == NewCharacterFootType)
-		{
-			R_Rotation = L_SkeletalMeshComponent->GetSocketRotation(FName(RightFootBoneName));
-		}
+		R_Rotation = GetOwner()->GetActorRotation();
+		R_Rotation.Pitch = -90;
+		R_Rotation.Yaw += 180;
 	}
 	return R_Rotation;
 }
@@ -115,8 +108,7 @@ void UDetectSurfaceTypeComponent::PutFootOnGround(ECharacterFootType NewCharacte
 	TArray<AActor *> L_ActorsToIgnore;
 	TArray<FHitResult> L_OutHits;
 
-	FRotator L_Rotation = GetFootRotationByCharacterFootType(NewCharacterFootType);
-	L_Rotation.Yaw += -90;
+	const FRotator L_Rotation = GetFootRotationByCharacterFootType(NewCharacterFootType);
 
 	const bool bIsBlocking = UKismetSystemLibrary::LineTraceMultiForObjects(GetOwner(), L_Start, L_End, ObjectTypes, true, L_ActorsToIgnore, EDrawDebugTrace::None, L_OutHits, true);
 	if(bIsBlocking)
@@ -171,9 +163,10 @@ void UDetectSurfaceTypeComponent::SpawnFootStepDecal(const FCharacterUnderFootSu
 	UMaterialInstance* L_FootStepMaterial = NewCharacterUnderFootSurfaceData.SurfaceFootStepMaterial.LoadSynchronous();
 	if (L_FootStepMaterial)
 	{
-		UKismetSystemLibrary::PrintString(GetOwner(), L_FootStepMaterial->GetName());
-		FVector Size = FVector(10, 15, 20);
-		UGameplayStatics::SpawnDecalAtLocation(GetOwner(), L_FootStepMaterial, Size, NewLocation, NewRotation, 10);
+		//UKismetSystemLibrary::PrintString(GetOwner(), L_FootStepMaterial->GetName());
+		const FVector L_Size = FVector(10, 15, 20);
+		//UKismetSystemLibrary::DrawDebugSphere(this, NewLocation, 25, 12, FLinearColor::Red, 5);
+		UGameplayStatics::SpawnDecalAtLocation(GetOwner(), L_FootStepMaterial, L_Size, NewLocation, NewRotation, 10);
 	}
 }
 
