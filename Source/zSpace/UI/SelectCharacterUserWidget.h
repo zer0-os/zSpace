@@ -63,6 +63,15 @@ public:
 	UPROPERTY(BlueprintReadWrite, Transient)
 	class UBorder* RightCharacterBox = nullptr;
 
+	UPROPERTY(BlueprintReadOnly, meta=(BindWidget))
+	class UButton* Next = nullptr;
+	
+	UPROPERTY(BlueprintReadOnly, meta=(BindWidget))
+	class UButton* Previous = nullptr;
+
+	UPROPERTY(BlueprintReadOnly, meta=(BindWidget))
+	class UButton* AddNewCharacter = nullptr;
+
 public:
 	UFUNCTION(BlueprintCallable, BlueprintCosmetic)
 	void CreateCharacterSelectBox(const FCharacterInfoForUI& CharacterSelectBoxInfo, class UBorder* ParentBorder);
@@ -81,6 +90,9 @@ public:
 	
 	UFUNCTION(BlueprintPure)
 	APreviewCharacter* GetPreviewCharacterByEnum(EPreviewCharacterPosition P_PreviewCharacterPosition) const;
+
+	UFUNCTION(BlueprintPure)
+	bool CanChangeCharacter();
 
 protected:
 	UFUNCTION(BlueprintCallable)
@@ -107,4 +119,7 @@ protected:
 	virtual void SetPreviewCharacterPositionByCharacterBox(USelectCharacterBoxUserWidget* Widget);
 
 	TPair<bool, FCharacterInfoForUI> GetCharacterInfoForUI(const UBorder* Border) const;
+
+	UFUNCTION()
+	void OnClickedAddNewCharacter();
 };

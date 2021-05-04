@@ -40,6 +40,11 @@ void USelectCharacterUserWidget::NativePreConstruct()
 	{
 		ManageWidgetsResolution = GameInstance->GetManageWidgetsResolution();
 	}
+
+	if (IsValid(AddNewCharacter))
+	{
+		AddNewCharacter->OnClicked.AddUniqueDynamic(this, &USelectCharacterUserWidget::OnClickedAddNewCharacter);	
+	}
 }
 
 void USelectCharacterUserWidget::NativeConstruct()
@@ -185,7 +190,19 @@ void USelectCharacterUserWidget::ShowCharacters(const TArray<FUserCharacter>& Us
 	int8 Index;
 	int8 Value;
 
-	CheckAndCreate(CurrentCharacterIndex, MainCharacterBox);
+	if (UserCharacters.Num() == 1)
+	{
+		CheckAndCreate(CurrentCharacterIndex, MainCharacterBox);
+		LeftCharacterBox->RemoveChildAt(0);
+		RightCharacterBox->RemoveChildAt(0);
+		
+		return;
+	}
+	else
+	{
+		CheckAndCreate(CurrentCharacterIndex, MainCharacterBox);
+	}
+
 	if (LastChangeCharacterDirection == EChangeCharacterDirection::None)
 	{
 		Index = CurrentCharacterIndex + 1;
@@ -253,7 +270,7 @@ TArray<FCharacterInfoForUI> USelectCharacterUserWidget::GetCharactersInfoData()
 		const auto Data = GetCharacterInfoForUI(Border);
 		if (Data.Key)
 		{
-			Result.Add(Data.Value);
+			Result.AddUnique(Data.Value);
 		}
 	};
 	
@@ -279,6 +296,25 @@ APreviewCharacter* USelectCharacterUserWidget::GetPreviewCharacterByEnum(
 	}
 
 	return nullptr;	
+}
+
+bool USelectCharacterUserWidget::CanChangeCharacter()
+{
+	auto* Widget = GetSelectedCharacterBox();
+	if (IsValid(Widget))
+	{
+		const bool Result = Widget->bIsEditMode || Widget->bIsCreateCharacterMode;
+		if (Result)
+		{
+			return false;
+		}
+		else
+		{
+			return !(GetCharactersInfoData().Num() == 1);
+		}
+	}
+
+	return false;
 }
 
 void USelectCharacterUserWidget::UpdateBorderToRight()
@@ -376,4 +412,22 @@ TPair<bool, FCharacterInfoForUI> USelectCharacterUserWidget::GetCharacterInfoFor
 	}
 
 	return TPair<bool, FCharacterInfoForUI>(false, FCharacterInfoForUI());
+}
+
+void USelectCharacterUserWidget::OnClickedAddNewCharacter()
+{
+	USelectCharacterBoxUserWidget* Widget = GetSelectedCharacterBox();
+	if (IsValid(Widget))
+	{
+		Widget->ChangeCreateCharacterMode();
+	}
+	else
+	{
+		CreateCharacterSelectBox(FCharacterInfoForUI(), MainCharacterBox);
+		Widget = GetSelectedCharacterBox();
+		if (IsValid(Widget))
+		{
+			Widget->ChangeCreateCharacterMode();
+		}
+	}
 }

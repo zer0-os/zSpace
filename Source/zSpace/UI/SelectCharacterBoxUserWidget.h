@@ -95,6 +95,9 @@ public:
 
 	UFUNCTION(BlueprintGetter)
 	const FCharacterInfoForUI& GetCharacterInfoForUI() const { return CharacterInfoForUI; };
+	
+	UFUNCTION(BlueprintCallable)
+	void ChangeCreateCharacterMode();
 
 protected:
 	UFUNCTION()
@@ -109,9 +112,6 @@ protected:
 	UFUNCTION()
 	void OnClickedDoneEditModeButton();
 	
-	UFUNCTION(BlueprintCallable)
-	void ChangeCreateCharacterMode();
-
 	UFUNCTION(BlueprintCallable)
 	void ChangeNormalMode();
 
