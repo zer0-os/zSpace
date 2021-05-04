@@ -171,6 +171,11 @@ void USelectCharacterBoxUserWidget::ChangeNormalMode()
 	CreateCharacterNameSwitcher->SetActiveWidget(PlayerName);
 
 	NewCharacterName->SetText(FText::FromString(""));
+
+	if (PlayerName->GetText().IsEmpty())
+	{
+		RemoveFromParent();	
+	}
 }
 
 APreviewCharacter* USelectCharacterBoxUserWidget::GetPreviewCharacterByEnum(
