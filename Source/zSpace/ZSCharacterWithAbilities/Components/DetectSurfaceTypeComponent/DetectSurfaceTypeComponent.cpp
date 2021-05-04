@@ -163,7 +163,7 @@ void UDetectSurfaceTypeComponent::SpawnFootStepDecal(const FCharacterUnderFootSu
 	UMaterialInstance* L_FootStepMaterial = NewCharacterUnderFootSurfaceData.SurfaceFootStepMaterial.LoadSynchronous();
 	if (L_FootStepMaterial)
 	{
-		UGameplayStatics::SpawnDecalAtLocation(GetOwner(), L_FootStepMaterial, NewCharacterUnderFootSurfaceData.DecalSize, NewLocation, NewRotation);
+		UGameplayStatics::SpawnDecalAtLocation(GetOwner(), L_FootStepMaterial, NewCharacterUnderFootSurfaceData.DecalSize, NewLocation, NewRotation, 5);
 	}
 }
 
