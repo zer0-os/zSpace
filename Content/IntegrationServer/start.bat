@@ -1,0 +1,1 @@
+start java -Xms128m -Xmx512m -jar stratum-1.0.war

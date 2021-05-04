@@ -8,6 +8,7 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "PhysicalMaterials/PhysicalMaterial.h"
 #include "Particles/ParticleSystem.h"
+#include "zSpace/ZSCharacterWithAbilities/Components/CharacterMovementComponent/ZSCharacterMovementComponent.h"
 
 // Sets default values for this component's properties
 UDetectSurfaceTypeComponent::UDetectSurfaceTypeComponent()
@@ -19,7 +20,15 @@ UDetectSurfaceTypeComponent::UDetectSurfaceTypeComponent()
 	//EObjectTypeQuery> >  ObjectTypes
 	ObjectTypes.Add( UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_GameTraceChannel4));
 	ObjectTypes.Add( UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_WorldStatic));
-	
+	ACharacter * L_Character = Cast<ACharacter>(GetOwner());
+	if(L_Character)
+	{
+		UZSCharacterMovementComponent * MovementComponent = Cast<UZSCharacterMovementComponent>(L_Character->GetCharacterMovement());
+		if(MovementComponent)
+		{
+			MovementComponent->OnMovementModeChangedDelegate.AddDynamic(this, &UDetectSurfaceTypeComponent::OnMovementModeChanged);
+		}
+	}
 	// ...
 }
 
@@ -78,6 +87,18 @@ FVector UDetectSurfaceTypeComponent::GetFootLocationByCharacterFootType(ECharact
 }
 
 
+FRotator UDetectSurfaceTypeComponent::GetFootRotationByCharacterFootType(ECharacterFootType NewCharacterFootType)
+{
+	FRotator R_Rotation = FRotator::ZeroRotator;
+	if(GetOwner())
+	{
+		R_Rotation = GetOwner()->GetActorRotation();
+		R_Rotation.Pitch = -90;
+		R_Rotation.Yaw += 180;
+	}
+	return R_Rotation;
+}
+
 void UDetectSurfaceTypeComponent::PutFootOnGround(ECharacterFootType NewCharacterFootType)
 {
 	// const FString L_CharacterFootType = UEnum::GetValueAsString(NewCharacterFootType);
@@ -86,6 +107,9 @@ void UDetectSurfaceTypeComponent::PutFootOnGround(ECharacterFootType NewCharacte
 	const FVector L_End = (FVector::UpVector * - 250) + L_Start;
 	TArray<AActor *> L_ActorsToIgnore;
 	TArray<FHitResult> L_OutHits;
+
+	const FRotator L_Rotation = GetFootRotationByCharacterFootType(NewCharacterFootType);
+
 	const bool bIsBlocking = UKismetSystemLibrary::LineTraceMultiForObjects(GetOwner(), L_Start, L_End, ObjectTypes, true, L_ActorsToIgnore, EDrawDebugTrace::None, L_OutHits, true);
 	if(bIsBlocking)
 	{
@@ -103,6 +127,7 @@ void UDetectSurfaceTypeComponent::PutFootOnGround(ECharacterFootType NewCharacte
 					{
 						PlayRandomSound(L_CharacterUnderFootSurfaceData, IterHitResult.Location);
 						SpawnParticle(L_CharacterUnderFootSurfaceData, IterHitResult.Location);
+						SpawnFootStepDecal(L_CharacterUnderFootSurfaceData, IterHitResult.Location, L_Rotation);
 					}
 					return;
 				}
@@ -110,6 +135,7 @@ void UDetectSurfaceTypeComponent::PutFootOnGround(ECharacterFootType NewCharacte
 		}
 	}
 }
+
 
 void UDetectSurfaceTypeComponent::PlayRandomSound(const FCharacterUnderFootSurfaceData & NewCharacterUnderFootSurfaceData, const FVector & NewLocation)
 {
@@ -129,5 +155,50 @@ void UDetectSurfaceTypeComponent::SpawnParticle(const FCharacterUnderFootSurface
 	if(L_ParticleSystem)
 	{
 		UGameplayStatics::SpawnEmitterAtLocation(GetOwner(), L_ParticleSystem, NewLocation);
+	}
+}
+
+void UDetectSurfaceTypeComponent::SpawnFootStepDecal(const FCharacterUnderFootSurfaceData& NewCharacterUnderFootSurfaceData, const FVector& NewLocation, const FRotator& NewRotation)
+{
+	UMaterialInstance* L_FootStepMaterial = NewCharacterUnderFootSurfaceData.SurfaceFootStepMaterial.LoadSynchronous();
+	if (L_FootStepMaterial)
+	{
+		UGameplayStatics::SpawnDecalAtLocation(GetOwner(), L_FootStepMaterial, NewCharacterUnderFootSurfaceData.DecalSize, NewLocation, NewRotation);
+	}
+}
+
+void UDetectSurfaceTypeComponent::OnMovementModeChanged(EMovementMode NewPreviousMovementMode, EMovementMode NewCurrentMovementMode, uint8 NewPreviousCustomMode)
+{
+	//UE_LOG(LogTemp, Warning, TEXT("NewPreviousMovementMode = %s,   NewCurrentMovementMode = %s"), *UEnum::GetValueAsString<EMovementMode>(NewPreviousMovementMode), *UEnum::GetValueAsString<EMovementMode>(NewCurrentMovementMode));
+	checkf(nullptr != CharacterUnderFootSurfaceDA, TEXT("The CharacterUnderFootSurfaceDA is nulltrp. Please set data asset."));
+	if(IsValid(CharacterUnderFootSurfaceDA))
+	{
+		const FVector L_Start = GetFootLocationByCharacterFootType(ECharacterFootType::LEFT);
+		const FVector L_End = (FVector::UpVector * - 250) + L_Start;
+		TArray<AActor *> L_ActorsToIgnore;
+		TArray<FHitResult> L_OutHits;
+		const bool bIsBlocking = UKismetSystemLibrary::LineTraceMultiForObjects(GetOwner(), L_Start, L_End, ObjectTypes, true, L_ActorsToIgnore, EDrawDebugTrace::None, L_OutHits, true);
+		if(bIsBlocking)
+		{
+			for(const FHitResult & IterHitResult : L_OutHits)
+			{
+				if(IterHitResult.bBlockingHit && IterHitResult.PhysMaterial.IsValid() )
+				{
+					UPhysicalMaterial * L_PhysicalMaterial = IterHitResult.PhysMaterial.Get();
+					bool L_IsStatus = false;
+					const FFootHitGroundData L_FootHitGroundData =  CharacterUnderFootSurfaceDA->GetFootHitGroundDataByMovementMode(NewPreviousMovementMode, NewCurrentMovementMode, L_PhysicalMaterial, L_IsStatus);
+					if(L_IsStatus)
+					{
+						USoundBase * L_SoundBase = 	L_FootHitGroundData.SoundBase.LoadSynchronous();
+						checkf(nullptr != L_SoundBase, TEXT("The L_SoundBase is nulltrp. Please "));
+						if(IsValid(L_SoundBase))
+						{
+							UGameplayStatics::PlaySoundAtLocation(GetOwner(), L_SoundBase, L_Start);
+						}
+					}
+					return;
+				}
+			}
+		}
 	}
 }

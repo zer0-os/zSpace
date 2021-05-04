@@ -17,7 +17,10 @@ call %UE4_PATH%\Engine\Binaries\Win64\UE4Editor-Cmd.exe ^
  -Quality=Production ^
  -MapsOnly ^
  -ProjectOnly ^
- -AllowCommandletRendering 
+ -AllowCommandletRendering ^
+ -UNATTENDED
+ 
+ if %errorlevel% NEQ 0 exit /b %errorlevel%
  
  
  

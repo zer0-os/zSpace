@@ -3,18 +3,20 @@
 
 #include "zSpace/UI/SelectCharacterBoxUserWidget.h"
 
+#include "zSpace/BlueprintFunctionLibrary/OWSBlueprintFunctionLibrary.h"
 #include "zSpace/PlayerController/ZSLoginPlayerController.h"
 #include "zSpace/Types/CharacterMeshesDataAsset.h"
 #include "zSpace/Actors/PreviewCharacter.h"
-#include <Components/WidgetSwitcher.h>
+#include "Engine/CanvasRenderTarget2D.h"
 #include "Components/EditableTextBox.h"
+#include "SelectCharacterUserWidget.h"
+#include <Components/WidgetSwitcher.h>
 #include "zSpace/UI/ZSCustomButton.h"
 #include "zSpace/UI/ZSpaceButton.h"
 #include "Kismet/GameplayStatics.h"
 #include <Components/TextBlock.h>
 #include <Components/Button.h>
 #include <Components/Image.h>
-#include "zSpace/zSpace.h"
 
 
 void USelectCharacterBoxUserWidget::NativePreConstruct()
@@ -37,13 +39,8 @@ void USelectCharacterBoxUserWidget::NativePreConstruct()
 	{
 		PreviousCharacterMesh->OnClicked.AddUniqueDynamic(this, &USelectCharacterBoxUserWidget::OnClickedPreviousCharacterMesh);
 	}
-
-	TArray<AActor*> OutActors;
-	UGameplayStatics::GetAllActorsOfClass(this, APreviewCharacter::StaticClass(), OutActors);
-	if (OutActors.IsValidIndex(0))
-	{
-		PreviewCharacter = Cast<APreviewCharacter>(OutActors[0]);
-	}
+	
+	// PreviewCharacter = GetPreviewCharacterByEnum(EPreviewCharacterPosition::Middle);
 }
 
 void USelectCharacterBoxUserWidget::NativeConstruct()
@@ -59,10 +56,42 @@ void USelectCharacterBoxUserWidget::NativeConstruct()
 	}
 }
 
-void USelectCharacterBoxUserWidget::SetupWidget(const FCharacterSelectBoxInfo& CharacterSelectBoxInfo)
+void USelectCharacterBoxUserWidget::SetPreviewCharacterPosition(EPreviewCharacterPosition NewValue)
 {
-	PlayerName->SetText(FText::FromString(CharacterSelectBoxInfo.CharacterName));
-	PlayerLevel->SetText(FText::FromString(CharacterSelectBoxInfo.CharacterLevel));
+	PreviewCharacterPosition = NewValue;
+	PreviewCharacter = GetPreviewCharacterByEnum(PreviewCharacterPosition);
+
+	if (!IsValid(PreviewCharacter)) return;
+	
+	auto* RenderTargetAndPosition = PreviewCharacter->GetRenderTargetAndPosition();
+	if (IsValid(RenderTargetAndPosition))
+	{
+		auto Data =  RenderTargetAndPosition->RenderTargetAndPosition;
+		UTextureRenderTarget2D* const* RenderTarget = Data.Find(PreviewCharacterPosition);
+		if (RenderTarget)
+		{
+			UMaterialInterface* Mat = Cast<UMaterialInterface>(CharacterRenderImage->Brush.GetResourceObject());
+			UMaterialInstanceDynamic* DynamicMaterial = Cast<UMaterialInstanceDynamic>(Mat);
+			if (!IsValid(DynamicMaterial))
+			{
+				DynamicMaterial = UMaterialInstanceDynamic::Create(Mat,this, *Mat->GetName());
+				CharacterRenderImage->SetBrushFromMaterial(DynamicMaterial);
+			}
+			if (IsValid(DynamicMaterial))
+			{
+				DynamicMaterial->SetTextureParameterValue("RenderTarget", *RenderTarget);
+			}
+		}	
+	}
+	CharacterInfoForUI.PreviewCharacterDirection = PreviewCharacterPosition;
+}
+
+void USelectCharacterBoxUserWidget::SetupWidget(const FCharacterInfoForUI& Data)
+{
+	PlayerName->SetText(FText::FromString(Data.CharacterName));
+	PlayerLevel->SetText(FText::FromString(Data.CharacterLevel));
+
+	CharacterInfoForUI = Data;
 }
 
 void USelectCharacterBoxUserWidget::OnClickedEditModeButton()
@@ -111,9 +140,10 @@ void USelectCharacterBoxUserWidget::OnClickedDoneEditModeButton()
 		const FString UserSessionGUID = PC->GetUserSessionGUID();
 		const FString CharacterName = PC->GetCharacterName();
 		const FString FieldValue = PreviewCharacter->GetCurrentMeshName().ToString();
+
+		const FString FieldName = UOWSBlueprintFunctionLibrary::GetMeshFieldName(this, CharacterName);
 		
-		PC->AddOrUpdateCosmeticCustomCharacterData(UserSessionGUID, CharacterName, MESH_NAME, FieldValue);
-		// UKismetSystemLibrary::PrintString(this, FieldValue);
+		PC->AddOrUpdateCosmeticCustomCharacterData(UserSessionGUID, CharacterName, FieldName, FieldValue);
 	}
 }
 
@@ -141,4 +171,21 @@ void USelectCharacterBoxUserWidget::ChangeNormalMode()
 	CreateCharacterNameSwitcher->SetActiveWidget(PlayerName);
 
 	NewCharacterName->SetText(FText::FromString(""));
+}
+
+APreviewCharacter* USelectCharacterBoxUserWidget::GetPreviewCharacterByEnum(
+	const EPreviewCharacterPosition P_PreviewCharacterPosition) const
+{
+	TArray<AActor*> OutActors;
+	UGameplayStatics::GetAllActorsOfClass(this, APreviewCharacter::StaticClass(), OutActors);
+	for (AActor* Actor : OutActors)
+	{
+		APreviewCharacter* L_PreviewCharacter = Cast<APreviewCharacter>(Actor);
+		if (IsValid(L_PreviewCharacter) && L_PreviewCharacter->PreviewCharacterPosition == P_PreviewCharacterPosition)
+		{
+			return L_PreviewCharacter;
+		}
+	}
+
+	return nullptr;
 }

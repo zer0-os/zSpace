@@ -57,12 +57,21 @@ protected:
 	 */
 	FString GetRandomString(uint8 Length = 12);
 
+	UFUNCTION(BlueprintPure)
+	FCustomCharacterDataStruct GetCustomCharacterDataMeshByName(FString Character_Name) const;
+
+	UFUNCTION(BlueprintCallable)
+	void UpdateOrAddCustomCharacterDataMesh(const FCustomCharacterDataStruct& NewData);
+
 public:
 	UPROPERTY(BlueprintAssignable)
 	FOnEscButtonPressed OnEscButtonPressed;
 	
 	UPROPERTY(BlueprintAssignable)
 	FOnGetAllCharacters OnGetAllCharacters;
+
+	UPROPERTY(BlueprintReadWrite)
+	TArray<FCustomCharacterDataStruct> CustomCharacterDataMeshArray;
 	
 protected:
 	UPROPERTY(BlueprintGetter=GetUserSessionGUID, BlueprintSetter=SetUserSessionGUID)
