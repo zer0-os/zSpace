@@ -13,7 +13,8 @@
 				"UMG",
 				"GameplayAbilities",
 				"OWSPlugin",
-				"CoreUObject"
+				"CoreUObject",
+				"Etherlinker"
 			]
 		}
 	],
