@@ -67,6 +67,9 @@ public:
 	UPROPERTY(BlueprintReadWrite, meta=(BindWidget))
 	class UZSCustomButton* PreviousCharacterMesh = nullptr;
 
+	UPROPERTY(BlueprintReadWrite, meta=(BindWidget))
+	class UImage* EnterNameBG = nullptr;
+
 	UPROPERTY(BlueprintReadWrite)
 	uint8 bIsEditMode : 1;
 

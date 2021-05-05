@@ -156,6 +156,7 @@ void USelectCharacterBoxUserWidget::ChangeCreateCharacterMode()
 	WidgetSwitcherDoneEditMode->SetActiveWidget(CreateCharacterDone);
 
 	CreateCharacterNameSwitcher->SetActiveWidget(NewCharacterName);
+	EnterNameBG->SetVisibility(ESlateVisibility::Visible);
 
 	// TODO Fix Level 
 	PlayerLevel->SetText(FText::FromString("LEVEL 0"));
@@ -179,6 +180,7 @@ void USelectCharacterBoxUserWidget::ChangeNormalMode()
 	{
 		RemoveFromParent();	
 	}
+	EnterNameBG->SetVisibility(ESlateVisibility::Hidden);
 }
 
 APreviewCharacter* USelectCharacterBoxUserWidget::GetPreviewCharacterByEnum(
