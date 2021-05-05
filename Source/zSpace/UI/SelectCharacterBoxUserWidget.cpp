@@ -172,6 +172,9 @@ void USelectCharacterBoxUserWidget::ChangeNormalMode()
 
 	NewCharacterName->SetText(FText::FromString(""));
 
+	NextCharacterMesh->SetVisibility(ESlateVisibility::Collapsed);
+	PreviousCharacterMesh->SetVisibility(ESlateVisibility::Collapsed);
+	
 	if (PlayerName->GetText().IsEmpty())
 	{
 		RemoveFromParent();	
