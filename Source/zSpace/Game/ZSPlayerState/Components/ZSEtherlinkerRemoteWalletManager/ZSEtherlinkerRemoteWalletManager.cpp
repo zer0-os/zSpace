@@ -3,7 +3,15 @@
 
 #include "zSpace/Game/ZSPlayerState/Components/ZSEtherlinkerRemoteWalletManager/ZSEtherlinkerRemoteWalletManager.h"
 
+#include "GameFramework/GameState.h"
+#include "zSpace/Game/ZSGameState/ZSGameState.h"
 #include "zSpace/Game/ZSPlayerState/ZSPlayerState.h"
+
+void UZSEtherlinkerRemoteWalletManager::BeginPlay()
+{
+	Super::BeginPlay();
+	
+}
 
 UZSEtherlinkerRemoteWalletManager::UZSEtherlinkerRemoteWalletManager()
 {
@@ -26,7 +34,7 @@ void UZSEtherlinkerRemoteWalletManager::GetWallet(const FString& NewLogin, const
 FWalletAuthenticationRequest UZSEtherlinkerRemoteWalletManager::GetWalletAuthenticationRequest(const FString& NewLogin, const FString& NewPassword)
 {
 	FString L_UserIndex = GetUserIndex();
-	FString L_SenderId = "sender_playerstate_";
+	FString L_SenderId = AZSPlayerState::SenderID;
 	L_SenderId.Append(L_UserIndex);
 	FWalletAuthenticationRequest R_WalletAuthenticationRequest;
 	R_WalletAuthenticationRequest.senderId = L_SenderId;
@@ -47,4 +55,64 @@ FString UZSEtherlinkerRemoteWalletManager::GetUserIndex()
 		R_UserIndex.Append(FString::FormatAsNumber(L_UserIndex));
 	}
 	return R_UserIndex;
+}
+
+void UZSEtherlinkerRemoteWalletManager::UpdateBindings_Implementation()
+{
+	    // TODO the code must be optimized after testing.
+		GetWorld()->GetTimerManager().SetTimer(TimerHandle, [&] ()
+		{
+			AZSGameState * L_ZSGameState = Cast<AZSGameState>(UGameplayStatics::GetGameState(this));
+			if(L_ZSGameState)
+			{
+				if( L_ZSGameState->PlayerArray.Num() > 0)
+				{
+					GetWorld()->GetTimerManager().ClearTimer(TimerHandle);
+					for(APlayerState * IterPlayerState : L_ZSGameState->PlayerArray)
+					{
+						if(IsValid(IterPlayerState))
+						{
+							const bool L_IsImplemented = IterPlayerState->GetClass()->ImplementsInterface(UZSEtherManagerHolderInterface::StaticClass());
+							if(L_IsImplemented)
+							{
+								UZSEtherlinkerRemoteWalletManager * ZSEtherlinkerRemoteWalletManager = IZSEtherManagerHolderInterface::Execute_GetEtherlinkerRemoteWalletManager(IterPlayerState);
+								if(ZSEtherlinkerRemoteWalletManager)
+								{
+									// TODO more build on client ????.
+									ZSEtherlinkerRemoteWalletManager->OnResponseReceivedEvent.AddDynamic(this, &UZSEtherlinkerRemoteWalletManager::ResponseReceivedDelegate);
+								}
+							}
+						}
+					}
+					
+				}
+					
+			}
+		}, 0.3, true );
+}
+
+void UZSEtherlinkerRemoteWalletManager::ResponseReceivedDelegate(FString NewResult, FWalletAuthenticationResponse NewData)
+{
+	AZSGameState * L_ZSGameState = Cast<AZSGameState>(UGameplayStatics::GetGameState(this));
+	if(L_ZSGameState)
+	{
+		TArray<APlayerState *> L_PlayerState = L_ZSGameState->PlayerArray;
+		
+		for(APlayerState * IterPlayerState : L_PlayerState )
+		{
+			if(IsValid(IterPlayerState))
+			{
+				const bool L_IsImplemented =  IterPlayerState->GetClass()->ImplementsInterface(UZSEtherManagerHolderInterface::StaticClass());
+				if(L_IsImplemented)
+				{
+					const int32 L_UserIndexFromNewData = FCString::Atoi(*NewData.userIndex);
+					const int32 L_UserIndex = IZSEtherManagerHolderInterface::Execute_GetUserIndex(IterPlayerState);
+					if(L_UserIndex == L_UserIndexFromNewData)
+					{
+						OnResponseReceivedDelegate.Broadcast(NewResult, NewData);
+					}
+				}
+			}
+		}
+	}
 }
