@@ -3,9 +3,11 @@
 
 #include "zSpace/ZSCharacterWithAbilities/Components/CharacterMovementComponent/ZSCharacterMovementComponent.h"
 
+#include "Kismet/KismetSystemLibrary.h"
 #include "GameFramework/Character.h"
 #include "Engine/EngineTypes.h"
 #include "Net/UnrealNetwork.h"
+#include "zSpace/zSpace.h"
 
 UZSCharacterMovementComponent::UZSCharacterMovementComponent(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
@@ -52,6 +54,7 @@ void UZSCharacterMovementComponent::TickComponent(float DeltaTime, ELevelTick Ti
 			float SpeedCurveValue;
 			if (AnimInstance->GetCurveValue(FName("Speed"), SpeedCurveValue))
 			{
+				PRINT_FLOAT(SpeedCurveValue);
 				if (NeedReplicateMaxWalkSpeed(SpeedCurveValue))
 				{
 					NetMulticast_SetMaxWalkSpeed(SpeedCurveValue);
