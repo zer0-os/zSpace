@@ -52,13 +52,15 @@ private:
 	
 	FVector GetFootLocationByCharacterFootType(ECharacterFootType NewCharacterFootType);
 	
+	FVector GetFootStepLocation(ECharacterFootType NewCharacterFootType);
+
 	FRotator GetFootRotationByCharacterFootType(ECharacterFootType NewCharacterFootType);
 
 	void PlayRandomSound(const FCharacterUnderFootSurfaceData & NewCharacterUnderFootSurfaceData, const FVector & NewLocation);
 	
 	void SpawnParticle(const FCharacterUnderFootSurfaceData & NewCharacterUnderFootSurfaceData, const FVector & NewLocation);
 
-	void SpawnFootStepDecal(const FCharacterUnderFootSurfaceData & NewCharacterUnderFootSurfaceData, const FVector & NewLocation, const FRotator& NewRotation);
+	void SpawnFootStepDecal(const FCharacterUnderFootSurfaceData & NewCharacterUnderFootSurfaceData, ECharacterFootType NewFootType);
 	
 public:	
 
