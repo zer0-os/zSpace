@@ -31,5 +31,8 @@ public:
 
 	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent)
 	int32 GetUserIndex();
+
+	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent)
+	void ServerCreateRemoteWalletFromUI(const FString & NewLogin, const FString & NewPassword);
 	
 };
