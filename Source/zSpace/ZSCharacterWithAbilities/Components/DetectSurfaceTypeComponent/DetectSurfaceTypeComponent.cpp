@@ -110,13 +110,30 @@ FVector UDetectSurfaceTypeComponent::GetFootStepLocation(ECharacterFootType NewC
 
 FRotator UDetectSurfaceTypeComponent::GetFootRotationByCharacterFootType(ECharacterFootType NewCharacterFootType)
 {
+//	if(GetOwner())
+//	{
+//		R_Rotation = GetOwner()->GetActorRotation();
+//		R_Rotation.Pitch = -90;
+//		R_Rotation.Yaw += 180;
+//	}
+	
 	FRotator R_Rotation = FRotator::ZeroRotator;
-	if(GetOwner())
+	USkeletalMeshComponent* L_SkeletalMesh = GetSkeletalMesh();
+	if (L_SkeletalMesh)
 	{
-		R_Rotation = GetOwner()->GetActorRotation();
-		R_Rotation.Pitch = -90;
-		R_Rotation.Yaw += 180;
+		if (NewCharacterFootType == ECharacterFootType::LEFT)
+		{
+			R_Rotation = L_SkeletalMesh->GetSocketRotation(FName(LeftFootBoneName));
+		}
+		if (NewCharacterFootType == ECharacterFootType::RIGHT)
+		{
+			R_Rotation = L_SkeletalMesh->GetSocketRotation(FName(RightFootBoneName));
+		}
 	}
+	
+	R_Rotation.Yaw += 90;
+	R_Rotation.Pitch = -90;
+
 	return R_Rotation;
 }
 
@@ -186,7 +203,7 @@ void UDetectSurfaceTypeComponent::SpawnFootStepDecal(const FCharacterUnderFootSu
 	{
 		const FVector L_DecalSize = NewCharacterUnderFootSurfaceData.SurfaceFootStepData.DecalSize;
 		const FVector L_DecalLocation = GetFootStepLocation(NewFootType);
-		const FRotator L_DecalRotation = GetFootRotationByCharacterFootType(ECharacterFootType::LEFT);
+		const FRotator L_DecalRotation = GetFootRotationByCharacterFootType(ECharacterFootType::RIGHT);
 		UGameplayStatics::SpawnDecalAtLocation(GetOwner(), L_FootStepMaterial, L_DecalSize, L_DecalLocation, L_DecalRotation, 5);
 	}
 }
@@ -224,16 +241,20 @@ void UDetectSurfaceTypeComponent::OnMovementModeChanged(EMovementMode NewPreviou
 						//checkf(nullptr != L_FootStepMaterial, TEXT("The L_FootStepMaterial is nulltrp. Please "));
 						if (IsValid(L_FootStepMaterial))
 						{
-							const FRotator L_DecalRotation = GetFootRotationByCharacterFootType(ECharacterFootType::LEFT);
 							const FVector L_DecalSize = L_FootHitGroundData.SurfaceFootStepData.DecalSize;
+							FRotator L_LeftDecalRotation = GetFootRotationByCharacterFootType(ECharacterFootType::LEFT);
+							FRotator L_RightDecalRotation = GetFootRotationByCharacterFootType(ECharacterFootType::RIGHT);
 							FVector L_LeftDecalLocation = GetFootStepLocation(ECharacterFootType::LEFT);
 							FVector L_RightDecalLocation = GetFootStepLocation(ECharacterFootType::RIGHT);
 
 							L_LeftDecalLocation.Z -= 50;
 							L_RightDecalLocation.Z -= 30;
 
-							UGameplayStatics::SpawnDecalAtLocation(GetOwner(), L_FootStepMaterial, L_DecalSize, L_LeftDecalLocation, L_DecalRotation, 5);
-							UGameplayStatics::SpawnDecalAtLocation(GetOwner(), L_FootStepMaterial, L_DecalSize, L_RightDecalLocation, L_DecalRotation, 5);
+							L_LeftDecalRotation.Yaw += 30;
+							L_RightDecalRotation.Yaw += 30;
+
+							UGameplayStatics::SpawnDecalAtLocation(GetOwner(), L_FootStepMaterial, L_DecalSize, L_LeftDecalLocation, L_LeftDecalRotation, 5);
+							UGameplayStatics::SpawnDecalAtLocation(GetOwner(), L_FootStepMaterial, L_DecalSize, L_RightDecalLocation, L_RightDecalRotation, 5);
 						}
 					}
 						
