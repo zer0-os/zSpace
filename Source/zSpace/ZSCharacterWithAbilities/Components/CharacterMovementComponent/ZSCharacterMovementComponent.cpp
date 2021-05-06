@@ -45,16 +45,25 @@ void UZSCharacterMovementComponent::TickComponent(float DeltaTime, ELevelTick Ti
 			}
 			return;
 		}
-		if (NeedReplicatePlayerGait(EPlayerGait::Running))
+		if (bRequestToStartSprinting)
 		{
-			Server_ChangeMovementMode(EPlayerGait::Running);
+			if (NeedReplicatePlayerGait(EPlayerGait::Sprinting))
+			{
+				Server_ChangeMovementMode(EPlayerGait::Sprinting);
+			}
+		}
+		else
+		{
+			if (NeedReplicatePlayerGait(EPlayerGait::Running))
+			{
+				Server_ChangeMovementMode(EPlayerGait::Running);
+			}
 		}
 		if (IsValid(AnimInstance))
 		{
 			float SpeedCurveValue;
 			if (AnimInstance->GetCurveValue(FName("Speed"), SpeedCurveValue))
 			{
-				PRINT_FLOAT(SpeedCurveValue);
 				if (NeedReplicateMaxWalkSpeed(SpeedCurveValue))
 				{
 					NetMulticast_SetMaxWalkSpeed(SpeedCurveValue);
@@ -62,6 +71,13 @@ void UZSCharacterMovementComponent::TickComponent(float DeltaTime, ELevelTick Ti
 			}
 		}
 	}
+}
+
+float UZSCharacterMovementComponent::GetMaxSpeed() const
+{
+	const float MaxSpeed = UCharacterMovementComponent::GetMaxSpeed();
+
+	return MaxSpeed;
 }
 
 void UZSCharacterMovementComponent::Server_ChangeMovementMode_Implementation(EPlayerGait NewValue)
