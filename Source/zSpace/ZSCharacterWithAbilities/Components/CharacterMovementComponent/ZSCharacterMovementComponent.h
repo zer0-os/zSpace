@@ -28,6 +28,8 @@ public:
 
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
+	virtual float GetMaxSpeed() const override;
+
 public:
 	UPROPERTY(BlueprintAssignable)
 	FMovementModeChanged OnMovementModeChangedDelegate;
