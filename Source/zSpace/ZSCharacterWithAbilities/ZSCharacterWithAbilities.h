@@ -27,7 +27,6 @@ public:
 	virtual void Tick(float NewDeltaSeconds) override;
 
 private:
-
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess=true))
 	float BaseTurnRate = 45;
 
@@ -76,9 +75,6 @@ public:
 	///  Show a List of all players online across all instances.
 	UFUNCTION(Server, WithValidation, Unreliable)
 	void Server_ShowPlayersOnline();
-
-	
-	
 };
 
 

@@ -3,9 +3,9 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Animation/AnimInstance.h"
-#include "zSpace/ZSCharacterWithAbilities/ZSCharacterWithAbilities.h"
 
+#include "ZSAnimationTypes.h"
+#include "Animation/AnimInstance.h"
 #include "ZSAnimInstance.generated.h"
 
 /**
@@ -26,15 +26,24 @@ protected:
 	class AZSCharacterWithAbilities* CharacterRef = nullptr;
 	
 	UPROPERTY(BlueprintReadOnly)
-	class UCharacterMovementComponent* CharacterMovementComponent = nullptr;
+	class UZSCharacterMovementComponent* CharacterMovementComponent = nullptr;
 
-	UPROPERTY(BlueprintReadOnly)
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	float Speed = 0.f;
 	
-	UPROPERTY(BlueprintReadOnly)
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	float Direction = 0.f;	
 
-	UPROPERTY(BlueprintReadOnly)
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	uint8 bIsInAir : 1;
-	
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	EPlayerGait PlayerGait;
+
+protected:
+	UFUNCTION()
+	void OnChangedPlayerGait(EPlayerGait NewValue);
+
+	UFUNCTION(BlueprintPure)
+	bool CurveIsActive(const EAnimCurveType& AnimCurveType, const FName& CurveName) const;
 };
