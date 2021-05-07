@@ -160,6 +160,10 @@ void USelectCharacterBoxUserWidget::ChangeCreateCharacterMode()
 
 	// TODO Fix Level 
 	PlayerLevel->SetText(FText::FromString("LEVEL 0"));
+
+	NextCharacterMesh->SetVisibility(ESlateVisibility::Visible);
+	PreviousCharacterMesh->SetVisibility(ESlateVisibility::Visible);
+	
 }
 
 void USelectCharacterBoxUserWidget::ChangeNormalMode()
