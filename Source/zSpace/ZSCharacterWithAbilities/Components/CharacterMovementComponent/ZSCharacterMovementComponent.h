@@ -59,6 +59,9 @@ protected:
 	UPROPERTY(BlueprintReadOnly)
 	class UAnimInstance* AnimInstance = nullptr;
 
+	UPROPERTY()
+	class AZSCharacterWithAbilities* OwnerZSCharacter = nullptr;
+
 protected:
 	UFUNCTION(NetMulticast, Reliable)
 	void NetMulticast_OnChangedPlayerGait(EPlayerGait NewValue);

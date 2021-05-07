@@ -3,6 +3,7 @@
 
 #include "zSpace/ZSCharacterWithAbilities/Components/CharacterMovementComponent/ZSCharacterMovementComponent.h"
 
+#include "zSpace/ZSCharacterWithAbilities/ZSCharacterWithAbilities.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "GameFramework/Character.h"
 #include "Engine/EngineTypes.h"
@@ -27,6 +28,7 @@ void UZSCharacterMovementComponent::BeginPlay()
 	Super::BeginPlay();
 
 	AnimInstance = GetAnimInstance();
+	OwnerZSCharacter = Cast<AZSCharacterWithAbilities>(GetOwner());
 }
 
 void UZSCharacterMovementComponent::TickComponent(float DeltaTime, ELevelTick TickType,
@@ -34,10 +36,13 @@ void UZSCharacterMovementComponent::TickComponent(float DeltaTime, ELevelTick Ti
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
+	if (!IsValid(OwnerZSCharacter)) return;;
+
 	if (GetOwnerRole() == ROLE_Authority)
 	{
-		const float Speed = GetLastUpdateVelocity().Size2D();
-		if (Speed == 0.f)
+		// Standing
+		const float Speed = OwnerZSCharacter->GetVelocity().Size2D();
+		if (Speed == 0.f || !OwnerZSCharacter->bIsMoveInputPressed)
 		{
 			if (NeedReplicatePlayerGait(EPlayerGait::Standing))
 			{
@@ -45,6 +50,7 @@ void UZSCharacterMovementComponent::TickComponent(float DeltaTime, ELevelTick Ti
 			}
 			return;
 		}
+		// Sprinting
 		if (bRequestToStartSprinting)
 		{
 			if (NeedReplicatePlayerGait(EPlayerGait::Sprinting))
@@ -52,6 +58,15 @@ void UZSCharacterMovementComponent::TickComponent(float DeltaTime, ELevelTick Ti
 				Server_ChangeMovementMode(EPlayerGait::Sprinting);
 			}
 		}
+		// Walking
+		else if (OwnerZSCharacter->bIsWalking)
+		{
+			if (NeedReplicatePlayerGait(EPlayerGait::Walking))
+			{
+				Server_ChangeMovementMode(EPlayerGait::Walking);
+			}
+		}
+		// Running
 		else
 		{
 			if (NeedReplicatePlayerGait(EPlayerGait::Running))
@@ -59,6 +74,7 @@ void UZSCharacterMovementComponent::TickComponent(float DeltaTime, ELevelTick Ti
 				Server_ChangeMovementMode(EPlayerGait::Running);
 			}
 		}
+		// Update Max Walk Speed
 		if (IsValid(AnimInstance))
 		{
 			float SpeedCurveValue;
