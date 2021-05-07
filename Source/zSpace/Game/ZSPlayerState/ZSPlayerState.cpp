@@ -114,7 +114,8 @@ void AZSPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLi
 FString AZSPlayerState::GetSenderID()
 {
 	FString R_SenderID = AZSPlayerState::SenderID;
-	R_SenderID.AppendInt(UserIndex);
+	const int32 L_PlayerID = GetPlayerId();
+	R_SenderID.AppendInt(L_PlayerID);
 	return R_SenderID;
 }
 
@@ -131,11 +132,6 @@ UZSEtherlinkerRemoteWalletManager* AZSPlayerState::GetEtherlinkerRemoteWalletMan
 {
 	checkf(nullptr != ZSEtherlinkerRemoteWalletManager, TEXT("The ZSEtherlinkerRemoteWalletManager is nullptr."));
 	return ZSEtherlinkerRemoteWalletManager;
-}
-
-int32 AZSPlayerState::GetUserIndex_Implementation()
-{
-	return UserIndex;
 }
 
 void AZSPlayerState::ExecuteUpdateBindings_Implementation(UActorComponent* NewEtherInteractor)
@@ -166,6 +162,7 @@ void AZSPlayerState::OnRwaResponseReceived(FString NewResult, FWalletAuthenticat
 	const FString L_SenderIDFromWalletResponse = NewWalletAuthenticationResponse.senderId;
 	if(L_SenderID.Equals(L_SenderIDFromWalletResponse))
 	{
+		Client_ResponseReceivedWallet(NewResult, NewWalletAuthenticationResponse);
 		const FString L_Success = "success";
 		if(L_Success.Equals(NewResult))
 		{
@@ -183,6 +180,8 @@ void AZSPlayerState::OnRwaResponseReceived(FString NewResult, FWalletAuthenticat
 		}
 	}
 }
+
+
 bool AZSPlayerState::InitializeWallet_Validate(const FZSWalletData& NewZSWalletData)
 {
 	return  true;
@@ -227,3 +226,8 @@ void AZSPlayerState::ServerCreateRemoteWalletFromUI_Implementation(const FString
 	CreateRemoteWallet(NewLogin, NewPassword);
 }
 
+void AZSPlayerState::Client_ResponseReceivedWallet_Implementation(const FString & NewResult, const FWalletAuthenticationResponse & NewWalletAuthenticationResponse)
+{
+	UE_LOG(LogTemp, Warning, TEXT("ResponseReceivedWallet  == %s"), *NewResult)
+	OnResponseReceivedWallet.Broadcast(NewResult, NewWalletAuthenticationResponse);
+}
