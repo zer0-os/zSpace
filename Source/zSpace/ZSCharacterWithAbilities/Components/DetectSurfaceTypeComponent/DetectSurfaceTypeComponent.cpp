@@ -87,15 +87,53 @@ FVector UDetectSurfaceTypeComponent::GetFootLocationByCharacterFootType(ECharact
 }
 
 
+FVector UDetectSurfaceTypeComponent::GetFootStepLocation(ECharacterFootType NewCharacterFootType)
+{
+	USkeletalMeshComponent * L_SkeletalMeshComponent = GetSkeletalMesh();
+	FVector R_Location = FVector::ZeroVector;
+	if(L_SkeletalMeshComponent)
+	{
+		if(ECharacterFootType::LEFT == NewCharacterFootType)
+		{
+			R_Location = L_SkeletalMeshComponent->GetSocketLocation(FName(LeftFootBoneName));
+			//R_Location.Z -= 50;
+		}
+		else if(ECharacterFootType::RIGHT == NewCharacterFootType)
+		{
+			R_Location = L_SkeletalMeshComponent->GetSocketLocation(FName(RightFootBoneName));
+			//R_Location.Z -= 30;
+		}
+	}
+	return R_Location;
+
+}
+
 FRotator UDetectSurfaceTypeComponent::GetFootRotationByCharacterFootType(ECharacterFootType NewCharacterFootType)
 {
+//	if(GetOwner())
+//	{
+//		R_Rotation = GetOwner()->GetActorRotation();
+//		R_Rotation.Pitch = -90;
+//		R_Rotation.Yaw += 180;
+//	}
+	
 	FRotator R_Rotation = FRotator::ZeroRotator;
-	if(GetOwner())
+	USkeletalMeshComponent* L_SkeletalMesh = GetSkeletalMesh();
+	if (L_SkeletalMesh)
 	{
-		R_Rotation = GetOwner()->GetActorRotation();
-		R_Rotation.Pitch = -90;
-		R_Rotation.Yaw += 180;
+		if (NewCharacterFootType == ECharacterFootType::LEFT)
+		{
+			R_Rotation = L_SkeletalMesh->GetSocketRotation(FName(LeftFootBoneName));
+		}
+		if (NewCharacterFootType == ECharacterFootType::RIGHT)
+		{
+			R_Rotation = L_SkeletalMesh->GetSocketRotation(FName(RightFootBoneName));
+		}
 	}
+	
+	R_Rotation.Yaw += 90;
+	R_Rotation.Pitch = -90;
+
 	return R_Rotation;
 }
 
@@ -127,7 +165,7 @@ void UDetectSurfaceTypeComponent::PutFootOnGround(ECharacterFootType NewCharacte
 					{
 						PlayRandomSound(L_CharacterUnderFootSurfaceData, IterHitResult.Location);
 						SpawnParticle(L_CharacterUnderFootSurfaceData, IterHitResult.Location);
-						SpawnFootStepDecal(L_CharacterUnderFootSurfaceData, IterHitResult.Location, L_Rotation);
+						SpawnFootStepDecal(L_CharacterUnderFootSurfaceData, NewCharacterFootType);
 					}
 					return;
 				}
@@ -158,12 +196,15 @@ void UDetectSurfaceTypeComponent::SpawnParticle(const FCharacterUnderFootSurface
 	}
 }
 
-void UDetectSurfaceTypeComponent::SpawnFootStepDecal(const FCharacterUnderFootSurfaceData& NewCharacterUnderFootSurfaceData, const FVector& NewLocation, const FRotator& NewRotation)
+void UDetectSurfaceTypeComponent::SpawnFootStepDecal(const FCharacterUnderFootSurfaceData & NewCharacterUnderFootSurfaceData, ECharacterFootType NewFootType)
 {
-	UMaterialInstance* L_FootStepMaterial = NewCharacterUnderFootSurfaceData.SurfaceFootStepMaterial.LoadSynchronous();
+	UMaterialInstance* L_FootStepMaterial = NewCharacterUnderFootSurfaceData.SurfaceFootStepData.SurfaceFootStepMaterial.LoadSynchronous();
 	if (L_FootStepMaterial)
 	{
-		UGameplayStatics::SpawnDecalAtLocation(GetOwner(), L_FootStepMaterial, NewCharacterUnderFootSurfaceData.DecalSize, NewLocation, NewRotation, 5);
+		const FVector L_DecalSize = NewCharacterUnderFootSurfaceData.SurfaceFootStepData.DecalSize;
+		const FVector L_DecalLocation = GetFootStepLocation(NewFootType);
+		const FRotator L_DecalRotation = GetFootRotationByCharacterFootType(ECharacterFootType::RIGHT);
+		UGameplayStatics::SpawnDecalAtLocation(GetOwner(), L_FootStepMaterial, L_DecalSize, L_DecalLocation, L_DecalRotation, 5);
 	}
 }
 
@@ -180,6 +221,7 @@ void UDetectSurfaceTypeComponent::OnMovementModeChanged(EMovementMode NewPreviou
 		const bool bIsBlocking = UKismetSystemLibrary::LineTraceMultiForObjects(GetOwner(), L_Start, L_End, ObjectTypes, true, L_ActorsToIgnore, EDrawDebugTrace::None, L_OutHits, true);
 		if(bIsBlocking)
 		{
+
 			for(const FHitResult & IterHitResult : L_OutHits)
 			{
 				if(IterHitResult.bBlockingHit && IterHitResult.PhysMaterial.IsValid() )
@@ -195,7 +237,27 @@ void UDetectSurfaceTypeComponent::OnMovementModeChanged(EMovementMode NewPreviou
 						{
 							UGameplayStatics::PlaySoundAtLocation(GetOwner(), L_SoundBase, L_Start);
 						}
+						UMaterialInstance* L_FootStepMaterial = L_FootHitGroundData.SurfaceFootStepData.SurfaceFootStepMaterial.LoadSynchronous();
+						//checkf(nullptr != L_FootStepMaterial, TEXT("The L_FootStepMaterial is nulltrp. Please "));
+						if (IsValid(L_FootStepMaterial))
+						{
+							const FVector L_DecalSize = L_FootHitGroundData.SurfaceFootStepData.DecalSize;
+							FRotator L_LeftDecalRotation = GetFootRotationByCharacterFootType(ECharacterFootType::LEFT);
+							FRotator L_RightDecalRotation = GetFootRotationByCharacterFootType(ECharacterFootType::RIGHT);
+							FVector L_LeftDecalLocation = GetFootStepLocation(ECharacterFootType::LEFT);
+							FVector L_RightDecalLocation = GetFootStepLocation(ECharacterFootType::RIGHT);
+
+							L_LeftDecalLocation.Z -= 50;
+							L_RightDecalLocation.Z -= 30;
+
+							L_LeftDecalRotation.Yaw += 30;
+							L_RightDecalRotation.Yaw += 30;
+
+							UGameplayStatics::SpawnDecalAtLocation(GetOwner(), L_FootStepMaterial, L_DecalSize, L_LeftDecalLocation, L_LeftDecalRotation, 5);
+							UGameplayStatics::SpawnDecalAtLocation(GetOwner(), L_FootStepMaterial, L_DecalSize, L_RightDecalLocation, L_RightDecalRotation, 5);
+						}
 					}
+						
 					return;
 				}
 			}

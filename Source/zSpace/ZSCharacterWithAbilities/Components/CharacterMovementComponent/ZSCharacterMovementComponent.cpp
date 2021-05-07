@@ -3,6 +3,7 @@
 
 #include "zSpace/ZSCharacterWithAbilities/Components/CharacterMovementComponent/ZSCharacterMovementComponent.h"
 
+#include "zSpace/ZSCharacterWithAbilities/ZSCharacterWithAbilities.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "GameFramework/Character.h"
 #include "Engine/EngineTypes.h"
@@ -27,6 +28,7 @@ void UZSCharacterMovementComponent::BeginPlay()
 	Super::BeginPlay();
 
 	AnimInstance = GetAnimInstance();
+	OwnerZSCharacter = Cast<AZSCharacterWithAbilities>(GetOwner());
 }
 
 void UZSCharacterMovementComponent::TickComponent(float DeltaTime, ELevelTick TickType,
@@ -34,10 +36,13 @@ void UZSCharacterMovementComponent::TickComponent(float DeltaTime, ELevelTick Ti
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
+	if (!IsValid(OwnerZSCharacter)) return;;
+
 	if (GetOwnerRole() == ROLE_Authority)
 	{
-		const float Speed = GetLastUpdateVelocity().Size2D();
-		if (Speed == 0.f)
+		// Standing
+		const float Speed = OwnerZSCharacter->GetVelocity().Size2D();
+		if (Speed == 0.f || !OwnerZSCharacter->bIsMoveInputPressed)
 		{
 			if (NeedReplicatePlayerGait(EPlayerGait::Standing))
 			{
@@ -45,16 +50,36 @@ void UZSCharacterMovementComponent::TickComponent(float DeltaTime, ELevelTick Ti
 			}
 			return;
 		}
-		if (NeedReplicatePlayerGait(EPlayerGait::Running))
+		// Sprinting
+		if (bRequestToStartSprinting)
 		{
-			Server_ChangeMovementMode(EPlayerGait::Running);
+			if (NeedReplicatePlayerGait(EPlayerGait::Sprinting))
+			{
+				Server_ChangeMovementMode(EPlayerGait::Sprinting);
+			}
 		}
+		// Walking
+		else if (OwnerZSCharacter->bIsWalking)
+		{
+			if (NeedReplicatePlayerGait(EPlayerGait::Walking))
+			{
+				Server_ChangeMovementMode(EPlayerGait::Walking);
+			}
+		}
+		// Running
+		else
+		{
+			if (NeedReplicatePlayerGait(EPlayerGait::Running))
+			{
+				Server_ChangeMovementMode(EPlayerGait::Running);
+			}
+		}
+		// Update Max Walk Speed
 		if (IsValid(AnimInstance))
 		{
 			float SpeedCurveValue;
 			if (AnimInstance->GetCurveValue(FName("Speed"), SpeedCurveValue))
 			{
-				PRINT_FLOAT(SpeedCurveValue);
 				if (NeedReplicateMaxWalkSpeed(SpeedCurveValue))
 				{
 					NetMulticast_SetMaxWalkSpeed(SpeedCurveValue);
@@ -62,6 +87,13 @@ void UZSCharacterMovementComponent::TickComponent(float DeltaTime, ELevelTick Ti
 			}
 		}
 	}
+}
+
+float UZSCharacterMovementComponent::GetMaxSpeed() const
+{
+	const float MaxSpeed = UCharacterMovementComponent::GetMaxSpeed();
+
+	return MaxSpeed;
 }
 
 void UZSCharacterMovementComponent::Server_ChangeMovementMode_Implementation(EPlayerGait NewValue)

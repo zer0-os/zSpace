@@ -12,6 +12,7 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include "Net/UnrealNetwork.h"
 
 AZSCharacterWithAbilities::AZSCharacterWithAbilities(const FObjectInitializer& NewObjectInitializer) : Super(NewObjectInitializer.SetDefaultSubobjectClass<UZSCharacterMovementComponent>(ACharacter::CharacterMovementComponentName))
 {
@@ -47,6 +48,10 @@ void AZSCharacterWithAbilities::SetupPlayerInputComponent(UInputComponent* NewPl
 		NewPlayerInputComponent->BindAction(TEXT("Jump"), IE_Released, this, &AZSCharacterWithAbilities::StopJumping);
 		NewPlayerInputComponent->BindAction(TEXT("ShowPlayersOnline"), IE_Pressed, this, &AZSCharacterWithAbilities::ShowPlayersOnline);
 		NewPlayerInputComponent->BindAction(TEXT("Dodge"), IE_Pressed, this, &AZSCharacterWithAbilities::Dodge);
+
+		// Walking
+		NewPlayerInputComponent->BindAction(TEXT("Walking"), IE_Pressed, this, &AZSCharacterWithAbilities::OnStartWalking);
+		NewPlayerInputComponent->BindAction(TEXT("Walking"), IE_Released, this, &AZSCharacterWithAbilities::OnStopWalking);
 	}
 }
 
@@ -122,6 +127,23 @@ void AZSCharacterWithAbilities::StopJumping()
 
 void AZSCharacterWithAbilities::MoveForward(float NewValue)
 {
+	MoveForwardAxisValue = NewValue;
+
+	if (MoveForwardAxisValue == 0.f && MoveRightAxisValue == 0.f)
+	{
+		if (bIsMoveInputPressed)
+		{
+			Server_SetIsMoveInputPressed(false);
+		}
+	}
+	else
+	{
+		if (!bIsMoveInputPressed)
+		{
+			Server_SetIsMoveInputPressed(true);
+		}
+	}
+	
 	//UE_LOG(LogTemp, Log, TEXT("*************** The NewValue = %f *******************"), NewValue);
 	// DataTable'/Game/AbilitySystem/Abilities/MyGameplayTagsTable.MyGameplayTagsTable'
 	const FGameplayTag L_GameplayTag = FGameplayTag::RequestGameplayTag(FName("Combat.IsAttackingCannotMove"));
@@ -132,11 +154,12 @@ void AZSCharacterWithAbilities::MoveForward(float NewValue)
 		const FVector R_ForwardVector = L_Quat.GetForwardVector();
 		AddMovementInput(R_ForwardVector, NewValue);
 	}
-	
 }
 
 void AZSCharacterWithAbilities::MoveRight(float NewValue)
 {
+	MoveRightAxisValue = NewValue;
+	
 	// DataTable'/Game/AbilitySystem/Abilities/MyGameplayTagsTable.MyGameplayTagsTable'
 	const FGameplayTag L_GameplayTag = FGameplayTag::RequestGameplayTag(FName("Combat.IsAttackingCannotMove"));
 	const bool L_HasMatchingGameplayTag =   AbilitySystem ?  AbilitySystem->HasMatchingGameplayTag(L_GameplayTag) : false;
@@ -167,6 +190,15 @@ void AZSCharacterWithAbilities::ShowPlayersOnline()
 	Server_ShowPlayersOnline();
 }
 
+void AZSCharacterWithAbilities::OnStartWalking()
+{
+	Server_SetIsWalking(true);
+}
+
+void AZSCharacterWithAbilities::OnStopWalking()
+{
+	Server_SetIsWalking(false);
+}
 
 void AZSCharacterWithAbilities::Server_ShowPlayersOnline_Implementation()
 {
@@ -186,5 +218,30 @@ bool AZSCharacterWithAbilities::Server_ShowPlayersOnline_Validate()
 	return true;
 }
 
+void AZSCharacterWithAbilities::Server_SetIsWalking_Implementation(bool NewValue)
+{
+	bIsWalking = NewValue;
+}
 
+bool AZSCharacterWithAbilities::Server_SetIsWalking_Validate(bool NewValue)
+{
+	return true;
+}
 
+void AZSCharacterWithAbilities::Server_SetIsMoveInputPressed_Implementation(bool NewValue)
+{
+	bIsMoveInputPressed = NewValue;
+}
+
+bool AZSCharacterWithAbilities::Server_SetIsMoveInputPressed_Validate(bool NewValue)
+{
+	return true;
+}
+
+void AZSCharacterWithAbilities::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(AZSCharacterWithAbilities, bIsWalking);
+	DOREPLIFETIME(AZSCharacterWithAbilities, bIsMoveInputPressed);
+}
