@@ -14,6 +14,8 @@ class ZSPACE_API AZSCharacterWithAbilities : public AOWSCharacterWithAbilities
 {
 	GENERATED_BODY()
 
+	friend class UZSCharacterMovementComponent;
+
 public:
 
 	AZSCharacterWithAbilities(const FObjectInitializer & NewObjectInitializer);
@@ -46,7 +48,6 @@ private:
 	TSoftObjectPtr<class USoundBase> SoundBaseAcceleration;
 
 public:
-
 	UFUNCTION()
 	void Turn(float NewValue);
 
@@ -75,7 +76,31 @@ public:
 	///  Show a List of all players online across all instances.
 	UFUNCTION(Server, WithValidation, Unreliable)
 	void Server_ShowPlayersOnline();
+
+	UFUNCTION()
+	void OnStartWalking();
+	
+	UFUNCTION()
+	void OnStopWalking();
+
+protected:
+	UPROPERTY(Replicated, BlueprintReadOnly)
+	uint8 bIsWalking : 1;
+	
+	UPROPERTY(Replicated, BlueprintReadOnly)
+	uint8 bIsMoveInputPressed : 1;
+	
+	// [Local]
+	float MoveForwardAxisValue;
+	// [Local]
+	float MoveRightAxisValue;
+
+protected:
+	UFUNCTION(Server, Reliable, WithValidation)
+	void Server_SetIsWalking(bool NewValue);
+	
+	UFUNCTION(Server, Reliable, WithValidation)
+	void Server_SetIsMoveInputPressed(bool NewValue);
+	
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 };
-
-
-
