@@ -7,8 +7,44 @@
 #include "EtherlinkerTypes.h"
 #include "OWSPlayerState.h"
 #include "Components/ZSEtherManager/ZSEtherManagerHolderInterface/ZSEtherManagerHolderInterface.h"
-
 #include "ZSPlayerState.generated.h"
+
+USTRUCT(BlueprintType)
+struct FZSWalletData
+{
+	GENERATED_BODY()
+
+	FZSWalletData();
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	FString WalletAddress;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	FString WalletPassword;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	FString WalletMnemonic;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	FString WalletPath;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	FString WalletAuthType;
+
+	FZSWalletData operator=(const FWalletAuthenticationResponse & NewWalletAuthenticationResponse);
+
+	FZSWalletData operator=(const FZSWalletData & NewZSWalletData );
+	
+	FZSWalletData operator=(const FWalletData  & NewWalletData );
+	
+	static FWalletData GetWalletDataByZSWalletData(const FZSWalletData & NewZSWalletData);
+
+	bool IsNotEmptyMember() const;
+	
+};
+
+//void operator=(FWalletData &  NewWalletData  ,  FZSWalletData & NewZSWalletData);
+
 
 /**
  * 
@@ -38,10 +74,16 @@ private:
 	friend class UZSEtherlinkerRemoteWalletManager;
 	
 	UPROPERTY(BlueprintReadWrite, meta = (AllowPrivateAccess=true))
-	FWalletData WalletData;
+	FZSWalletData WalletData;
+
+	UPROPERTY(Replicated)
+	uint8 bIsWalletInitialized:1;
 
 
 public:
+
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty> & OutLifetimeProps) const override;
+	
 
 	static FString SenderID;
 
@@ -77,4 +119,10 @@ public:
 	UFUNCTION(Server, Reliable, BlueprintCallable, WithValidation)
 	void CreateRemoteWallet(const FString &NewLogin, const FString &NewPassword);
 
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+	void ServerCreateRemoteWalletFromUI(const FString & NewLogin, const FString & NewPassword);
+
+
+	UFUNCTION(Server, Reliable, WithValidation, BlueprintCallable)
+	void InitializeWallet(const FZSWalletData & NewZSWalletData);
 };
