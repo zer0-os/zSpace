@@ -36,8 +36,8 @@ void UZSAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	Direction = CalculateDirection(CharacterRef->GetVelocity(), CharacterRef->GetActorRotation());
 	// Air
 	bIsInAir = CharacterMovementComponent->IsFalling();
-
-	// PRINT_TIME(FString::SanitizeFloat(Direction), 0.f);
+	// Crouching
+	bIsCrouching = CharacterMovementComponent->IsCrouching();
 }
 
 void UZSAnimInstance::OnChangedPlayerGait(EPlayerGait NewValue)
