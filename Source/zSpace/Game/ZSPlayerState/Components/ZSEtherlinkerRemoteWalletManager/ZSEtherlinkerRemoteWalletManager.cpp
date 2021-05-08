@@ -10,6 +10,10 @@
 void UZSEtherlinkerRemoteWalletManager::BeginPlay()
 {
 	Super::BeginPlay();
+	if(ROLE_Authority == GetOwnerRole())
+	{
+		UpdateBindings();
+	}
 	
 }
 
@@ -51,8 +55,8 @@ FString UZSEtherlinkerRemoteWalletManager::GetUserIndex()
 	FString R_UserIndex = "";
 	if(PlayerState)
 	{
-		int32 L_UserIndex = PlayerState->UserIndex;
-		R_UserIndex.Append(FString::FormatAsNumber(L_UserIndex));
+		const int32 L_PlayerID =  PlayerState->GetPlayerId();
+		R_UserIndex.Append(FString::FormatAsNumber(L_PlayerID));
 	}
 	return R_UserIndex;
 }
@@ -102,15 +106,11 @@ void UZSEtherlinkerRemoteWalletManager::ResponseReceivedDelegate(FString NewResu
 		{
 			if(IsValid(IterPlayerState))
 			{
-				const bool L_IsImplemented =  IterPlayerState->GetClass()->ImplementsInterface(UZSEtherManagerHolderInterface::StaticClass());
-				if(L_IsImplemented)
+				const int32 L_UserIndexFromNewData = FCString::Atoi(*NewData.userIndex);
+				const int32 L_UserIndex = IterPlayerState->GetPlayerId();
+				if(L_UserIndex == L_UserIndexFromNewData)
 				{
-					const int32 L_UserIndexFromNewData = FCString::Atoi(*NewData.userIndex);
-					const int32 L_UserIndex = IZSEtherManagerHolderInterface::Execute_GetUserIndex(IterPlayerState);
-					if(L_UserIndex == L_UserIndexFromNewData)
-					{
-						OnResponseReceivedDelegate.Broadcast(NewResult, NewData);
-					}
+					OnResponseReceivedDelegate.Broadcast(NewResult, NewData);
 				}
 			}
 		}
