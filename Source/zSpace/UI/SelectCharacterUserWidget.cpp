@@ -322,6 +322,12 @@ void USelectCharacterUserWidget::UpdateBorderToRight()
 	LeftCharacterBox = AnimationBorderLeft;
 	MainCharacterBox = SelectCharacterLeftBorder;
 	RightCharacterBox = SelectCharacterMiddleBorder;
+
+	USelectCharacterBoxUserWidget* SelectCharacterLeftBox = Cast<USelectCharacterBoxUserWidget>(SelectCharacterLeftBorder->GetChildAt(0));
+	if (SelectCharacterLeftBox)
+	{
+		SelectCharacterLeftBox->PlayFadeInAnimation();
+	}
 	
 	LastChangeCharacterDirection = EChangeCharacterDirection::ToRight;
 }
@@ -331,6 +337,12 @@ void USelectCharacterUserWidget::UpdateBorderToLeft()
 	LeftCharacterBox = SelectCharacterLeftBorder;
 	MainCharacterBox = SelectCharacterMiddleBorder;
 	RightCharacterBox = SelectCharacterRightBorder;
+	
+	USelectCharacterBoxUserWidget* SelectCharacterMiddleBox = Cast<USelectCharacterBoxUserWidget>(SelectCharacterMiddleBorder->GetChildAt(0));
+	if (SelectCharacterMiddleBox)
+	{
+		SelectCharacterMiddleBox->PlayFadeInAnimation();
+	}
 	
 	LastChangeCharacterDirection = EChangeCharacterDirection::ToLeft;
 }
