@@ -68,9 +68,6 @@ private:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess=true))
 	class UZSEtherlinkerRemoteWalletManager * ZSEtherlinkerRemoteWalletManager = nullptr;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess=true))
-	int32 UserIndex = -1;
-
 	friend class UZSEtherlinkerRemoteWalletManager;
 	
 	UPROPERTY(BlueprintReadWrite, meta = (AllowPrivateAccess=true))
@@ -104,9 +101,6 @@ public:
 	class UZSEtherlinkerRemoteWalletManager * GetEtherlinkerRemoteWalletManager();
 
 	
-	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-	int32 GetUserIndex();
-	
 	// Interface  IZSEtherManagerHolderInterface End
 
 	// [Server]
@@ -122,7 +116,18 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	void ServerCreateRemoteWalletFromUI(const FString & NewLogin, const FString & NewPassword);
 
-
 	UFUNCTION(Server, Reliable, WithValidation, BlueprintCallable)
 	void InitializeWallet(const FZSWalletData & NewZSWalletData);
+
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FResponseReceivedWallet, FString, NewResult, FWalletAuthenticationResponse, NewWalletAuthenticationResponse);
+
+	UPROPERTY(BlueprintAssignable)
+	FResponseReceivedWallet OnResponseReceivedWallet;
+	
+	// [Client]
+	UFUNCTION(Client, Reliable)	
+	void Client_ResponseReceivedWallet(const FString &  NewResult, const FWalletAuthenticationResponse &  NewWalletAuthenticationResponse);
+
+	
+
 };
