@@ -103,7 +103,10 @@ public:
 	void ChangeCreateCharacterMode();
 
 	UFUNCTION(BlueprintImplementableEvent)
-	void PlayFadeInAnimation();
+	void PlayButtonsFadeInAnimation();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void PLayImageScaleAnimation(bool bIsRight);
 
 protected:
 	UFUNCTION()

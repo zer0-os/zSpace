@@ -326,7 +326,13 @@ void USelectCharacterUserWidget::UpdateBorderToRight()
 	USelectCharacterBoxUserWidget* SelectCharacterLeftBox = Cast<USelectCharacterBoxUserWidget>(SelectCharacterLeftBorder->GetChildAt(0));
 	if (SelectCharacterLeftBox)
 	{
-		SelectCharacterLeftBox->PlayFadeInAnimation();
+		SelectCharacterLeftBox->PlayButtonsFadeInAnimation();
+	}
+	USelectCharacterBoxUserWidget* SelectCharacterMiddleBox = Cast<USelectCharacterBoxUserWidget>(SelectCharacterMiddleBorder->GetChildAt(0));
+	if (SelectCharacterLeftBox)
+	{
+		SelectCharacterLeftBox->PLayImageScaleAnimation(true);
+		SelectCharacterMiddleBox->PLayImageScaleAnimation(false);
 	}
 	
 	LastChangeCharacterDirection = EChangeCharacterDirection::ToRight;
@@ -341,7 +347,13 @@ void USelectCharacterUserWidget::UpdateBorderToLeft()
 	USelectCharacterBoxUserWidget* SelectCharacterMiddleBox = Cast<USelectCharacterBoxUserWidget>(SelectCharacterMiddleBorder->GetChildAt(0));
 	if (SelectCharacterMiddleBox)
 	{
-		SelectCharacterMiddleBox->PlayFadeInAnimation();
+		SelectCharacterMiddleBox->PlayButtonsFadeInAnimation();
+	}
+	USelectCharacterBoxUserWidget* SelectCharacterLeftBox = Cast<USelectCharacterBoxUserWidget>(SelectCharacterLeftBorder->GetChildAt(0));
+	if (SelectCharacterLeftBox)
+	{
+		SelectCharacterLeftBox->PLayImageScaleAnimation(false);
+		SelectCharacterMiddleBox->PLayImageScaleAnimation(true);
 	}
 	
 	LastChangeCharacterDirection = EChangeCharacterDirection::ToLeft;
@@ -372,6 +384,8 @@ void USelectCharacterUserWidget::PlayAnimationChangeCharacter(UWidgetAnimation* 
 	}
 
 	PlayAnimation(ChangeAnimation, 0.f, 1, UMGSequencePlayMode, 1.f, false);
+	ResetBoxesTransform();
+	
 }
 
 void USelectCharacterUserWidget::ResetBoxesTransform()

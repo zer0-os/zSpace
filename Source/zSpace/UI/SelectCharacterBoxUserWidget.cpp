@@ -54,8 +54,6 @@ void USelectCharacterBoxUserWidget::NativeConstruct()
 	{
 		PreviousCharacterMesh->SetVisibility(ESlateVisibility::Collapsed);
 	}
-
-	PlayFadeInAnimation();
 }
 
 void USelectCharacterBoxUserWidget::SetPreviewCharacterPosition(EPreviewCharacterPosition NewValue)
