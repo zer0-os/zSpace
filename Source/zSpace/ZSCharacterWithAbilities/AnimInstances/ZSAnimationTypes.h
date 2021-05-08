@@ -13,4 +13,6 @@ enum class EPlayerGait : uint8
 	Walking = 1,
 	Running = 2,
 	Sprinting = 3,
+
+	Crouching = 4,
 };

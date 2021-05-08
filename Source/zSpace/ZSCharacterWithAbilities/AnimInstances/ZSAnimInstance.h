@@ -36,6 +36,9 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	uint8 bIsInAir : 1;
+	
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	uint8 bIsCrouching : 1;
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	EPlayerGait PlayerGait;

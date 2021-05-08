@@ -13,6 +13,8 @@
 UZSCharacterMovementComponent::UZSCharacterMovementComponent(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
 	SetIsReplicatedByDefault(true);
+
+	GetNavAgentPropertiesRef().bCanCrouch = true;
 }
 
 void UZSCharacterMovementComponent::OnMovementModeChanged(EMovementMode NewPreviousMovementMode, uint8 NewPreviousCustomMode)
@@ -67,25 +69,22 @@ void UZSCharacterMovementComponent::TickComponent(float DeltaTime, ELevelTick Ti
 			}
 		}
 		// Running
-		else
+		else if (!IsCrouching())
 		{
 			if (NeedReplicatePlayerGait(EPlayerGait::Running))
 			{
 				Server_ChangeMovementMode(EPlayerGait::Running);
 			}
 		}
-		// Update Max Walk Speed
-		if (IsValid(AnimInstance))
+		if (IsCrouching())
 		{
-			float SpeedCurveValue;
-			if (AnimInstance->GetCurveValue(FName("Speed"), SpeedCurveValue))
+			if (NeedReplicatePlayerGait(EPlayerGait::Crouching))
 			{
-				if (NeedReplicateMaxWalkSpeed(SpeedCurveValue))
-				{
-					NetMulticast_SetMaxWalkSpeed(SpeedCurveValue);
-				}
+				Server_ChangeMovementMode(EPlayerGait::Crouching);
 			}
 		}
+		// Update Max Walk Speed
+		UpdateMaxWalkSpeed();
 	}
 }
 
@@ -114,7 +113,14 @@ void UZSCharacterMovementComponent::NetMulticast_OnChangedPlayerGait_Implementat
 
 void UZSCharacterMovementComponent::NetMulticast_SetMaxWalkSpeed_Implementation(const float& NewValue)
 {
-	MaxWalkSpeed = NewValue;
+	if (IsCrouching())
+	{
+		MaxWalkSpeedCrouched = NewValue;
+	}
+	else
+	{
+		MaxWalkSpeed = NewValue;
+	}
 }
 
 UAnimInstance* UZSCharacterMovementComponent::GetAnimInstance() const
@@ -130,6 +136,21 @@ UAnimInstance* UZSCharacterMovementComponent::GetAnimInstance() const
 	}
 
 	return nullptr;
+}
+
+void UZSCharacterMovementComponent::UpdateMaxWalkSpeed()
+{
+	if (IsValid(AnimInstance))
+	{
+		float SpeedCurveValue;
+		if (AnimInstance->GetCurveValue(FName("Speed"), SpeedCurveValue))
+		{
+			if (NeedReplicateMaxWalkSpeed(SpeedCurveValue))
+			{
+				NetMulticast_SetMaxWalkSpeed(SpeedCurveValue);
+			}
+		}
+	}	
 }
 
 void UZSCharacterMovementComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
