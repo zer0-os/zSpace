@@ -31,5 +31,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent)
 	void ServerCreateRemoteWalletFromUI(const FString & NewLogin, const FString & NewPassword);
+
+	
+	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent)
+	FString GetSenderID();
 	
 };

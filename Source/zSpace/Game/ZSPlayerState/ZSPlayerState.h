@@ -84,6 +84,7 @@ public:
 
 	static FString SenderID;
 
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	FString GetSenderID();
 	
 private:

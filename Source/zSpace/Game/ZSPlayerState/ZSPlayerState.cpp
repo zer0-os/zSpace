@@ -111,7 +111,7 @@ void AZSPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLi
 	DOREPLIFETIME(AZSPlayerState, bIsWalletInitialized);
 }
 
-FString AZSPlayerState::GetSenderID()
+FString AZSPlayerState::GetSenderID_Implementation()
 {
 	FString R_SenderID = AZSPlayerState::SenderID;
 	const int32 L_PlayerID = GetPlayerId();
