@@ -333,6 +333,8 @@ void USelectCharacterUserWidget::UpdateBorderToRight()
 	{
 		SelectCharacterLeftBox->PLayImageScaleAnimation(true);
 		SelectCharacterMiddleBox->PLayImageScaleAnimation(false);
+		if(LastChangeCharacterDirection != EChangeCharacterDirection::None)
+		SelectCharacterMiddleBox->CreateCharacterNameSwitcher->SetRenderScale(FVector2D(1.3f, 1.3f));
 	}
 	
 	LastChangeCharacterDirection = EChangeCharacterDirection::ToRight;
@@ -354,6 +356,8 @@ void USelectCharacterUserWidget::UpdateBorderToLeft()
 	{
 		SelectCharacterLeftBox->PLayImageScaleAnimation(false);
 		SelectCharacterMiddleBox->PLayImageScaleAnimation(true);
+		if(LastChangeCharacterDirection != EChangeCharacterDirection::None)
+		SelectCharacterMiddleBox->CreateCharacterNameSwitcher->SetRenderScale(FVector2D(1.3f, 1.3f));
 	}
 	
 	LastChangeCharacterDirection = EChangeCharacterDirection::ToLeft;
@@ -384,7 +388,7 @@ void USelectCharacterUserWidget::PlayAnimationChangeCharacter(UWidgetAnimation* 
 	}
 
 	PlayAnimation(ChangeAnimation, 0.f, 1, UMGSequencePlayMode, 1.f, false);
-	ResetBoxesTransform();
+	//ResetBoxesTransform();
 	
 }
 
