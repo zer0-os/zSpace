@@ -13,6 +13,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Net/UnrealNetwork.h"
+#include "zSpace/zSpace.h"
 
 AZSCharacterWithAbilities::AZSCharacterWithAbilities(const FObjectInitializer& NewObjectInitializer) : Super(NewObjectInitializer.SetDefaultSubobjectClass<UZSCharacterMovementComponent>(ACharacter::CharacterMovementComponentName))
 {
@@ -52,6 +53,11 @@ void AZSCharacterWithAbilities::SetupPlayerInputComponent(UInputComponent* NewPl
 		// Walking
 		NewPlayerInputComponent->BindAction(TEXT("Walking"), IE_Pressed, this, &AZSCharacterWithAbilities::OnStartWalking);
 		NewPlayerInputComponent->BindAction(TEXT("Walking"), IE_Released, this, &AZSCharacterWithAbilities::OnStopWalking);
+
+		// Crouching
+		NewPlayerInputComponent->BindAction(TEXT("Crouching"), IE_Pressed, this, &AZSCharacterWithAbilities::OnStartCrouching);
+		NewPlayerInputComponent->BindAction(TEXT("Crouching"), IE_Released, this, &AZSCharacterWithAbilities::OnStopCrouching);
+		
 	}
 }
 
@@ -63,6 +69,20 @@ void AZSCharacterWithAbilities::BeginPlay()
 void AZSCharacterWithAbilities::Tick(float NewDeltaSeconds)
 {
 	Super::Tick(NewDeltaSeconds);
+}
+
+bool AZSCharacterWithAbilities::CanCrouch() const
+{
+	const bool Result = Super::CanCrouch();
+
+	if (!Result)
+	{
+		return Result;
+	}
+	else
+	{
+		return !GetCharacterMovement()->IsFalling();
+	}
 }
 
 void AZSCharacterWithAbilities::Turn(float NewValue)
@@ -198,6 +218,19 @@ void AZSCharacterWithAbilities::OnStartWalking()
 void AZSCharacterWithAbilities::OnStopWalking()
 {
 	Server_SetIsWalking(false);
+}
+
+void AZSCharacterWithAbilities::OnStartCrouching()
+{
+	if (CanCrouch())
+	{
+		Crouch();
+	}
+}
+
+void AZSCharacterWithAbilities::OnStopCrouching()
+{
+	UnCrouch();
 }
 
 void AZSCharacterWithAbilities::Server_ShowPlayersOnline_Implementation()

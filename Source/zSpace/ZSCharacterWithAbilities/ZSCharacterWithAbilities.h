@@ -28,6 +28,8 @@ public:
 
 	virtual void Tick(float NewDeltaSeconds) override;
 
+	virtual bool CanCrouch() const override;
+
 private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess=true))
 	float BaseTurnRate = 45;
@@ -82,6 +84,12 @@ public:
 	
 	UFUNCTION()
 	void OnStopWalking();
+
+	UFUNCTION()
+	void OnStartCrouching();
+	
+	UFUNCTION()
+	void OnStopCrouching();
 
 protected:
 	UPROPERTY(Replicated, BlueprintReadOnly)

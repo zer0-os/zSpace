@@ -322,6 +322,20 @@ void USelectCharacterUserWidget::UpdateBorderToRight()
 	LeftCharacterBox = AnimationBorderLeft;
 	MainCharacterBox = SelectCharacterLeftBorder;
 	RightCharacterBox = SelectCharacterMiddleBorder;
+
+	USelectCharacterBoxUserWidget* SelectCharacterLeftBox = Cast<USelectCharacterBoxUserWidget>(SelectCharacterLeftBorder->GetChildAt(0));
+	if (SelectCharacterLeftBox)
+	{
+		SelectCharacterLeftBox->PlayButtonsFadeInAnimation();
+	}
+	USelectCharacterBoxUserWidget* SelectCharacterMiddleBox = Cast<USelectCharacterBoxUserWidget>(SelectCharacterMiddleBorder->GetChildAt(0));
+	if (SelectCharacterLeftBox)
+	{
+		SelectCharacterLeftBox->PLayImageScaleAnimation(true);
+		SelectCharacterMiddleBox->PLayImageScaleAnimation(false);
+		if(LastChangeCharacterDirection != EChangeCharacterDirection::None)
+		SelectCharacterMiddleBox->CreateCharacterNameSwitcher->SetRenderScale(FVector2D(1.3f, 1.3f));
+	}
 	
 	LastChangeCharacterDirection = EChangeCharacterDirection::ToRight;
 }
@@ -331,6 +345,20 @@ void USelectCharacterUserWidget::UpdateBorderToLeft()
 	LeftCharacterBox = SelectCharacterLeftBorder;
 	MainCharacterBox = SelectCharacterMiddleBorder;
 	RightCharacterBox = SelectCharacterRightBorder;
+	
+	USelectCharacterBoxUserWidget* SelectCharacterMiddleBox = Cast<USelectCharacterBoxUserWidget>(SelectCharacterMiddleBorder->GetChildAt(0));
+	if (SelectCharacterMiddleBox)
+	{
+		SelectCharacterMiddleBox->PlayButtonsFadeInAnimation();
+	}
+	USelectCharacterBoxUserWidget* SelectCharacterLeftBox = Cast<USelectCharacterBoxUserWidget>(SelectCharacterLeftBorder->GetChildAt(0));
+	if (SelectCharacterLeftBox)
+	{
+		SelectCharacterLeftBox->PLayImageScaleAnimation(false);
+		SelectCharacterMiddleBox->PLayImageScaleAnimation(true);
+		if(LastChangeCharacterDirection != EChangeCharacterDirection::None)
+		SelectCharacterMiddleBox->CreateCharacterNameSwitcher->SetRenderScale(FVector2D(1.3f, 1.3f));
+	}
 	
 	LastChangeCharacterDirection = EChangeCharacterDirection::ToLeft;
 }
@@ -360,6 +388,8 @@ void USelectCharacterUserWidget::PlayAnimationChangeCharacter(UWidgetAnimation* 
 	}
 
 	PlayAnimation(ChangeAnimation, 0.f, 1, UMGSequencePlayMode, 1.f, false);
+	//ResetBoxesTransform();
+	
 }
 
 void USelectCharacterUserWidget::ResetBoxesTransform()

@@ -102,6 +102,12 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void ChangeCreateCharacterMode();
 
+	UFUNCTION(BlueprintImplementableEvent)
+	void PlayButtonsFadeInAnimation();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void PLayImageScaleAnimation(bool bIsRight);
+
 protected:
 	UFUNCTION()
 	void OnClickedEditModeButton();

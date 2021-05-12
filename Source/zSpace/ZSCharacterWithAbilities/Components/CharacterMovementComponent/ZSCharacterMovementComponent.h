@@ -55,7 +55,7 @@ public:
 protected:
 	UPROPERTY(Replicated, BlueprintReadOnly)
 	EPlayerGait PlayerGait;
-
+	
 	UPROPERTY(BlueprintReadOnly)
 	class UAnimInstance* AnimInstance = nullptr;
 
@@ -70,6 +70,8 @@ protected:
 	void NetMulticast_SetMaxWalkSpeed(const float& NewValue);
 
 	class UAnimInstance* GetAnimInstance() const;
+
+	void UpdateMaxWalkSpeed();
 	
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 };
