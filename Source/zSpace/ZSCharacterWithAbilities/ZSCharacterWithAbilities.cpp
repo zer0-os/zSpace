@@ -30,13 +30,11 @@ AZSCharacterWithAbilities::AZSCharacterWithAbilities(const FObjectInitializer& N
 
 	DetectSurfaceTypeComponent = CreateDefaultSubobject<UDetectSurfaceTypeComponent>(TEXT("DetectSurfaceTypeComponent"));
 	checkf(nullptr != DetectSurfaceTypeComponent, TEXT("The DetectSurfaceTypeComponent is nullptr."));
-	AddOwnedComponent(DetectSurfaceTypeComponent);
-	
+	AddOwnedComponent(DetectSurfaceTypeComponent);	
 }
 
 void AZSCharacterWithAbilities::SetupPlayerInputComponent(UInputComponent* NewPlayerInputComponent)
 {
-
 	if(NewPlayerInputComponent)
 	{
 		Super::SetupPlayerInputComponent(NewPlayerInputComponent);
@@ -147,6 +145,11 @@ void AZSCharacterWithAbilities::StopJumping()
 
 void AZSCharacterWithAbilities::MoveForward(float NewValue)
 {
+	if (NewValue != MoveForwardAxisValue)
+	{
+		Server_SetMoveForwardAxisValue(NewValue);
+	}
+	
 	MoveForwardAxisValue = NewValue;
 
 	if (MoveForwardAxisValue == 0.f && MoveRightAxisValue == 0.f)
@@ -163,7 +166,7 @@ void AZSCharacterWithAbilities::MoveForward(float NewValue)
 			Server_SetIsMoveInputPressed(true);
 		}
 	}
-	
+
 	//UE_LOG(LogTemp, Log, TEXT("*************** The NewValue = %f *******************"), NewValue);
 	// DataTable'/Game/AbilitySystem/Abilities/MyGameplayTagsTable.MyGameplayTagsTable'
 	const FGameplayTag L_GameplayTag = FGameplayTag::RequestGameplayTag(FName("Combat.IsAttackingCannotMove"));
@@ -178,7 +181,10 @@ void AZSCharacterWithAbilities::MoveForward(float NewValue)
 
 void AZSCharacterWithAbilities::MoveRight(float NewValue)
 {
-	MoveRightAxisValue = NewValue;
+	if (NewValue != MoveRightAxisValue)
+	{
+		Server_SetMoveRightAxisValue(NewValue);
+	}
 	
 	// DataTable'/Game/AbilitySystem/Abilities/MyGameplayTagsTable.MyGameplayTagsTable'
 	const FGameplayTag L_GameplayTag = FGameplayTag::RequestGameplayTag(FName("Combat.IsAttackingCannotMove"));
@@ -271,10 +277,64 @@ bool AZSCharacterWithAbilities::Server_SetIsMoveInputPressed_Validate(bool NewVa
 	return true;
 }
 
+void AZSCharacterWithAbilities::Server_SetMoveForwardAxisValue_Implementation(const float& NewValue)
+{
+	MoveForwardAxisValue = NewValue;
+	if (NewValue != 0.f)
+	{
+		LastMoveForwardAxisValue = NewValue;
+	}
+	
+	if (NewValue == 0.f)
+	{
+		FTimerManager& TimerManager = GetWorldTimerManager();
+		FTimerHandle TimerHandle;
+		TimerManager.SetTimer(TimerHandle, [this]()
+		{
+			LastMoveForwardAxisValue = 0.f;
+		}, 0.5f, false, 0.5f);
+	}
+}
+
+bool AZSCharacterWithAbilities::Server_SetMoveForwardAxisValue_Validate(const float& NewValue)
+{
+	return true;
+}
+
+void AZSCharacterWithAbilities::Server_SetMoveRightAxisValue_Implementation(const float& NewValue)
+{
+	MoveRightAxisValue = NewValue;	
+	if (NewValue != 0.f)
+	{
+		LastMoveRightAxisValue = NewValue;
+	}
+	
+	if (NewValue == 0.f)
+	{
+		FTimerManager& TimerManager = GetWorldTimerManager();
+		FTimerHandle TimerHandle;
+		TimerManager.SetTimer(TimerHandle, [this]()
+		{
+			LastMoveRightAxisValue = 0.f;
+		}, 0.5f, false, 0.5f);
+	}
+}
+
+bool AZSCharacterWithAbilities::Server_SetMoveRightAxisValue_Validate(const float& NewValue)
+{
+	return  true;
+}
+
 void AZSCharacterWithAbilities::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(AZSCharacterWithAbilities, bIsWalking);
 	DOREPLIFETIME(AZSCharacterWithAbilities, bIsMoveInputPressed);
+
+	// Move Axis Values
+	DOREPLIFETIME(AZSCharacterWithAbilities, MoveRightAxisValue);
+	DOREPLIFETIME(AZSCharacterWithAbilities, LastMoveRightAxisValue);
+	DOREPLIFETIME(AZSCharacterWithAbilities, MoveForwardAxisValue);
+	DOREPLIFETIME(AZSCharacterWithAbilities, LastMoveForwardAxisValue);
 }
