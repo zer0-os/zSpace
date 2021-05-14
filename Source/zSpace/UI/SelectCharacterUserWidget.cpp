@@ -146,6 +146,13 @@ void USelectCharacterUserWidget::ShowCharacters(const TArray<FUserCharacter>& Us
 			CharacterInfo.CharacterLevel = FString::FromInt(UserCharacter.Level);
 
 			CreateCharacterSelectBox(CharacterInfo, Border);
+
+			USelectCharacterBoxUserWidget*  L_SelectCharacterMiddleBox = Cast<USelectCharacterBoxUserWidget>(SelectCharacterMiddleBorder->GetChildAt(0));
+			if (L_SelectCharacterMiddleBox)
+			{
+				L_SelectCharacterMiddleBox->CreateCharacterNameSwitcher->SetRenderScale(FVector2D(1.3f, 1.3f));
+			}
+
 			auto* Child = Cast<USelectCharacterBoxUserWidget>(Border->GetChildAt(0));
 			if (IsValid(Child))
 			{
