@@ -16,6 +16,8 @@
 #include "Components/BorderSlot.h"
 #include "Components/Border.h"
 #include "../Types/UITypes.h"
+#include <Kismet/KismetMathLibrary.h>
+#include <Components/Image.h>
 
 void USelectCharacterUserWidget::NativePreConstruct()
 {
@@ -107,7 +109,7 @@ void USelectCharacterUserWidget::CreateCharacterSelectBox(const FCharacterInfoFo
 
 	USelectCharacterBoxUserWidget* CharacterBox = Cast<USelectCharacterBoxUserWidget>(ParentBorder->GetChildAt(0));
 	if (IsValid(CharacterBox))
-	{
+	{	
 		CharacterBox->SetupWidget(CharacterSelectBoxInfo);
 		return;
 	}
@@ -142,6 +144,7 @@ void USelectCharacterUserWidget::ShowCharacters(const TArray<FUserCharacter>& Us
 			const FUserCharacter& UserCharacter = UserCharacters[CheckIndex];
 			CharacterInfo.CharacterName = UserCharacter.CharacterName;
 			CharacterInfo.CharacterLevel = FString::FromInt(UserCharacter.Level);
+
 			CreateCharacterSelectBox(CharacterInfo, Border);
 			auto* Child = Cast<USelectCharacterBoxUserWidget>(Border->GetChildAt(0));
 			if (IsValid(Child))
@@ -170,6 +173,7 @@ void USelectCharacterUserWidget::ShowCharacters(const TArray<FUserCharacter>& Us
 
 		return nullptr;
 	};
+
 
 	auto GetLastOrFirstIndex = [this, &UserCharacters](const int8& Index) -> uint8
 	{
@@ -317,6 +321,48 @@ bool USelectCharacterUserWidget::CanChangeCharacter()
 	return false;
 }
 
+class UTexture2D* USelectCharacterUserWidget::GetBackGroundImage()
+{
+	int32 Index = UKismetMathLibrary::RandomIntegerInRange(0, BackGroundImages.Num() - 1);
+	if (BackGroundImages.IsValidIndex(Index))
+	{
+		return BackGroundImages[Index];
+	}
+	return nullptr;
+}
+
+void USelectCharacterUserWidget::UpdateBackgroundImage(bool bisRight)
+{
+	USelectCharacterBoxUserWidget* AnimationBox = Cast<USelectCharacterBoxUserWidget>(AnimationBorderLeft->GetChildAt(0));
+	USelectCharacterBoxUserWidget* LeftBox = Cast<USelectCharacterBoxUserWidget>(SelectCharacterLeftBorder->GetChildAt(0));
+	USelectCharacterBoxUserWidget* MiddleBox = Cast<USelectCharacterBoxUserWidget>(SelectCharacterMiddleBorder->GetChildAt(0));
+	USelectCharacterBoxUserWidget* RightBox = Cast<USelectCharacterBoxUserWidget>(SelectCharacterRightBorder->GetChildAt(0));
+	
+	if (IsValid(AnimationBox) && IsValid(LeftBox) &&IsValid(MiddleBox) && IsValid(RightBox))
+	{
+		if (bisRight)
+		{	
+			if (LastChangeCharacterDirection == EChangeCharacterDirection::ToRight)
+			{
+				RightBox->BackgroundImage->Brush.SetResourceObject(MiddleBox->BackgroundImage->Brush.GetResourceObject());
+				MiddleBox->BackgroundImage->Brush.SetResourceObject(LeftBox->BackgroundImage->Brush.GetResourceObject());
+				LeftBox->BackgroundImage->Brush.SetResourceObject(AnimationBox->BackgroundImage->Brush.GetResourceObject());
+				AnimationBox->BackgroundImage->Brush.SetResourceObject(GetBackGroundImage());		
+			}
+		}
+		else
+		{
+			if(LastChangeCharacterDirection == EChangeCharacterDirection::ToLeft)
+			{
+				AnimationBox->BackgroundImage->Brush.SetResourceObject(LeftBox->BackgroundImage->Brush.GetResourceObject());
+				LeftBox->BackgroundImage->Brush.SetResourceObject(MiddleBox->BackgroundImage->Brush.GetResourceObject());
+				MiddleBox->BackgroundImage->Brush.SetResourceObject(RightBox->BackgroundImage->Brush.GetResourceObject());
+				RightBox->BackgroundImage->Brush.SetResourceObject(GetBackGroundImage());
+			}
+		}
+	}
+}
+
 void USelectCharacterUserWidget::UpdateBorderToRight()
 {
 	LeftCharacterBox = AnimationBorderLeft;
@@ -328,15 +374,9 @@ void USelectCharacterUserWidget::UpdateBorderToRight()
 	{
 		SelectCharacterLeftBox->PlayButtonsFadeInAnimation();
 	}
-	USelectCharacterBoxUserWidget* SelectCharacterMiddleBox = Cast<USelectCharacterBoxUserWidget>(SelectCharacterMiddleBorder->GetChildAt(0));
-	if (SelectCharacterLeftBox)
-	{
-		SelectCharacterLeftBox->PLayImageScaleAnimation(true);
-		SelectCharacterMiddleBox->PLayImageScaleAnimation(false);
-		if(LastChangeCharacterDirection != EChangeCharacterDirection::None)
-		SelectCharacterMiddleBox->CreateCharacterNameSwitcher->SetRenderScale(FVector2D(1.3f, 1.3f));
-	}
-	
+
+	UpdateBackgroundImage(true);
+
 	LastChangeCharacterDirection = EChangeCharacterDirection::ToRight;
 }
 
@@ -351,15 +391,8 @@ void USelectCharacterUserWidget::UpdateBorderToLeft()
 	{
 		SelectCharacterMiddleBox->PlayButtonsFadeInAnimation();
 	}
-	USelectCharacterBoxUserWidget* SelectCharacterLeftBox = Cast<USelectCharacterBoxUserWidget>(SelectCharacterLeftBorder->GetChildAt(0));
-	if (SelectCharacterLeftBox)
-	{
-		SelectCharacterLeftBox->PLayImageScaleAnimation(false);
-		SelectCharacterMiddleBox->PLayImageScaleAnimation(true);
-		if(LastChangeCharacterDirection != EChangeCharacterDirection::None)
-		SelectCharacterMiddleBox->CreateCharacterNameSwitcher->SetRenderScale(FVector2D(1.3f, 1.3f));
-	}
-	
+	UpdateBackgroundImage(false);
+
 	LastChangeCharacterDirection = EChangeCharacterDirection::ToLeft;
 }
 
@@ -388,8 +421,6 @@ void USelectCharacterUserWidget::PlayAnimationChangeCharacter(UWidgetAnimation* 
 	}
 
 	PlayAnimation(ChangeAnimation, 0.f, 1, UMGSequencePlayMode, 1.f, false);
-	//ResetBoxesTransform();
-	
 }
 
 void USelectCharacterUserWidget::ResetBoxesTransform()

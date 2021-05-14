@@ -54,6 +54,11 @@ void USelectCharacterBoxUserWidget::NativeConstruct()
 	{
 		PreviousCharacterMesh->SetVisibility(ESlateVisibility::Collapsed);
 	}
+	if (IsValid(SelectCharacterUserWidget))
+	{
+		UTexture2D* L_BG = SelectCharacterUserWidget->GetBackGroundImage();
+		SetBackGroundImage(L_BG);
+	}
 }
 
 void USelectCharacterBoxUserWidget::SetPreviewCharacterPosition(EPreviewCharacterPosition NewValue)
@@ -185,6 +190,26 @@ void USelectCharacterBoxUserWidget::ChangeNormalMode()
 		RemoveFromParent();	
 	}
 	EnterNameBG->SetVisibility(ESlateVisibility::Hidden);
+}
+
+void USelectCharacterBoxUserWidget::SetBackGroundImage(class UTexture2D* NewTexture)
+{
+	if (IsValid(BackgroundImage))
+	{
+		FSlateBrush BGImageBrush;
+		BGImageBrush = BackgroundImage->Brush;
+
+		if(!IsValid(BackgroundImage->Brush.GetResourceObject()))
+		{ 
+			BGImageBrush.SetResourceObject(NewTexture);
+		}
+		else
+		{
+			BGImageBrush.SetResourceObject(CharacterInfoForUI.BackgroundImage);
+		}
+		BackgroundImage->SetBrush(BGImageBrush);
+	}
+
 }
 
 APreviewCharacter* USelectCharacterBoxUserWidget::GetPreviewCharacterByEnum(
