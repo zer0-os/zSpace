@@ -6,6 +6,8 @@
 
 #include "ZSAnimationTypes.h"
 #include "Animation/AnimInstance.h"
+#include "zSpace/ZSCharacterWithAbilities/Components/DetectSurfaceTypeComponent/DetectSurfaceTypeComponent.h"
+
 #include "ZSAnimInstance.generated.h"
 
 /**
@@ -43,10 +45,54 @@ protected:
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	EPlayerGait PlayerGait;
 
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	uint8 bIsMoveInputPressed : 1;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	float MoveForwardAxisValue = 0.f;
+	
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	float LastMoveForwardAxisValue = 0.f;
+	
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	float MoveRightAxisValue = 0.f;
+	
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	float LastMoveRightAxisValue = 0.f;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	uint8 bIsMovingOnlyForward : 1;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	ECharacterFootType CharacterFoot = ECharacterFootType::NONE;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	EPlayerMoveDirection PlayerMoveDirection;
+	
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	EPlayerMoveDirection LastPlayerMoveDirection;
+	
 protected:
 	UFUNCTION()
 	void OnChangedPlayerGait(EPlayerGait NewValue);
 
 	UFUNCTION(BlueprintPure)
 	bool CurveIsActive(const EAnimCurveType& AnimCurveType, const FName& CurveName) const;
+	
+	UFUNCTION(BlueprintPure)
+	bool IsMovingOnlyForward() const;
+	
+	UFUNCTION(BlueprintPure)
+	bool IsMovedOnlyForward() const;
+
+public:
+	UFUNCTION(BlueprintPure)
+	EPlayerMoveDirection CalculatePlayerMoveDirection() const;
+	
+	UFUNCTION(BlueprintPure)
+	EPlayerMoveDirection LastCalculatePlayerMoveDirection() const;
+	
+	UFUNCTION(BlueprintCallable)
+	void SetCharacterFood(ECharacterFootType NewValue);
+	
 };

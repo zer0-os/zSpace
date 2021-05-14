@@ -38,6 +38,20 @@ void UZSAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	bIsInAir = CharacterMovementComponent->IsFalling();
 	// Crouching
 	bIsCrouching = CharacterMovementComponent->IsCrouching();
+
+	// Move Input Pressed
+	bIsMoveInputPressed = CharacterRef->GetIsMoveInputPressed();
+
+	// Axis Value
+	MoveForwardAxisValue = CharacterRef->GetMoveForwardAxisValue();
+	LastMoveForwardAxisValue = CharacterRef->GetLastMoveForwardAxisValue();
+	MoveRightAxisValue = CharacterRef->GetMoveRightAxisValue();
+	LastMoveRightAxisValue = CharacterRef->GetLastMoveRightAxisValue();
+
+	bIsMovingOnlyForward = IsMovingOnlyForward();
+
+	PlayerMoveDirection = CalculatePlayerMoveDirection();
+	LastPlayerMoveDirection = LastCalculatePlayerMoveDirection();
 }
 
 void UZSAnimInstance::OnChangedPlayerGait(EPlayerGait NewValue)
@@ -52,5 +66,114 @@ bool UZSAnimInstance::CurveIsActive(const EAnimCurveType& AnimCurveType, const F
 	const int32 Index = OutNames.Find(CurveName);
 
 	return OutNames.IsValidIndex(Index);
+}
+
+bool UZSAnimInstance::IsMovingOnlyForward() const
+{
+	return MoveForwardAxisValue > 0.f && MoveRightAxisValue == 0.f;
+}
+
+bool UZSAnimInstance::IsMovedOnlyForward() const
+{
+	return LastMoveForwardAxisValue > 0.1f && LastMoveRightAxisValue == 0.f;
+}
+
+EPlayerMoveDirection UZSAnimInstance::CalculatePlayerMoveDirection() const
+{
+	// Forward
+	if (MoveForwardAxisValue > 0.f && MoveRightAxisValue == 0.f)
+	{
+		return EPlayerMoveDirection::Forward;	
+	}
+
+	// Backward
+	if (MoveForwardAxisValue < 0.f && MoveRightAxisValue == 0.f)
+	{
+		return EPlayerMoveDirection::Backward;
+	}
+	
+	// Right Or Left
+	if (MoveForwardAxisValue == 0.f && MoveRightAxisValue != 0.f)
+	{
+		return MoveRightAxisValue > 0.f ? EPlayerMoveDirection::Right : EPlayerMoveDirection::Left;
+	}
+
+	if (MoveForwardAxisValue != 0.f && MoveRightAxisValue != 0.f)
+	{
+		// Right Forward
+		if (MoveForwardAxisValue > 0.f && MoveRightAxisValue > 0.f)
+		{
+			return EPlayerMoveDirection::RightForward;
+		}
+		// Left Forward
+		if (MoveForwardAxisValue > 0.f && MoveRightAxisValue < 0.f)
+		{
+			return EPlayerMoveDirection::LeftForward;
+		}
+		// Right Backward
+		if (MoveForwardAxisValue < 0.f && MoveRightAxisValue > 0.f)
+		{
+			return EPlayerMoveDirection::RightBackward;
+		}
+		// Left Backward
+		if (MoveForwardAxisValue < 0.f && MoveRightAxisValue < 0.f)
+		{
+			return EPlayerMoveDirection::LeftBackward;
+		}
+	}
+	
+	return EPlayerMoveDirection::Forward;	
+}
+
+EPlayerMoveDirection UZSAnimInstance::LastCalculatePlayerMoveDirection() const
+{
+	// Forward
+	if (LastMoveForwardAxisValue > 0.f && LastMoveRightAxisValue == 0.f)
+	{
+		return EPlayerMoveDirection::Forward;	
+	}
+
+	// Backward
+	if (LastMoveForwardAxisValue < 0.f && LastMoveRightAxisValue == 0.f)
+	{
+		return EPlayerMoveDirection::Backward;
+	}
+	
+	// Right Or Left
+	if (LastMoveForwardAxisValue == 0.f && LastMoveRightAxisValue != 0.f)
+	{
+		return LastMoveRightAxisValue > 0.f ? EPlayerMoveDirection::Right : EPlayerMoveDirection::Left;
+	}
+
+	if (LastMoveForwardAxisValue != 0.f && LastMoveRightAxisValue != 0.f)
+	{
+		// Right Forward
+		if (LastMoveForwardAxisValue > 0.f && LastMoveRightAxisValue > 0.f)
+		{
+			return EPlayerMoveDirection::RightForward;
+		}
+		// Left Forward
+		if (LastMoveForwardAxisValue > 0.f && LastMoveRightAxisValue < 0.f)
+		{
+			return EPlayerMoveDirection::LeftForward;
+		}
+		// Right Backward
+		if (LastMoveForwardAxisValue < 0.f && LastMoveRightAxisValue > 0.f)
+		{
+			return EPlayerMoveDirection::RightBackward;
+		}
+		// Left Backward
+		if (LastMoveForwardAxisValue < 0.f && LastMoveRightAxisValue < 0.f)
+		{
+			return EPlayerMoveDirection::LeftBackward;
+		}
+	}
+	
+	return EPlayerMoveDirection::Forward;	
+}
+
+void UZSAnimInstance::SetCharacterFood(ECharacterFootType NewValue)
+{
+	CharacterFoot = NewValue;
 }
 
