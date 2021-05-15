@@ -496,6 +496,7 @@ void USelectCharacterUserWidget::OnClickedAddNewCharacter()
 		if (IsValid(Widget))
 		{
 			Widget->ChangeCreateCharacterMode();
+			SetPreviewCharacterPositionByCharacterBox(Widget);
 		}
 	}
 }
