@@ -94,6 +94,15 @@ public:
 	UFUNCTION(BlueprintPure)
 	bool CanChangeCharacter();
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TArray<class UTexture2D* > BackGroundImages;
+
+	UFUNCTION(BlueprintCallable)
+	class UTexture2D* GetBackGroundImage();
+	
+	UFUNCTION(BlueprintCallable)
+	void UpdateBackgroundImage(bool bisRight);
+
 protected:
 	UFUNCTION(BlueprintCallable)
 	void UpdateBorderToRight();
