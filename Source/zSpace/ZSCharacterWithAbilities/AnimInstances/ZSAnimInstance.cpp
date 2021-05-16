@@ -3,6 +3,7 @@
 
 #include "zSpace/ZSCharacterWithAbilities/AnimInstances/ZSAnimInstance.h"
 
+#include "Kismet/KismetMathLibrary.h"
 #include "zSpace/ZSCharacterWithAbilities/Components/CharacterMovementComponent/ZSCharacterMovementComponent.h"
 #include "zSpace/ZSCharacterWithAbilities/ZSCharacterWithAbilities.h"
 #include "Kismet/KismetSystemLibrary.h"
@@ -52,6 +53,12 @@ void UZSAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 
 	PlayerMoveDirection = CalculatePlayerMoveDirection();
 	LastPlayerMoveDirection = LastCalculatePlayerMoveDirection();
+	
+	CharacterRelativeRotation = CharacterRef->GetCharacterRelativeRotation();
+	// auto X = CalculateStartMoveDirection();
+
+	// bIsUseForwardStart = UKismetMathLibrary::NearlyEqual_FloatFloat(GetPlayerMoveDirectionAsAngle(), CharacterRelativeRotation, 10.f);
+	
 }
 
 void UZSAnimInstance::OnChangedPlayerGait(EPlayerGait NewValue)
@@ -80,6 +87,11 @@ bool UZSAnimInstance::IsMovedOnlyForward() const
 
 EPlayerMoveDirection UZSAnimInstance::CalculatePlayerMoveDirection() const
 {
+	if (MoveForwardAxisValue == 0.f && MoveRightAxisValue == 0.f)
+	{
+		return EPlayerMoveDirection::None;
+	}
+	
 	// Forward
 	if (MoveForwardAxisValue > 0.f && MoveRightAxisValue == 0.f)
 	{
@@ -122,11 +134,16 @@ EPlayerMoveDirection UZSAnimInstance::CalculatePlayerMoveDirection() const
 		}
 	}
 	
-	return EPlayerMoveDirection::Forward;	
+	return EPlayerMoveDirection::None;
 }
 
 EPlayerMoveDirection UZSAnimInstance::LastCalculatePlayerMoveDirection() const
 {
+	if (LastMoveForwardAxisValue == 0.f && LastMoveRightAxisValue == 0.f)
+	{
+		return EPlayerMoveDirection::None;
+	}
+	
 	// Forward
 	if (LastMoveForwardAxisValue > 0.f && LastMoveRightAxisValue == 0.f)
 	{
@@ -169,7 +186,64 @@ EPlayerMoveDirection UZSAnimInstance::LastCalculatePlayerMoveDirection() const
 		}
 	}
 	
-	return EPlayerMoveDirection::Forward;	
+	return EPlayerMoveDirection::None;
+}
+
+EPlayerMoveDirection UZSAnimInstance::CalculateStartMoveDirection() const
+{
+	auto ValueIsInRange = [this](const int32 Value, const int32 Min, const int32 Max) -> bool
+	{
+		return Value > Min && Value < Max;
+	};
+	
+	const float Yaw = UKismetMathLibrary::NormalizeAxis(CharacterRelativeRotation) * -1.f;
+	// Yaw = UKismetMathLibrary::ClampAxis(Yaw);
+	
+	PRINT_TIME(FString::SanitizeFloat(UKismetMathLibrary::ClampAxis(Yaw)), 0.f);
+
+	// Forward
+	if (ValueIsInRange(Yaw, -45.f, 45.f)) return EPlayerMoveDirection::Forward;
+	
+	// Backward
+	if (ValueIsInRange(Yaw, 135.f, 225.f)) return EPlayerMoveDirection::Backward;
+
+	// Right Forward
+	if (ValueIsInRange(Yaw, 45.f, 90.f)) return EPlayerMoveDirection::RightForward;
+	
+	// Left Forward
+	if (ValueIsInRange(Yaw, 45.f, 90.f)) return EPlayerMoveDirection::RightForward;
+	
+	// Right
+	if (ValueIsInRange(Yaw, 90, 135.f)) return EPlayerMoveDirection::Right;
+
+	// Backward Right
+	if (ValueIsInRange(Yaw, 135.f, 180.f)) return EPlayerMoveDirection::RightBackward;
+
+	
+	return EPlayerMoveDirection::None;
+}
+
+float UZSAnimInstance::GetPlayerMoveDirectionAsAngle() const
+{
+	const EPlayerMoveDirection& L_PlayerMoveDirection = CalculatePlayerMoveDirection();
+
+	switch (L_PlayerMoveDirection)
+	{
+	case EPlayerMoveDirection::None: break;
+	case EPlayerMoveDirection::Forward: return 0.f;;
+	case EPlayerMoveDirection::RightForward: return 45.f;;
+	case EPlayerMoveDirection::LeftForward: return -45.f;
+	case EPlayerMoveDirection::Backward: return 180.f;
+	case EPlayerMoveDirection::RightBackward: return 135.f;
+	case EPlayerMoveDirection::LeftBackward: return -135.f;
+	case EPlayerMoveDirection::Right: return 90.f;
+	case EPlayerMoveDirection::Left: return -90.f;
+	default: ;
+	}
+
+	return 0.f;
+	
+	// switch (EXPRESSION) {  }
 }
 
 void UZSAnimInstance::SetCharacterFood(ECharacterFootType NewValue)
