@@ -196,30 +196,37 @@ EPlayerMoveDirection UZSAnimInstance::CalculateStartMoveDirection() const
 		return Value > Min && Value < Max;
 	};
 	
-	const float Yaw = UKismetMathLibrary::NormalizeAxis(CharacterRelativeRotation) * -1.f;
-	// Yaw = UKismetMathLibrary::ClampAxis(Yaw);
+	float Yaw = UKismetMathLibrary::NormalizeAxis(CharacterRelativeRotation) * -1.f;
+	Yaw = UKismetMathLibrary::ClampAxis(Yaw);
 	
-	PRINT_TIME(FString::SanitizeFloat(UKismetMathLibrary::ClampAxis(Yaw)), 0.f);
+	PRINT_TIME(FString::SanitizeFloat(Yaw), 0.f);
 
-	// Forward
-	if (ValueIsInRange(Yaw, -45.f, 45.f)) return EPlayerMoveDirection::Forward;
+	const bool bIsForward = ValueIsInRange(Yaw, 337.5f, 360.f) || ValueIsInRange(Yaw, -1.f, 22.5);
 	
-	// Backward
-	if (ValueIsInRange(Yaw, 135.f, 225.f)) return EPlayerMoveDirection::Backward;
+	// Forward
+	if (bIsForward) return EPlayerMoveDirection::Forward;
 
 	// Right Forward
-	if (ValueIsInRange(Yaw, 45.f, 90.f)) return EPlayerMoveDirection::RightForward;
-	
-	// Left Forward
-	if (ValueIsInRange(Yaw, 45.f, 90.f)) return EPlayerMoveDirection::RightForward;
+	if (ValueIsInRange(Yaw, 22.5, 67.5f)) return EPlayerMoveDirection::RightForward;
 	
 	// Right
-	if (ValueIsInRange(Yaw, 90, 135.f)) return EPlayerMoveDirection::Right;
+	if (ValueIsInRange(Yaw, 67.5f, 112.5f)) return EPlayerMoveDirection::Right;
 
 	// Backward Right
-	if (ValueIsInRange(Yaw, 135.f, 180.f)) return EPlayerMoveDirection::RightBackward;
+	if (ValueIsInRange(Yaw, 112.5f, 157.5f)) return EPlayerMoveDirection::RightBackward;
 
+	// Backward
+	if (ValueIsInRange(Yaw, 157.5f, 202.5f)) return EPlayerMoveDirection::Backward;
 	
+	// Left Backward
+	if (ValueIsInRange(Yaw, 202.5f, 247.5f)) return EPlayerMoveDirection::LeftBackward;
+	
+	// Left 
+	if (ValueIsInRange(Yaw, 247.5f, 292.5f)) return EPlayerMoveDirection::Left;
+
+	// Left Forward
+	if (ValueIsInRange(Yaw, 292.5f, 337.5f)) return EPlayerMoveDirection::LeftForward;
+
 	return EPlayerMoveDirection::None;
 }
 
