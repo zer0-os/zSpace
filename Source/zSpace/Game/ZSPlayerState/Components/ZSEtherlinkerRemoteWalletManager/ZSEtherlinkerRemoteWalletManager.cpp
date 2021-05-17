@@ -4,7 +4,8 @@
 #include "zSpace/Game/ZSPlayerState/Components/ZSEtherlinkerRemoteWalletManager/ZSEtherlinkerRemoteWalletManager.h"
 
 #include "GameFramework/GameState.h"
-#include "zSpace/Game/ZSGameState/ZSGameState.h"
+#include "zSpace/Game/ZSGamePlayerController/Components/ZSEthereumActorComponent/ZSEthereumActorComponent.h"
+#include "zSpace/Game/ZSGamePlayerController/Interfaces/EtherlinkerPCInterface/EtherlinkerPCInterface.h"
 #include "zSpace/Game/ZSPlayerState/ZSPlayerState.h"
 
 void UZSEtherlinkerRemoteWalletManager::BeginPlay()
@@ -38,7 +39,7 @@ void UZSEtherlinkerRemoteWalletManager::GetWallet(const FString& NewLogin, const
 FWalletAuthenticationRequest UZSEtherlinkerRemoteWalletManager::GetWalletAuthenticationRequest(const FString& NewLogin, const FString& NewPassword)
 {
 	FString L_UserIndex = GetUserIndex();
-	FString L_SenderId = AZSPlayerState::SenderID;
+	FString L_SenderId = GetSender();
 	L_SenderId.Append(L_UserIndex);
 	FWalletAuthenticationRequest R_WalletAuthenticationRequest;
 	R_WalletAuthenticationRequest.senderId = L_SenderId;
@@ -61,58 +62,48 @@ FString UZSEtherlinkerRemoteWalletManager::GetUserIndex()
 	return R_UserIndex;
 }
 
-void UZSEtherlinkerRemoteWalletManager::UpdateBindings_Implementation()
+FString UZSEtherlinkerRemoteWalletManager::GetSender()
 {
-	    // TODO the code must be optimized after testing.
-		GetWorld()->GetTimerManager().SetTimer(TimerHandle, [&] ()
-		{
-			AZSGameState * L_ZSGameState = Cast<AZSGameState>(UGameplayStatics::GetGameState(this));
-			if(L_ZSGameState)
-			{
-				if( L_ZSGameState->PlayerArray.Num() > 0)
-				{
-					GetWorld()->GetTimerManager().ClearTimer(TimerHandle);
-					for(APlayerState * IterPlayerState : L_ZSGameState->PlayerArray)
-					{
-						if(IsValid(IterPlayerState))
-						{
-							const bool L_IsImplemented = IterPlayerState->GetClass()->ImplementsInterface(UZSEtherManagerHolderInterface::StaticClass());
-							if(L_IsImplemented)
-							{
-								UZSEtherlinkerRemoteWalletManager * ZSEtherlinkerRemoteWalletManager = IZSEtherManagerHolderInterface::Execute_GetEtherlinkerRemoteWalletManager(IterPlayerState);
-								if(ZSEtherlinkerRemoteWalletManager)
-								{
-									// TODO more build on client ????.
-									ZSEtherlinkerRemoteWalletManager->OnResponseReceivedEvent.AddDynamic(this, &UZSEtherlinkerRemoteWalletManager::ResponseReceivedDelegate);
-								}
-							}
-						}
-					}
-					
-				}
-					
-			}
-		}, 0.3, true );
-}
-
-void UZSEtherlinkerRemoteWalletManager::ResponseReceivedDelegate(FString NewResult, FWalletAuthenticationResponse NewData)
-{
-	AZSGameState * L_ZSGameState = Cast<AZSGameState>(UGameplayStatics::GetGameState(this));
-	if(L_ZSGameState)
+	FString R_Sender;
+	AActor * L_Owner = GetOwner();
+	if(IsValid(L_Owner))
 	{
-		TArray<APlayerState *> L_PlayerState = L_ZSGameState->PlayerArray;
-		
-		for(APlayerState * IterPlayerState : L_PlayerState )
+		const bool L_IsImplemented = L_Owner->GetClass()->ImplementsInterface(UEtherlinkerPCInterface::StaticClass());
+		if(L_IsImplemented)
 		{
-			if(IsValid(IterPlayerState))
+			UZSEthereumActorComponent * L_ZSEthereumActorComponent = IEtherlinkerPCInterface::Execute_GetZSEthereumActorComponent(L_Owner);
+			if(IsValid(L_ZSEthereumActorComponent))
 			{
-				const int32 L_UserIndexFromNewData = FCString::Atoi(*NewData.userIndex);
-				const int32 L_UserIndex = IterPlayerState->GetPlayerId();
-				if(L_UserIndex == L_UserIndexFromNewData)
+				const bool L_IsImp = L_ZSEthereumActorComponent->GetClass()->ImplementsInterface(UZSEthereumActorCompInterface::StaticClass());
+				if(L_IsImp)
 				{
-					OnResponseReceivedDelegate.Broadcast(NewResult, NewData);
+					R_Sender = IZSEthereumActorCompInterface::Execute_GetSenderID(L_ZSEthereumActorComponent);
 				}
 			}
 		}
 	}
+	return R_Sender;
+}
+
+void UZSEtherlinkerRemoteWalletManager::UpdateBindings_Implementation()
+{
+	AActor * L_Owner = GetOwner();	
+	if(IsValid(L_Owner))
+	{
+		const bool L_IsImplemented = L_Owner->GetClass()->ImplementsInterface(UEtherlinkerPCInterface::StaticClass());
+		if(L_IsImplemented)
+		{
+			UZSEtherlinkerRemoteWalletManager * ZSEtherlinkerRemoteWalletManager = IEtherlinkerPCInterface::Execute_GetZSEtherlinkerRemoteWalletManager(L_Owner);
+			if(ZSEtherlinkerRemoteWalletManager)
+			{
+				ZSEtherlinkerRemoteWalletManager->OnResponseReceivedEvent.AddDynamic(this, &UZSEtherlinkerRemoteWalletManager::ResponseReceivedDelegate);
+			}
+		}
+	}
+}
+
+void UZSEtherlinkerRemoteWalletManager::ResponseReceivedDelegate(FString NewResult, FWalletAuthenticationResponse NewData)
+{
+	UE_LOG(LogTemp, Warning, TEXT("SenderID = %s, WalletAddress = %s, WalletMnemonic = %s"), *NewData.senderId, *NewData.walletAddress, *NewData.walletMnemonic);
+	OnResponseReceivedDelegate.Broadcast(NewResult, NewData);
 }
