@@ -105,8 +105,8 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void PlayButtonsFadeInAnimation();
 
-	UFUNCTION(BlueprintImplementableEvent)
-	void PLayImageScaleAnimation(bool bIsRight);
+	UFUNCTION(BlueprintCallable)
+	void SetBackGroundImage(class UTexture2D* NewTexture);
 
 protected:
 	UFUNCTION()

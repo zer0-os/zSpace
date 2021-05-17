@@ -44,7 +44,7 @@ void UZSCharacterMovementComponent::TickComponent(float DeltaTime, ELevelTick Ti
 	{
 		// Standing
 		const float Speed = OwnerZSCharacter->GetVelocity().Size2D();
-		if (Speed == 0.f || !OwnerZSCharacter->bIsMoveInputPressed)
+		if (Speed == 0.f && !OwnerZSCharacter->bIsMoveInputPressed)
 		{
 			if (NeedReplicatePlayerGait(EPlayerGait::Standing))
 			{

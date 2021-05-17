@@ -16,3 +16,19 @@ enum class EPlayerGait : uint8
 
 	Crouching = 4,
 };
+
+UENUM(BlueprintType)
+enum class EPlayerMoveDirection : uint8
+{
+	None,
+	
+	Forward,
+	RightForward,
+	LeftForward,
+	Backward,
+	RightBackward,
+	LeftBackward,
+	Right,
+	Left,
+};
+

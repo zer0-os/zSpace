@@ -14,13 +14,6 @@ class ZSPACE_API UZSEtherlinkerRemoteWalletManager : public UEtherlinkerRemoteWa
 {
 	GENERATED_BODY()
 
-private:
-
-	FTimerHandle TimerHandle;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess=true))
-	FString SenderId = "sender_playerstate_";
-	
 public:
 
 	virtual void BeginPlay() override;
@@ -29,6 +22,9 @@ public:
 
 	UFUNCTION(BlueprintPure)
 	FString GetUserIndex();
+
+	UFUNCTION(BlueprintPure)
+	FString GetSender();
 	
 	UFUNCTION(BlueprintCallable)
 	void CreateRemoteWallet(const FString &NewLogin, const FString &NewPassword);

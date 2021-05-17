@@ -97,11 +97,40 @@ protected:
 	
 	UPROPERTY(Replicated, BlueprintReadOnly)
 	uint8 bIsMoveInputPressed : 1;
-	
-	// [Local]
+
+	UPROPERTY(Replicated, BlueprintReadOnly)
 	float MoveForwardAxisValue;
-	// [Local]
+	
+	UPROPERTY(Replicated, BlueprintReadOnly)
+	float LastMoveForwardAxisValue;
+	
+	UPROPERTY(Replicated, BlueprintReadOnly)
 	float MoveRightAxisValue;
+	
+	UPROPERTY(Replicated, BlueprintReadOnly)
+	float LastMoveRightAxisValue;
+	
+	UPROPERTY(Replicated, BlueprintReadOnly)
+	float CharacterRelativeRotation = 0.f;
+
+public:
+	UFUNCTION(BlueprintPure)
+	FORCEINLINE bool GetIsMoveInputPressed() const { return bIsMoveInputPressed; }
+	
+	UFUNCTION(BlueprintPure)
+	FORCEINLINE float GetMoveForwardAxisValue() const { return  MoveForwardAxisValue; }
+	
+	UFUNCTION(BlueprintPure)
+	FORCEINLINE float GetLastMoveForwardAxisValue() const { return  LastMoveForwardAxisValue; }
+	
+	UFUNCTION(BlueprintPure)
+	FORCEINLINE float GetMoveRightAxisValue() const { return  MoveRightAxisValue; }
+	
+	UFUNCTION(BlueprintPure)
+	FORCEINLINE float GetLastMoveRightAxisValue() const { return LastMoveRightAxisValue; }
+	
+	UFUNCTION(BlueprintPure)
+	FORCEINLINE float GetCharacterRelativeRotation() const { return CharacterRelativeRotation; }
 
 protected:
 	UFUNCTION(Server, Reliable, WithValidation)
@@ -109,6 +138,15 @@ protected:
 	
 	UFUNCTION(Server, Reliable, WithValidation)
 	void Server_SetIsMoveInputPressed(bool NewValue);
+
+	UFUNCTION(Server, Reliable, WithValidation)
+	void Server_SetMoveForwardAxisValue(const float& NewValue);
+	
+	UFUNCTION(Server, Reliable, WithValidation)
+	void Server_SetMoveRightAxisValue(const float& NewValue);
+
+	// [Server]
+	float CalculateCharacterRelativeRotation() const;
 	
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 };
