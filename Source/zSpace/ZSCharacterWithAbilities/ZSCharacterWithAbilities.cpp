@@ -11,6 +11,7 @@
 #include "GameFramework/PhysicsVolume.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Net/UnrealNetwork.h"
 #include "zSpace/zSpace.h"
@@ -67,6 +68,15 @@ void AZSCharacterWithAbilities::BeginPlay()
 void AZSCharacterWithAbilities::Tick(float NewDeltaSeconds)
 {
 	Super::Tick(NewDeltaSeconds);
+
+	if (HasAuthority())
+	{
+		const float L_CharacterRelativeRotation = CalculateCharacterRelativeRotation();
+		if (L_CharacterRelativeRotation != CharacterRelativeRotation)
+		{
+			CharacterRelativeRotation = L_CharacterRelativeRotation;
+		}
+	}
 }
 
 bool AZSCharacterWithAbilities::CanCrouch() const
@@ -325,6 +335,19 @@ bool AZSCharacterWithAbilities::Server_SetMoveRightAxisValue_Validate(const floa
 	return  true;
 }
 
+float AZSCharacterWithAbilities::CalculateCharacterRelativeRotation() const
+{
+	const FRotator& ActorRotation = GetActorRotation();
+	const FRotator& ControlRotation = GetControlRotation();
+
+	const FTransform A = {ActorRotation.Quaternion(), FVector::ZeroVector};
+	const FTransform B = {ControlRotation.Quaternion(), FVector::ZeroVector};
+
+	const FTransform& Result = A.GetRelativeTransform(B);
+
+	return Result.Rotator().Yaw;
+}
+
 void AZSCharacterWithAbilities::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
@@ -337,4 +360,5 @@ void AZSCharacterWithAbilities::GetLifetimeReplicatedProps(TArray<FLifetimePrope
 	DOREPLIFETIME(AZSCharacterWithAbilities, LastMoveRightAxisValue);
 	DOREPLIFETIME(AZSCharacterWithAbilities, MoveForwardAxisValue);
 	DOREPLIFETIME(AZSCharacterWithAbilities, LastMoveForwardAxisValue);
+	DOREPLIFETIME(AZSCharacterWithAbilities, CharacterRelativeRotation);
 }

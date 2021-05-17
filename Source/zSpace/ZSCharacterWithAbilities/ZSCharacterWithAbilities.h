@@ -109,6 +109,9 @@ protected:
 	
 	UPROPERTY(Replicated, BlueprintReadOnly)
 	float LastMoveRightAxisValue;
+	
+	UPROPERTY(Replicated, BlueprintReadOnly)
+	float CharacterRelativeRotation = 0.f;
 
 public:
 	UFUNCTION(BlueprintPure)
@@ -126,6 +129,9 @@ public:
 	UFUNCTION(BlueprintPure)
 	FORCEINLINE float GetLastMoveRightAxisValue() const { return LastMoveRightAxisValue; }
 	
+	UFUNCTION(BlueprintPure)
+	FORCEINLINE float GetCharacterRelativeRotation() const { return CharacterRelativeRotation; }
+
 protected:
 	UFUNCTION(Server, Reliable, WithValidation)
 	void Server_SetIsWalking(bool NewValue);
@@ -138,6 +144,9 @@ protected:
 	
 	UFUNCTION(Server, Reliable, WithValidation)
 	void Server_SetMoveRightAxisValue(const float& NewValue);
+
+	// [Server]
+	float CalculateCharacterRelativeRotation() const;
 	
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 };

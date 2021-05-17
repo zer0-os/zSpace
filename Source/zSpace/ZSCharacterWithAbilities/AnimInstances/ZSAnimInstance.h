@@ -72,6 +72,12 @@ protected:
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	EPlayerMoveDirection LastPlayerMoveDirection;
 	
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	float CharacterRelativeRotation = 0.f;
+	
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	uint8 bIsUseForwardStart : 1;
+	
 protected:
 	UFUNCTION()
 	void OnChangedPlayerGait(EPlayerGait NewValue);
@@ -91,6 +97,13 @@ public:
 	
 	UFUNCTION(BlueprintPure)
 	EPlayerMoveDirection LastCalculatePlayerMoveDirection() const;
+
+	UFUNCTION(BlueprintPure)
+	EPlayerMoveDirection CalculateStartMoveDirection() const;
+	
+
+	UFUNCTION(BlueprintPure)
+	float GetPlayerMoveDirectionAsAngle() const ;
 	
 	UFUNCTION(BlueprintCallable)
 	void SetCharacterFood(ECharacterFootType NewValue);
