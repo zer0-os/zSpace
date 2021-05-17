@@ -8,7 +8,7 @@
 #include "Components/BoxComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetSystemLibrary.h"
-#include "zSpace/ZSGamePlayerController/ZSGamePlayerController.h"
+#include "zSpace/Game/ZSGamePlayerController/ZSGamePlayerController.h"
 #include "Blueprint/UserWidget.h"
 
 // Sets default values
