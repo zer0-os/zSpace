@@ -55,10 +55,7 @@ void UZSAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	LastPlayerMoveDirection = LastCalculatePlayerMoveDirection();
 	
 	CharacterRelativeRotation = CharacterRef->GetCharacterRelativeRotation();
-	// auto X = CalculateStartMoveDirection();
-
-	// bIsUseForwardStart = UKismetMathLibrary::NearlyEqual_FloatFloat(GetPlayerMoveDirectionAsAngle(), CharacterRelativeRotation, 10.f);
-	
+	StartPlayerMoveDirection = CalculateStartMoveDirection();
 }
 
 void UZSAnimInstance::OnChangedPlayerGait(EPlayerGait NewValue)
@@ -195,11 +192,24 @@ EPlayerMoveDirection UZSAnimInstance::CalculateStartMoveDirection() const
 	{
 		return Value > Min && Value < Max;
 	};
+
+	const FRotator CharacterRotator = CharacterRef->GetActorRotation();
+	const float CharacterRotatorYaw = UKismetMathLibrary::ClampAxis(CharacterRotator.Yaw);
 	
-	float Yaw = UKismetMathLibrary::NormalizeAxis(CharacterRelativeRotation) * -1.f;
+	float Yaw = UKismetMathLibrary::NormalizeAxis(CharacterRelativeRotation);
 	Yaw = UKismetMathLibrary::ClampAxis(Yaw);
 	
-	PRINT_TIME(FString::SanitizeFloat(Yaw), 0.f);
+	const auto IsEqual = UKismetMathLibrary::NearlyEqual_FloatFloat(Yaw, 0.f, 20.f);
+
+	// if (!IsEqual)
+	// {
+	// 	const EPlayerMoveDirection& MoveDirection = CalculatePlayerMoveDirection();
+	// }
+	// else
+	// {
+	// }
+
+	// PRINT_TIME(FString::SanitizeFloat(Yaw), 0.f);
 
 	const bool bIsForward = ValueIsInRange(Yaw, 337.5f, 360.f) || ValueIsInRange(Yaw, -1.f, 22.5);
 	
@@ -249,8 +259,6 @@ float UZSAnimInstance::GetPlayerMoveDirectionAsAngle() const
 	}
 
 	return 0.f;
-	
-	// switch (EXPRESSION) {  }
 }
 
 void UZSAnimInstance::SetCharacterFood(ECharacterFootType NewValue)

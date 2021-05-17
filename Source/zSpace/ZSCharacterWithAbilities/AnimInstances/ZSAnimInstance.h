@@ -71,12 +71,13 @@ protected:
 	
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	EPlayerMoveDirection LastPlayerMoveDirection;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	EPlayerMoveDirection StartPlayerMoveDirection;
 	
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	float CharacterRelativeRotation = 0.f;
 	
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
-	uint8 bIsUseForwardStart : 1;
 	
 protected:
 	UFUNCTION()

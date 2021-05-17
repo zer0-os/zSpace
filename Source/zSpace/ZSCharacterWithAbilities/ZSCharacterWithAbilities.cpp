@@ -345,7 +345,7 @@ float AZSCharacterWithAbilities::CalculateCharacterRelativeRotation() const
 
 	const FTransform& Result = A.GetRelativeTransform(B);
 
-	return Result.Rotator().Yaw;
+	return Result.Rotator().Yaw * -1.f;
 }
 
 void AZSCharacterWithAbilities::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
