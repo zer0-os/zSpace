@@ -1,8 +1,7 @@
 // Copyright 2020 Sabre Dart Studios
 
 
-#include "zSpace/ZSGamePlayerController/ZSGamePlayerController.h"
-
+#include "zSpace/Game/ZSGamePlayerController/ZSGamePlayerController.h"
 #include "zSpace/Game/WidgetLoadingManagerObject/WidgetLoadingManagerObject.h"
 #include "zSpace/BlueprintFunctionLibrary/UIBlueprintFunctionLibrary.h"
 #include "zSpace/Components/ManageWidgetsResolution.h"
@@ -14,18 +13,34 @@
 #include "Net/UnrealNetwork.h"
 #include "OWSPlayerState.h"
 #include "OWSGameMode.h"
+#include "Components/ZSEthereumActorComponent/ZSEthereumActorComponent.h"
+#include "zSpace/Game/ZSPlayerState/Components/ZSEtherlinkerRemoteWalletManager/ZSEtherlinkerRemoteWalletManager.h"
+#include "zSpace/Game/ZSPlayerState/Components/ZSEtherManager/ZSEtherManager.h"
+
+
+AZSGamePlayerController::AZSGamePlayerController()
+{
+			
+	ZSEtherManager = CreateDefaultSubobject<UZSEtherManager>(TEXT("ZSEtherManager"));
+	checkf(nullptr != ZSEtherManager, TEXT("The ZSEtherManager is nullptr."));
+	AddOwnedComponent(ZSEtherManager);
+	
+	ZSEtherlinkerRemoteWalletManager  = CreateDefaultSubobject<UZSEtherlinkerRemoteWalletManager>(TEXT("ZSEtherlinkerRemoteWalletManager"));
+	checkf(nullptr != ZSEtherlinkerRemoteWalletManager, TEXT("The ZSEtherlinkerRemoteWalletManager is nullptr.") );
+	AddOwnedComponent(ZSEtherlinkerRemoteWalletManager);
+
+	ZSEthereumActorComponent = CreateDefaultSubobject<UZSEthereumActorComponent>(TEXT("ZSEthereumActorComponent"));
+	checkf(nullptr != ZSEthereumActorComponent, TEXT("The ZSEthereumActorComponent is nullptr."));
+	AddOwnedComponent(ZSEthereumActorComponent);
+	
+}
 
 void AZSGamePlayerController::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	//DOREPLIFETIME(AZSGamePlayerController, member);
-
 }
 
-AZSGamePlayerController::AZSGamePlayerController()
-{
-		
-}
 
 bool AZSGamePlayerController::CheckCharacterNameOwnedPlayerController(const FString& NewCharacterName)
 {
@@ -156,6 +171,7 @@ void AZSGamePlayerController::HideOrShowGameplayWidget()
 	}
 }
 
+
 bool AZSGamePlayerController::ReTeleport_Validate()
 {
 	return true;
@@ -183,3 +199,17 @@ void AZSGamePlayerController::ReTeleport_Implementation()
 }
 
 
+UZSEthereumActorComponent* AZSGamePlayerController::GetZSEthereumActorComponent_Implementation()
+{
+	return ZSEthereumActorComponent;
+}
+
+UZSEtherManager* AZSGamePlayerController::GetZSEtherManager_Implementation()
+{
+	return ZSEtherManager;
+}
+
+UZSEtherlinkerRemoteWalletManager* AZSGamePlayerController::GetZSEtherlinkerRemoteWalletManager_Implementation()
+{
+	return ZSEtherlinkerRemoteWalletManager;	
+}

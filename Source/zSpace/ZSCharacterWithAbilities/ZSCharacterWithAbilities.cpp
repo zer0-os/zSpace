@@ -290,6 +290,8 @@ bool AZSCharacterWithAbilities::Server_SetIsMoveInputPressed_Validate(bool NewVa
 void AZSCharacterWithAbilities::Server_SetMoveForwardAxisValue_Implementation(const float& NewValue)
 {
 	MoveForwardAxisValue = NewValue;
+	return;
+	
 	if (NewValue != 0.f)
 	{
 		LastMoveForwardAxisValue = NewValue;
@@ -313,7 +315,9 @@ bool AZSCharacterWithAbilities::Server_SetMoveForwardAxisValue_Validate(const fl
 
 void AZSCharacterWithAbilities::Server_SetMoveRightAxisValue_Implementation(const float& NewValue)
 {
-	MoveRightAxisValue = NewValue;	
+	MoveRightAxisValue = NewValue;
+	return;
+	
 	if (NewValue != 0.f)
 	{
 		LastMoveRightAxisValue = NewValue;
@@ -345,7 +349,7 @@ float AZSCharacterWithAbilities::CalculateCharacterRelativeRotation() const
 
 	const FTransform& Result = A.GetRelativeTransform(B);
 
-	return Result.Rotator().Yaw;
+	return Result.Rotator().Yaw * -1.f;
 }
 
 void AZSCharacterWithAbilities::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const

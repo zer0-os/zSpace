@@ -4,11 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "UObject/Interface.h"
-#include "ZSEtherManagerHolderInterface.generated.h"
+#include "EtherlinkerPCInterface.generated.h"
 
 // This class does not need to be modified.
 UINTERFACE(MinimalAPI)
-class UZSEtherManagerHolderInterface : public UInterface
+class UEtherlinkerPCInterface : public UInterface
 {
 	GENERATED_BODY()
 };
@@ -16,24 +16,22 @@ class UZSEtherManagerHolderInterface : public UInterface
 /**
  * 
  */
-class ZSPACE_API IZSEtherManagerHolderInterface
+class ZSPACE_API IEtherlinkerPCInterface
 {
 	GENERATED_BODY()
 
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
 
-	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent)
-	void ExecuteUpdateBindings(class UActorComponent * NewEtherInteractor);
 
 	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent)
-	class UZSEtherlinkerRemoteWalletManager * GetEtherlinkerRemoteWalletManager();
+	class UZSEtherlinkerRemoteWalletManager *  GetZSEtherlinkerRemoteWalletManager();
 
 	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent)
-	void ServerCreateRemoteWalletFromUI(const FString & NewLogin, const FString & NewPassword);
+	class UZSEtherManager * GetZSEtherManager();
 
+	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent)
+	class UZSEthereumActorComponent	* GetZSEthereumActorComponent();
 	
-	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent)
-	FString GetSenderID();
 	
 };

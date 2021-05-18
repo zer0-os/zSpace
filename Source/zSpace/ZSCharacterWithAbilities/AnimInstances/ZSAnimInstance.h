@@ -61,9 +61,6 @@ protected:
 	float LastMoveRightAxisValue = 0.f;
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
-	uint8 bIsMovingOnlyForward : 1;
-
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	ECharacterFootType CharacterFoot = ECharacterFootType::NONE;
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
@@ -71,12 +68,13 @@ protected:
 	
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	EPlayerMoveDirection LastPlayerMoveDirection;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	EPlayerMoveDirection StartPlayerMoveDirection;
 	
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	float CharacterRelativeRotation = 0.f;
 	
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
-	uint8 bIsUseForwardStart : 1;
 	
 protected:
 	UFUNCTION()
@@ -88,9 +86,11 @@ protected:
 	UFUNCTION(BlueprintPure)
 	bool IsMovingOnlyForward() const;
 	
-	UFUNCTION(BlueprintPure)
-	bool IsMovedOnlyForward() const;
-
+	EPlayerMoveDirection GetMoveDirection() const;
+	
+	/** Example: Right -> Left */
+	static EPlayerMoveDirection ReversMoveDirection(const EPlayerMoveDirection& Value);
+	
 public:
 	UFUNCTION(BlueprintPure)
 	EPlayerMoveDirection CalculatePlayerMoveDirection() const;
@@ -101,7 +101,6 @@ public:
 	UFUNCTION(BlueprintPure)
 	EPlayerMoveDirection CalculateStartMoveDirection() const;
 	
-
 	UFUNCTION(BlueprintPure)
 	float GetPlayerMoveDirectionAsAngle() const ;
 	
