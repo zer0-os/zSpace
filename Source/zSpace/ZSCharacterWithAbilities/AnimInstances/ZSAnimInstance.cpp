@@ -49,8 +49,6 @@ void UZSAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	MoveRightAxisValue = CharacterRef->GetMoveRightAxisValue();
 	LastMoveRightAxisValue = CharacterRef->GetLastMoveRightAxisValue();
 
-	bIsMovingOnlyForward = IsMovingOnlyForward();
-
 	PlayerMoveDirection = CalculatePlayerMoveDirection();
 	LastPlayerMoveDirection = LastCalculatePlayerMoveDirection();
 	
@@ -77,9 +75,66 @@ bool UZSAnimInstance::IsMovingOnlyForward() const
 	return MoveForwardAxisValue > 0.f && MoveRightAxisValue == 0.f;
 }
 
-bool UZSAnimInstance::IsMovedOnlyForward() const
+EPlayerMoveDirection UZSAnimInstance::GetMoveDirection() const
 {
-	return LastMoveForwardAxisValue > 0.1f && LastMoveRightAxisValue == 0.f;
+	auto ValueIsInRange = [this](const int32 Value, const int32 Min, const int32 Max) -> bool
+	{
+		return Value > Min && Value < Max;
+	};
+
+	float Yaw = UKismetMathLibrary::NormalizeAxis(CharacterRelativeRotation);
+	Yaw = UKismetMathLibrary::ClampAxis(Yaw);
+	
+	const bool bIsForward = ValueIsInRange(Yaw, 337.5f, 360.f) || ValueIsInRange(Yaw, -1.f, 22.5);
+	
+	// Forward
+	if (bIsForward) return EPlayerMoveDirection::Forward;
+
+	// Right Forward
+	if (ValueIsInRange(Yaw, 22.5, 67.5f)) return EPlayerMoveDirection::RightForward;
+	
+	// Right
+	if (ValueIsInRange(Yaw, 67.5f, 112.5f)) return EPlayerMoveDirection::Right;
+
+	// Backward Right
+	if (ValueIsInRange(Yaw, 112.5f, 157.5f)) return EPlayerMoveDirection::RightBackward;
+
+	// Backward
+	if (ValueIsInRange(Yaw, 157.5f, 202.5f)) return EPlayerMoveDirection::Backward;
+	
+	// Left Backward
+	if (ValueIsInRange(Yaw, 202.5f, 247.5f)) return EPlayerMoveDirection::LeftBackward;
+	
+	// Left 
+	if (ValueIsInRange(Yaw, 247.5f, 292.5f)) return EPlayerMoveDirection::Left;
+
+	// Left Forward
+	if (ValueIsInRange(Yaw, 292.5f, 337.5f)) return EPlayerMoveDirection::LeftForward;
+
+	return EPlayerMoveDirection::None;
+	
+}
+
+EPlayerMoveDirection UZSAnimInstance::ReversMoveDirection(const EPlayerMoveDirection& Value)
+{
+	if (Value == EPlayerMoveDirection::Right)
+	{
+		return EPlayerMoveDirection::Left;
+	}
+	if (Value == EPlayerMoveDirection::Left)
+	{
+		return EPlayerMoveDirection::Right;
+	}
+	if (Value == EPlayerMoveDirection::LeftBackward)
+	{
+		return EPlayerMoveDirection::RightBackward;
+	}
+	if (Value == EPlayerMoveDirection::RightBackward)
+	{
+		return EPlayerMoveDirection::LeftBackward;
+	}
+	
+	return Value;
 }
 
 EPlayerMoveDirection UZSAnimInstance::CalculatePlayerMoveDirection() const
@@ -188,56 +243,40 @@ EPlayerMoveDirection UZSAnimInstance::LastCalculatePlayerMoveDirection() const
 
 EPlayerMoveDirection UZSAnimInstance::CalculateStartMoveDirection() const
 {
-	auto ValueIsInRange = [this](const int32 Value, const int32 Min, const int32 Max) -> bool
-	{
-		return Value > Min && Value < Max;
-	};
-
-	const FRotator CharacterRotator = CharacterRef->GetActorRotation();
-	const float CharacterRotatorYaw = UKismetMathLibrary::ClampAxis(CharacterRotator.Yaw);
+	EPlayerMoveDirection L_PlayerMoveDirection = GetMoveDirection();
 	
 	float Yaw = UKismetMathLibrary::NormalizeAxis(CharacterRelativeRotation);
 	Yaw = UKismetMathLibrary::ClampAxis(Yaw);
 	
-	const auto IsEqual = UKismetMathLibrary::NearlyEqual_FloatFloat(Yaw, 0.f, 20.f);
-
-	// if (!IsEqual)
-	// {
-	// 	const EPlayerMoveDirection& MoveDirection = CalculatePlayerMoveDirection();
-	// }
-	// else
-	// {
-	// }
-
-	// PRINT_TIME(FString::SanitizeFloat(Yaw), 0.f);
-
-	const bool bIsForward = ValueIsInRange(Yaw, 337.5f, 360.f) || ValueIsInRange(Yaw, -1.f, 22.5);
+	const auto IsEqual = UKismetMathLibrary::NearlyEqual_FloatFloat(UKismetMathLibrary::NormalizeAxis(Yaw), 0.f, 85.f);
+	if (!IsEqual)
+	{
+		L_PlayerMoveDirection = ReversMoveDirection(L_PlayerMoveDirection);
+		const EPlayerMoveDirection& PredictPlayerMoveDirection = CalculatePlayerMoveDirection();
+		
+		if (PredictPlayerMoveDirection == L_PlayerMoveDirection)
+		{
+			L_PlayerMoveDirection = EPlayerMoveDirection::Forward;
+		}
+		if (L_PlayerMoveDirection == EPlayerMoveDirection::Right && PredictPlayerMoveDirection == EPlayerMoveDirection::Left)
+		{
+			L_PlayerMoveDirection = EPlayerMoveDirection::Backward;
+		}
+		if (L_PlayerMoveDirection == EPlayerMoveDirection::Left && PredictPlayerMoveDirection == EPlayerMoveDirection::Right)
+		{
+			L_PlayerMoveDirection = EPlayerMoveDirection::Backward;
+		}
+	}
 	
-	// Forward
-	if (bIsForward) return EPlayerMoveDirection::Forward;
-
-	// Right Forward
-	if (ValueIsInRange(Yaw, 22.5, 67.5f)) return EPlayerMoveDirection::RightForward;
+	UEnum* EnumPtr = FindObject<UEnum>(ANY_PACKAGE, TEXT("EPlayerMoveDirection"), true);
+	if (IsValid(EnumPtr))
+	{
+		const FName& EnumName = EnumPtr->GetNameByIndex(static_cast<uint8>(L_PlayerMoveDirection));
+		const FString EnumStr = EnumName.ToString().Replace(TEXT("EPlayerMoveDirection::"), TEXT(""));
+		PRINT_TIME(EnumStr, 0.f);
+	}
 	
-	// Right
-	if (ValueIsInRange(Yaw, 67.5f, 112.5f)) return EPlayerMoveDirection::Right;
-
-	// Backward Right
-	if (ValueIsInRange(Yaw, 112.5f, 157.5f)) return EPlayerMoveDirection::RightBackward;
-
-	// Backward
-	if (ValueIsInRange(Yaw, 157.5f, 202.5f)) return EPlayerMoveDirection::Backward;
-	
-	// Left Backward
-	if (ValueIsInRange(Yaw, 202.5f, 247.5f)) return EPlayerMoveDirection::LeftBackward;
-	
-	// Left 
-	if (ValueIsInRange(Yaw, 247.5f, 292.5f)) return EPlayerMoveDirection::Left;
-
-	// Left Forward
-	if (ValueIsInRange(Yaw, 292.5f, 337.5f)) return EPlayerMoveDirection::LeftForward;
-
-	return EPlayerMoveDirection::None;
+	return L_PlayerMoveDirection;
 }
 
 float UZSAnimInstance::GetPlayerMoveDirectionAsAngle() const
