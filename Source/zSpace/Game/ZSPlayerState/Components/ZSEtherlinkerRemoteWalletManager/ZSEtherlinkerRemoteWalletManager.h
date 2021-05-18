@@ -35,6 +35,9 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	FWalletAuthenticationRequest GetWalletAuthenticationRequest(const FString &NewLogin, const FString &NewPassword);
+	
+	UFUNCTION(BlueprintCallable)
+	FWalletAuthenticationRequest GetWalletWithMnemonicAuthenticationRequet(const FString &NewLogin, const FString & NewMnemonic, const FString &NewPassword);
 
 
 	//  IZSEthRemoteWalletInterface  Start

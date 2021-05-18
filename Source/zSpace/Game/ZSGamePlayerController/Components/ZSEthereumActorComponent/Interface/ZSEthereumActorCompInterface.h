@@ -31,4 +31,10 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent)
 	FString GetSenderID();
 	
+	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent)
+	void GetWalletData(const FString &NewLogin, const FString &NewPassword);
+
+	
+	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent)
+	void SetWalletDataWithMnemonic(const FString &NewWalletAddress, const FString & NewMnemonic, const FString &NewPassword);
 };

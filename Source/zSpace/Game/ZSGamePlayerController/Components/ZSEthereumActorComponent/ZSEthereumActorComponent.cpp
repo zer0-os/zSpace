@@ -174,6 +174,8 @@ void UZSEthereumActorComponent::OnRwaResponseReceived(FString NewResult, FWallet
 	}
 }
 
+
+
 FString UZSEthereumActorComponent::SenderID = "sender_playerstate_";
 
 FString UZSEthereumActorComponent::GetSenderID_Implementation()
@@ -250,18 +252,27 @@ bool UZSEthereumActorComponent::CreateRemoteWallet_Validate(const FString& NewLo
 	return true;	
 }
 
-void UZSEthereumActorComponent::Server_ExecuteUpdateBindingsForUsableActors_Implementation( UActorComponent* NewEtherInteractor)
+void UZSEthereumActorComponent::GetWalletData_Implementation(const FString& NewLogin, const FString& NewPassword)
 {
-	if(ROLE_Authority == GetOwnerRole())
+	checkf(nullptr != ZSEtherlinkerRemoteWalletManager, TEXT("The ZSEtherlinkerRemoteWalletManager is nullptr."));
+	if(IsValid(ZSEtherlinkerRemoteWalletManager))
 	{
-		if(IsValid(NewEtherInteractor))
-		{
-			UZSEtherlinkerRemoteWalletManager * L_ZSEtherlinkerRemoteWalletManager = Cast<UZSEtherlinkerRemoteWalletManager>(NewEtherInteractor);
-		}
+		ZSEtherlinkerRemoteWalletManager->GetWallet(NewLogin, NewPassword);	
 	}
 }
 
-bool UZSEthereumActorComponent::Server_ExecuteUpdateBindingsForUsableActors_Validate( UActorComponent* NewEtherInteractor)
+void UZSEthereumActorComponent::SetWalletDataWithMnemonic_Implementation(const FString& NewWalletAddress, const FString& NewMnemonic, const FString& NewPassword)
 {
-	return true;	
+	checkf(nullptr != ZSEtherManager, TEXT("The ZSEtherManager is nullptr."));
+	if(IsValid(ZSEtherManager))
+	{
+		FWalletAuthenticationResponse L_WalletAuthenticationResponse;
+		const FString L_SenderID = GetSenderID();
+		L_WalletAuthenticationResponse.walletAddress = NewWalletAddress;
+		L_WalletAuthenticationResponse.walletMnemonic = NewMnemonic;
+		L_WalletAuthenticationResponse.walletPassword = NewPassword;
+		L_WalletAuthenticationResponse.senderId = L_SenderID;
+		const FString L_Result = "getWalletData";
+		OnRwaResponseReceived(L_Result, L_WalletAuthenticationResponse);
+	}
 }

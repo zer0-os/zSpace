@@ -35,9 +35,6 @@ protected:
 	
 	virtual void Init() override;
 
-	
-protected:
-	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="UI")
 	TSubclassOf<class UManageWidgetsResolution> ManageWidgetsResolutionSubClass;
 
@@ -66,5 +63,37 @@ protected:
 public:
 	UPROPERTY(BlueprintReadWrite, Category = "Sessions")
 	FString CharacterName;
+	
+private:
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess=true))
+	TSoftClassPtr<class UUserWidget> CreateWalletWidgetSoftClassPtr;
+
+	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess=true))
+	class UUserWidget * CreateWalletWidget = nullptr;
+	
+public:
+	
+	UFUNCTION(BlueprintCallable)
+	void ShowCreateWalletWidget();
+
+	UFUNCTION(BlueprintCallable)
+	void HideCreateWalletWidget();
+
+private:
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess=true))
+	TSoftClassPtr<class UUserWidget> LoadRemoteWalletWidgetSoftClassPtr;
+
+	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess=true))
+	class UUserWidget * LoadRemoteWalletWidget = nullptr;
+	
+public:
+	
+	UFUNCTION(BlueprintCallable)
+	void ShowLoadRemoteWalletWidget();
+
+	UFUNCTION(BlueprintCallable)
+	void HideLoadRemoteWalletWidget();
 
 };

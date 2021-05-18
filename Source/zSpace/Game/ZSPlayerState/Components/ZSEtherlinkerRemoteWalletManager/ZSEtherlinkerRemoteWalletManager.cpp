@@ -50,6 +50,23 @@ FWalletAuthenticationRequest UZSEtherlinkerRemoteWalletManager::GetWalletAuthent
 	return R_WalletAuthenticationRequest;	
 }
 
+FWalletAuthenticationRequest UZSEtherlinkerRemoteWalletManager::GetWalletWithMnemonicAuthenticationRequet( const FString& NewLogin, const FString& NewMnemonic, const FString& NewPassword)
+{
+	FString L_UserIndex = GetUserIndex();
+	FString L_SenderId = GetSender();
+	L_SenderId.Append(L_UserIndex);
+	FWalletAuthenticationRequest R_WalletAuthenticationRequest;
+	R_WalletAuthenticationRequest.senderId = L_SenderId;
+	R_WalletAuthenticationRequest.login = NewLogin;
+	R_WalletAuthenticationRequest.password = NewPassword;
+	R_WalletAuthenticationRequest.serverAddress = "";
+	R_WalletAuthenticationRequest.userIndex = L_UserIndex;
+	//R_WalletAuthenticationRequest.m
+	return R_WalletAuthenticationRequest;	
+	
+}
+
+
 FString UZSEtherlinkerRemoteWalletManager::GetUserIndex()
 {
 	AZSPlayerState * PlayerState =  Cast<AZSPlayerState>(GetOwner());
