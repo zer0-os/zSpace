@@ -54,6 +54,8 @@ void UZSAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	
 	CharacterRelativeRotation = CharacterRef->GetCharacterRelativeRotation();
 	StartPlayerMoveDirection = CalculateStartMoveDirection();
+
+	MoveInputKeyTimeDownAverage = CharacterRef->GetMoveInputKeyTimeDownAverage();
 }
 
 void UZSAnimInstance::OnChangedPlayerGait(EPlayerGait NewValue)
@@ -268,13 +270,13 @@ EPlayerMoveDirection UZSAnimInstance::CalculateStartMoveDirection() const
 		}
 	}
 	
-	UEnum* EnumPtr = FindObject<UEnum>(ANY_PACKAGE, TEXT("EPlayerMoveDirection"), true);
-	if (IsValid(EnumPtr))
-	{
-		const FName& EnumName = EnumPtr->GetNameByIndex(static_cast<uint8>(L_PlayerMoveDirection));
-		const FString EnumStr = EnumName.ToString().Replace(TEXT("EPlayerMoveDirection::"), TEXT(""));
-		PRINT_TIME(EnumStr, 0.f);
-	}
+	// UEnum* EnumPtr = FindObject<UEnum>(ANY_PACKAGE, TEXT("EPlayerMoveDirection"), true);
+	// if (IsValid(EnumPtr))
+	// {
+	// 	const FName& EnumName = EnumPtr->GetNameByIndex(static_cast<uint8>(L_PlayerMoveDirection));
+	// 	const FString EnumStr = EnumName.ToString().Replace(TEXT("EPlayerMoveDirection::"), TEXT(""));
+	// 	PRINT_TIME(EnumStr, 0.f);
+	// }
 	
 	return L_PlayerMoveDirection;
 }
