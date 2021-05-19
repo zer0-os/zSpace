@@ -127,3 +127,37 @@ void UZSpaceGameInstance::HideLoadRemoteWalletWidget()
 	}
 }
 
+void UZSpaceGameInstance::ShowLoadWalletWithMnemonicWidget()
+{
+	if(nullptr == LoadWalletWithMnemonicWidget)
+	{
+		const TSubclassOf<UUserWidget>  L_UserWidgetWallet =  LoadWalletWithMnemonicWidgetSoftClassPtr.LoadSynchronous();
+		if(L_UserWidgetWallet)
+		{
+			LoadWalletWithMnemonicWidget = CreateWidget<UUserWidget>(this, L_UserWidgetWallet);
+		}
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("The LoadWalletWithMnemonicWidget is not set"));
+		}
+	}
+	if(LoadWalletWithMnemonicWidget)
+	{
+		if(false == LoadWalletWithMnemonicWidget->IsInViewport())
+		{
+			const int32 L_ZOrder = 10;
+			LoadWalletWithMnemonicWidget->AddToViewport(L_ZOrder);
+		}
+	}
+}
+
+void UZSpaceGameInstance::HideLoadWalletWithMnemonicWidget()
+{
+	if(nullptr != LoadWalletWithMnemonicWidget)
+	{
+		LoadWalletWithMnemonicWidget->RemoveFromViewport();
+		LoadWalletWithMnemonicWidget = nullptr;
+	}
+}
+
+

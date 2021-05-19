@@ -37,4 +37,8 @@ public:
 	
 	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent)
 	void SetWalletDataWithMnemonic(const FString &NewWalletAddress, const FString & NewMnemonic, const FString &NewPassword);
+
+	
+	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent)
+	FString GetWalletAddress();
 };

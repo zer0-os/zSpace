@@ -276,3 +276,15 @@ void UZSEthereumActorComponent::SetWalletDataWithMnemonic_Implementation(const F
 		OnRwaResponseReceived(L_Result, L_WalletAuthenticationResponse);
 	}
 }
+
+bool UZSEthereumActorComponent::CheckWalletInitialization() const
+{
+	return bIsWalletInitialized;	
+}
+
+FString UZSEthereumActorComponent::GetWalletAddress_Implementation()
+{
+	return WalletData.WalletAddress;
+}
+
+

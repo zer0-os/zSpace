@@ -70,7 +70,7 @@ private:
 	UPROPERTY(Replicated, BlueprintReadWrite, meta = (AllowPrivateAccess=true))
 	FZSWalletData WalletData;
 
-	UPROPERTY(Replicated)
+	UPROPERTY(Replicated, BlueprintReadOnly, meta = (AllowPrivateAccess=true))
 	uint8 bIsWalletInitialized:1;
 
 protected:
@@ -122,5 +122,12 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	void SetWalletDataWithMnemonic(const FString &NewWalletAddress, const FString & NewMnemonic, const FString &NewPassword);
 	
+public:
+	
+	UFUNCTION(BlueprintPure)
+	bool CheckWalletInitialization() const;
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+	FString GetWalletAddress();
 
 };
