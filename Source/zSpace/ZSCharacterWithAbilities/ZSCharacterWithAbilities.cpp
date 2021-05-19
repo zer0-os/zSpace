@@ -160,7 +160,6 @@ void AZSCharacterWithAbilities::MoveForward(float NewValue)
 	{
 		Server_SetMoveForwardAxisValue(NewValue);
 	}
-	
 	MoveForwardAxisValue = NewValue;
 
 	if (MoveForwardAxisValue == 0.f && MoveRightAxisValue == 0.f)
@@ -178,7 +177,7 @@ void AZSCharacterWithAbilities::MoveForward(float NewValue)
 		}
 	}
 
-	const float& Value = CalculateMoveInputKeyTimeDownAverage();
+	const float Value = CalculateMoveInputKeyTimeDownAverage();
 	if (Value != MoveInputKeyTimeDownAverage)
 	{
 		Server_SetMoveInputKeyTimeDownAverage(Value);
@@ -202,6 +201,7 @@ void AZSCharacterWithAbilities::MoveRight(float NewValue)
 	{
 		Server_SetMoveRightAxisValue(NewValue);
 	}
+	MoveRightAxisValue = NewValue;
 	
 	// DataTable'/Game/AbilitySystem/Abilities/MyGameplayTagsTable.MyGameplayTagsTable'
 	const FGameplayTag L_GameplayTag = FGameplayTag::RequestGameplayTag(FName("Combat.IsAttackingCannotMove"));
@@ -348,15 +348,16 @@ bool AZSCharacterWithAbilities::Server_SetMoveRightAxisValue_Validate(const floa
 
 void AZSCharacterWithAbilities::Server_SetMoveInputKeyTimeDownAverage_Implementation(const float& NewValue)
 {
-	if (bIsMoveInputPressed)
+	FTimerManager& TimerManager = GetWorldTimerManager();
+	
+	if (bIsMoveInputPressed && NewValue != 0.f)
 	{
 		MoveInputKeyTimeDownAverage = NewValue;
 	}
-	else
+
+	if (bIsMoveInputPressed)
 	{
-		FTimerManager& TimerManager = GetWorldTimerManager();
-		FTimerHandle TimerHandle;
-		TimerManager.SetTimer(TimerHandle, [this]()
+		TimerManager.SetTimer(MoveInputKeyTimeDownAverage_TimerHandle, [this]()
 		{
 			MoveInputKeyTimeDownAverage = 0.f;
 		}, 0.5f, false, 0.5f);
@@ -389,8 +390,8 @@ float AZSCharacterWithAbilities::CalculateMoveInputKeyTimeDownAverage() const
 	if (!IsValid(InputSettings)) return Result;
 
 	TArray<FInputAxisKeyMapping> OutMappings;
-	InputSettings->GetAxisMappingByName(FName("MoveForward"), OutMappings);
 	InputSettings->GetAxisMappingByName(FName("MoveRight"), OutMappings);
+	InputSettings->GetAxisMappingByName(FName("MoveForward"), OutMappings);
 
 	APlayerController* PC = GetController<APlayerController>();
 	if (!IsValid(PC)) return Result;

@@ -116,6 +116,9 @@ protected:
 	UPROPERTY(Replicated, BlueprintReadOnly)
 	float MoveInputKeyTimeDownAverage = 0.f;
 
+	// [Server]
+	FTimerHandle MoveInputKeyTimeDownAverage_TimerHandle;
+
 public:
 	UFUNCTION(BlueprintPure)
 	FORCEINLINE bool GetIsMoveInputPressed() const { return bIsMoveInputPressed; }
