@@ -108,9 +108,6 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	void CreateRemoteWalletFromUI(const FString & NewLogin, const FString & NewPassword);
 	
-	// [Server]
-	UFUNCTION(Server, Reliable, WithValidation, BlueprintCallable)
-	void Server_ExecuteUpdateBindingsForUsableActors(class UActorComponent * NewEtherInteractor);
 
 	static FString SenderID;
 
@@ -118,6 +115,12 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	FString GetSenderID();
 
+	
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+	void GetWalletData(const FString &NewLogin, const FString &NewPassword);
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+	void SetWalletDataWithMnemonic(const FString &NewWalletAddress, const FString & NewMnemonic, const FString &NewPassword);
 	
 
 };
