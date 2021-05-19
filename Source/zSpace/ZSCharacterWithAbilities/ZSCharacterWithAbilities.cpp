@@ -8,6 +8,7 @@
 #include "Components/CharacterMovementComponent/ZSCharacterMovementComponent.h"
 #include "Components/InputComponent.h"
 #include "Components/DetectSurfaceTypeComponent/DetectSurfaceTypeComponent.h"
+#include "GameFramework/InputSettings.h"
 #include "GameFramework/PhysicsVolume.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Kismet/GameplayStatics.h"
@@ -177,6 +178,12 @@ void AZSCharacterWithAbilities::MoveForward(float NewValue)
 		}
 	}
 
+	const float& Value = CalculateMoveInputKeyTimeDownAverage();
+	if (Value != MoveInputKeyTimeDownAverage)
+	{
+		Server_SetMoveInputKeyTimeDownAverage(Value);
+	}
+
 	//UE_LOG(LogTemp, Log, TEXT("*************** The NewValue = %f *******************"), NewValue);
 	// DataTable'/Game/AbilitySystem/Abilities/MyGameplayTagsTable.MyGameplayTagsTable'
 	const FGameplayTag L_GameplayTag = FGameplayTag::RequestGameplayTag(FName("Combat.IsAttackingCannotMove"));
@@ -339,6 +346,28 @@ bool AZSCharacterWithAbilities::Server_SetMoveRightAxisValue_Validate(const floa
 	return  true;
 }
 
+void AZSCharacterWithAbilities::Server_SetMoveInputKeyTimeDownAverage_Implementation(const float& NewValue)
+{
+	if (bIsMoveInputPressed)
+	{
+		MoveInputKeyTimeDownAverage = NewValue;
+	}
+	else
+	{
+		FTimerManager& TimerManager = GetWorldTimerManager();
+		FTimerHandle TimerHandle;
+		TimerManager.SetTimer(TimerHandle, [this]()
+		{
+			MoveInputKeyTimeDownAverage = 0.f;
+		}, 0.5f, false, 0.5f);
+	}
+}
+
+bool AZSCharacterWithAbilities::Server_SetMoveInputKeyTimeDownAverage_Validate(const float& NewValue)
+{
+	return true;
+}
+
 float AZSCharacterWithAbilities::CalculateCharacterRelativeRotation() const
 {
 	const FRotator& ActorRotation = GetActorRotation();
@@ -352,17 +381,45 @@ float AZSCharacterWithAbilities::CalculateCharacterRelativeRotation() const
 	return Result.Rotator().Yaw * -1.f;
 }
 
+float AZSCharacterWithAbilities::CalculateMoveInputKeyTimeDownAverage() const
+{
+	float Result = 0.f;
+	
+	UInputSettings* InputSettings = UInputSettings::GetInputSettings();
+	if (!IsValid(InputSettings)) return Result;
+
+	TArray<FInputAxisKeyMapping> OutMappings;
+	InputSettings->GetAxisMappingByName(FName("MoveForward"), OutMappings);
+	InputSettings->GetAxisMappingByName(FName("MoveRight"), OutMappings);
+
+	APlayerController* PC = GetController<APlayerController>();
+	if (!IsValid(PC)) return Result;
+
+	float DownTimes = 0.f;
+	for (auto Input : OutMappings)
+	{
+		const FKey& Key = Input.Key;
+		const float DownTime = PC->GetInputKeyTimeDown(Key);
+		DownTimes += DownTime;
+	}
+
+	Result = DownTimes / 4.f;
+	
+	return Result;
+}
+
 void AZSCharacterWithAbilities::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(AZSCharacterWithAbilities, bIsWalking);
 	DOREPLIFETIME(AZSCharacterWithAbilities, bIsMoveInputPressed);
+	DOREPLIFETIME(AZSCharacterWithAbilities, CharacterRelativeRotation);
+	DOREPLIFETIME(AZSCharacterWithAbilities, MoveInputKeyTimeDownAverage);
 
 	// Move Axis Values
-	DOREPLIFETIME(AZSCharacterWithAbilities, MoveRightAxisValue);
+	DOREPLIFETIME(AZSCharacterWithAbilities, LastMoveForwardAxisValue);
 	DOREPLIFETIME(AZSCharacterWithAbilities, LastMoveRightAxisValue);
 	DOREPLIFETIME(AZSCharacterWithAbilities, MoveForwardAxisValue);
-	DOREPLIFETIME(AZSCharacterWithAbilities, LastMoveForwardAxisValue);
-	DOREPLIFETIME(AZSCharacterWithAbilities, CharacterRelativeRotation);
+	DOREPLIFETIME(AZSCharacterWithAbilities, MoveRightAxisValue);
 }

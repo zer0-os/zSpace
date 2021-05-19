@@ -75,6 +75,9 @@ protected:
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	float CharacterRelativeRotation = 0.f;
 	
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	float MoveInputKeyTimeDownAverage = 0.f;
+	
 	
 protected:
 	UFUNCTION()

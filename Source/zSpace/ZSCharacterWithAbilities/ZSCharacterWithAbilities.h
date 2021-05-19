@@ -112,6 +112,9 @@ protected:
 	
 	UPROPERTY(Replicated, BlueprintReadOnly)
 	float CharacterRelativeRotation = 0.f;
+	
+	UPROPERTY(Replicated, BlueprintReadOnly)
+	float MoveInputKeyTimeDownAverage = 0.f;
 
 public:
 	UFUNCTION(BlueprintPure)
@@ -131,6 +134,9 @@ public:
 	
 	UFUNCTION(BlueprintPure)
 	FORCEINLINE float GetCharacterRelativeRotation() const { return CharacterRelativeRotation; }
+	
+	UFUNCTION(BlueprintPure)
+	FORCEINLINE float GetMoveInputKeyTimeDownAverage() const { return MoveInputKeyTimeDownAverage; }
 
 protected:
 	UFUNCTION(Server, Reliable, WithValidation)
@@ -144,9 +150,19 @@ protected:
 	
 	UFUNCTION(Server, Reliable, WithValidation)
 	void Server_SetMoveRightAxisValue(const float& NewValue);
+	
+	UFUNCTION(Server, Reliable, WithValidation)
+	void Server_SetMoveInputKeyTimeDownAverage(const float& NewValue);
 
 	// [Server]
 	float CalculateCharacterRelativeRotation() const;
+
+	/**
+		MoveForward
+		MoveRight
+	*/
+	UFUNCTION(BlueprintPure)
+	float CalculateMoveInputKeyTimeDownAverage() const;
 	
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 };
