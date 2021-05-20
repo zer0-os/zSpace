@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "OWSCharacterWithAbilities.h"
+#include "AnimInstances/ZSAnimationTypes.h"
+
 #include "ZSCharacterWithAbilities.generated.h"
 
 /**
@@ -92,30 +94,40 @@ public:
 	void OnStopCrouching();
 
 protected:
-	UPROPERTY(Replicated, BlueprintReadOnly)
+	UPROPERTY(Replicated, BlueprintReadOnly, Category="Movement")
 	uint8 bIsWalking : 1;
 	
-	UPROPERTY(Replicated, BlueprintReadOnly)
+	UPROPERTY(Replicated, BlueprintReadOnly, Category="Movement")
 	uint8 bIsMoveInputPressed : 1;
 
-	UPROPERTY(Replicated, BlueprintReadOnly)
+	UPROPERTY(Replicated, BlueprintReadOnly, Category="Movement")
 	float MoveForwardAxisValue;
 	
-	UPROPERTY(Replicated, BlueprintReadOnly)
+	UPROPERTY(Replicated, BlueprintReadOnly, Category="Movement")
 	float LastMoveForwardAxisValue;
 	
-	UPROPERTY(Replicated, BlueprintReadOnly)
+	UPROPERTY(Replicated, BlueprintReadOnly, Category="Movement")
 	float MoveRightAxisValue;
 	
-	UPROPERTY(Replicated, BlueprintReadOnly)
+	UPROPERTY(Replicated, BlueprintReadOnly, Category="Movement")
 	float LastMoveRightAxisValue;
 	
-	UPROPERTY(Replicated, BlueprintReadOnly)
+	UPROPERTY(Replicated, BlueprintReadOnly, Category="Movement")
 	float CharacterRelativeRotation = 0.f;
 	
-	UPROPERTY(Replicated, BlueprintReadOnly)
+	UPROPERTY(Replicated, BlueprintReadOnly, Category="Movement")
 	float MoveInputKeyTimeDownAverage = 0.f;
 
+	UPROPERTY(EditDefaultsOnly, Category="Animations|Monateg")
+	class UAnimMontage* StopMovementAnimMontageRight = nullptr;
+	
+	UPROPERTY(EditDefaultsOnly, Category="Animations|Monateg")
+	class UAnimMontage* StopMovementAnimMontageLeft = nullptr;
+
+	// [Server]
+	UPROPERTY(Transient)
+	class UAnimMontage* CurrentPlayingStopMovementAnimMontage = nullptr;
+	
 	// [Server]
 	FTimerHandle MoveInputKeyTimeDownAverage_TimerHandle;
 
@@ -141,6 +153,24 @@ public:
 	UFUNCTION(BlueprintPure)
 	FORCEINLINE float GetMoveInputKeyTimeDownAverage() const { return MoveInputKeyTimeDownAverage; }
 
+	UFUNCTION(BlueprintCallable, Server, Reliable, WithValidation)
+	void Server_PlayMontage(class UAnimMontage* AnimMontage, float InPlayRate = 1.f, FName StartSectionName = NAME_None, bool PlayInServer = false);
+
+	UFUNCTION(BlueprintCallable, NetMulticast, Reliable)
+	void NetMulticast_PlayMontage(class UAnimMontage* AnimMontage, float InPlayRate = 1.f, FName StartSectionName = NAME_None, bool PlayInServer = false);
+
+	UFUNCTION(BlueprintPure)
+	bool IsStopMovementAnimMontagePlaying() const;
+
+	UFUNCTION(BlueprintCallable, Server, Reliable, WithValidation)
+	void Server_StopMontage(float InBlendOutTime, const UAnimMontage* Montage);
+	
+	UFUNCTION(BlueprintCallable, NetMulticast, Reliable)
+	void NetMulticast_StopMontage(float InBlendOutTime, const UAnimMontage* Montage);
+
+	UFUNCTION(BlueprintCallable)
+	class UAnimMontage* PlayStopMovementAnimMontage();
+	
 protected:
 	UFUNCTION(Server, Reliable, WithValidation)
 	void Server_SetIsWalking(bool NewValue);
@@ -156,6 +186,9 @@ protected:
 	
 	UFUNCTION(Server, Reliable, WithValidation)
 	void Server_SetMoveInputKeyTimeDownAverage(const float& NewValue);
+
+	UFUNCTION()
+	void OnChangedPlayerGait(EPlayerGait CurrentPlayerGait);
 
 	// [Server]
 	float CalculateCharacterRelativeRotation() const;

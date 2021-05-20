@@ -36,6 +36,7 @@ void UZSCharacterMovementComponent::BeginPlay()
 void UZSCharacterMovementComponent::TickComponent(float DeltaTime, ELevelTick TickType,
                                                   FActorComponentTickFunction* ThisTickFunction)
 {
+	
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	if (!IsValid(OwnerZSCharacter)) return;;
