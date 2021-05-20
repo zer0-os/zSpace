@@ -7,6 +7,7 @@
 #include "EtherlinkerTypes.h"
 #include "Misc/EnumRange.h"
 #include "Components/ActorComponent.h"
+
 #include "EthereumTerminalComponent.generated.h"
 
 UENUM(BlueprintType, Blueprintable)
@@ -92,8 +93,8 @@ struct FZSEtherlinkerRequestData
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	EEthOperationType OperationType;
-
-	FEtherlinkerRequestData GetEtherlinkerRequestData();
+	
+	FEtherlinkerRequestData GetEtherlinkerRequestData() const;
 	
 };
 
@@ -116,12 +117,32 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 private:
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess=true))
+	class UEthereumTerminalDataAsset * EthereumTerminalDataAsset = nullptr;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess=true))
+	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess=true))
 	FZSEtherlinkerRequestData EtherlinkerRequestData;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess=true))
 	uint8 bCanBeUsed:1;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess=true))
+	uint8 bCallCompleted:1;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess=true))
+	uint8 bUseCurrentWalletAddressAsFirstParameter:1;
+
+	class UZSEthereumActorComponent * GetZsEthereumActorComponent(class APawn * NewInteractor);
 	
+public:
+
+	void SetZSEtherlinkerRequestData();
+
+	UFUNCTION()
+	void ResponseReceived();
 		
+
+	UFUNCTION(BlueprintCallable)	
+	void Use(class APawn * NewInteractor);
 };

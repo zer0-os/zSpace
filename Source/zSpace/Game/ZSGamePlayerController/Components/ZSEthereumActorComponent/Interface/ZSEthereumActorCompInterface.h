@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "UObject/Interface.h"
+#include "zSpace/EthereumTerminalComponent/EthereumTerminalComponent.h"
 #include "ZSEthereumActorCompInterface.generated.h"
 
 // This class does not need to be modified.
@@ -41,4 +42,7 @@ public:
 	
 	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent)
 	FString GetWalletAddress();
+
+	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent)
+	void Execute(const FZSEtherlinkerRequestData &  NewEtherlinkerRequestData);
 };
