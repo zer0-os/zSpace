@@ -3,7 +3,10 @@
 
 #include "ZSCharacterWithAbilities.h"
 
+#include <wrl/internal.h>
+
 #include "OWSGameMode.h"
+#include "AnimInstances/ZSAnimInstance.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CharacterMovementComponent/ZSCharacterMovementComponent.h"
 #include "Components/InputComponent.h"
@@ -64,6 +67,12 @@ void AZSCharacterWithAbilities::SetupPlayerInputComponent(UInputComponent* NewPl
 void AZSCharacterWithAbilities::BeginPlay()
 {
 	Super::BeginPlay();
+
+	UZSCharacterMovementComponent* MovementComponent = Cast<UZSCharacterMovementComponent>(GetCharacterMovement());
+	if (IsValid(MovementComponent))
+	{
+		MovementComponent->OnChangedPlayerGait.AddUniqueDynamic(this, &AZSCharacterWithAbilities::OnChangedPlayerGait);
+	}
 }
 
 void AZSCharacterWithAbilities::Tick(float NewDeltaSeconds)
@@ -287,6 +296,12 @@ bool AZSCharacterWithAbilities::Server_SetIsWalking_Validate(bool NewValue)
 void AZSCharacterWithAbilities::Server_SetIsMoveInputPressed_Implementation(bool NewValue)
 {
 	bIsMoveInputPressed = NewValue;
+	if (NewValue)
+	{
+		// Server_StopMontage(0.25f, CurrentPlayingStopMovementAnimMontage);
+		Server_StopMontage(0.25f, StopMovementAnimMontageLeft);
+		Server_StopMontage(0.25f, StopMovementAnimMontageRight);
+	}
 }
 
 bool AZSCharacterWithAbilities::Server_SetIsMoveInputPressed_Validate(bool NewValue)
@@ -367,6 +382,106 @@ void AZSCharacterWithAbilities::Server_SetMoveInputKeyTimeDownAverage_Implementa
 bool AZSCharacterWithAbilities::Server_SetMoveInputKeyTimeDownAverage_Validate(const float& NewValue)
 {
 	return true;
+}
+
+void AZSCharacterWithAbilities::Server_PlayMontage_Implementation(UAnimMontage* AnimMontage, float InPlayRate,
+	FName StartSectionName, bool PlayInServer)
+{
+	if (!IsValid(AnimMontage)) return;
+	NetMulticast_PlayMontage(AnimMontage, InPlayRate, StartSectionName, PlayInServer);
+}
+
+bool AZSCharacterWithAbilities::Server_PlayMontage_Validate(UAnimMontage* AnimMontage, float InPlayRate,
+	FName StartSectionName, bool PlayInServer)
+{
+	return true;
+}
+
+void AZSCharacterWithAbilities::NetMulticast_PlayMontage_Implementation(UAnimMontage* AnimMontage, float InPlayRate,
+	FName StartSectionName, bool PlayInServer)
+{
+	if (!IsValid(AnimMontage)) return;
+	if (HasAuthority() && !PlayInServer) return;
+		
+	PlayAnimMontage(AnimMontage, InPlayRate, StartSectionName);
+}
+
+bool AZSCharacterWithAbilities::IsStopMovementAnimMontagePlaying() const
+{
+	if(!IsValid(GetMesh())) return false;
+	
+	UZSAnimInstance* AnimInstance = Cast<UZSAnimInstance>(GetMesh()->GetAnimInstance());
+	if(!IsValid(AnimInstance)) return false;
+
+	const bool& IsPlayingRight = AnimInstance->Montage_IsPlaying(StopMovementAnimMontageRight);
+	const bool& IsPlayingLeft = AnimInstance->Montage_IsPlaying(StopMovementAnimMontageLeft);
+
+	return IsPlayingRight || IsPlayingLeft;
+}
+
+void AZSCharacterWithAbilities::Server_StopMontage_Implementation(float InBlendOutTime, const UAnimMontage* Montage)
+{
+	if (!IsValid(Montage)) return;
+	NetMulticast_StopMontage(InBlendOutTime, Montage);
+}
+
+bool AZSCharacterWithAbilities::Server_StopMontage_Validate(float InBlendOutTime, const UAnimMontage* Montage)
+{
+	return true;
+}
+
+void AZSCharacterWithAbilities::NetMulticast_StopMontage_Implementation(float InBlendOutTime,
+	const UAnimMontage* Montage)
+{
+	if (!IsValid(GetMesh())) return;
+
+	UZSAnimInstance* AnimInstance = Cast<UZSAnimInstance>(GetMesh()->GetAnimInstance());
+	if (IsValid(AnimInstance))
+	{
+		AnimInstance->Montage_Stop(InBlendOutTime, Montage);
+	}
+}
+
+UAnimMontage* AZSCharacterWithAbilities::PlayStopMovementAnimMontage()
+{
+	if (IsStopMovementAnimMontagePlaying()) return nullptr;
+	
+	if(!IsValid(GetMesh())) return nullptr;
+	
+	UZSAnimInstance* AnimInstance = Cast<UZSAnimInstance>(GetMesh()->GetAnimInstance());
+	if(!IsValid(AnimInstance)) return nullptr;
+
+	const ECharacterFootType CharacterFoot = AnimInstance->GetCharacterFoot();
+
+	UAnimMontage* Montage = CharacterFoot == ECharacterFootType::RIGHT ?
+		StopMovementAnimMontageRight : CharacterFoot == ECharacterFootType::LEFT ?
+			StopMovementAnimMontageLeft : nullptr;
+
+	if (!IsValid(Montage)) return nullptr;
+	
+	if (HasAuthority())
+	{
+		NetMulticast_PlayMontage(Montage, 1.f, NAME_None, true);
+		return Montage;
+	}
+	else if (IsLocallyControlled())
+	{
+		Server_PlayMontage(Montage, 1.f, NAME_None, true);
+		return Montage;
+	}
+
+	return nullptr;
+}
+
+void AZSCharacterWithAbilities::OnChangedPlayerGait(EPlayerGait CurrentPlayerGait)
+{
+	if(CurrentPlayerGait == EPlayerGait::Standing)
+	{
+		if (HasAuthority())
+		{
+			CurrentPlayingStopMovementAnimMontage = PlayStopMovementAnimMontage();
+		}
+	}
 }
 
 float AZSCharacterWithAbilities::CalculateCharacterRelativeRotation() const
