@@ -7,6 +7,7 @@
 #include "zSpace/Game/ZSGamePlayerController/Interfaces/EtherlinkerPCInterface/EtherlinkerPCInterface.h"
 #include "zSpace/Game/ZSPlayerState/Components/ZSEtherlinkerRemoteWalletManager/ZSEtherlinkerRemoteWalletManager.h"
 #include "zSpace/Game/ZSPlayerState/Components/ZSEtherManager/ZSEtherManager.h"
+#include "zSpace/EthereumTerminalComponent/EthereumTerminalComponent.h"
 
 FZSWalletData::FZSWalletData()
 {
@@ -227,6 +228,11 @@ void UZSEthereumActorComponent::BindEvents()
 	{
 		ZSEtherlinkerRemoteWalletManager->OnResponseReceivedDelegate.AddDynamic(this, &UZSEthereumActorComponent::OnRwaResponseReceived);
 	}
+	checkf(nullptr != ZSEtherManager, TEXT("The ZSEtherManager is nullptr."));
+	if(IsValid(ZSEtherManager))
+	{
+		ZSEtherManager->OnBatchResponseReceivedEvent.AddDynamic(this, &UZSEthereumActorComponent::OnBatchResponseReceived);
+	}
 }
 
 void UZSEthereumActorComponent::CreateRemoteWallet_Implementation(const FString& NewLogin, const FString& NewPassword)
@@ -276,3 +282,83 @@ void UZSEthereumActorComponent::SetWalletDataWithMnemonic_Implementation(const F
 		OnRwaResponseReceived(L_Result, L_WalletAuthenticationResponse);
 	}
 }
+
+bool UZSEthereumActorComponent::CheckWalletInitialization() const
+{
+	return bIsWalletInitialized;	
+}
+
+
+
+FString UZSEthereumActorComponent::GetWalletAddress_Implementation()
+{
+	return WalletData.WalletAddress;
+}
+
+void UZSEthereumActorComponent::Execute_Implementation(const FZSEtherlinkerRequestData & NewEtherlinkerRequestData)
+{
+	const FEtherlinkerRequestData L_EtherlinkerRequestData = NewEtherlinkerRequestData.GetEtherlinkerRequestData();
+	checkf(nullptr != ZSEtherManager, TEXT("The ZSEtherManager is nullptr."));
+	if(EEthOperationType::createWallet == NewEtherlinkerRequestData.OperationType)
+	{
+		if(ZSEtherManager)
+		{
+			ZSEtherManager->CreateWallet(L_EtherlinkerRequestData);
+		}
+	}
+	else if(EEthOperationType::deployContract == NewEtherlinkerRequestData.OperationType)
+	{
+		if(ZSEtherManager)
+		{
+			ZSEtherManager->DeployContract(L_EtherlinkerRequestData);
+		}
+	}
+	else if(EEthOperationType::transferEther == NewEtherlinkerRequestData.OperationType)
+	{
+		if(ZSEtherManager)
+		{
+			ZSEtherManager->TransferEther(L_EtherlinkerRequestData);
+		}
+	}
+	else if(EEthOperationType::execContractMethod == NewEtherlinkerRequestData.OperationType)
+	{
+		if(ZSEtherManager)
+		{
+			ZSEtherManager->ExecContractMethod(L_EtherlinkerRequestData);
+		}
+	}
+	else if(EEthOperationType::getWalletBalance == NewEtherlinkerRequestData.OperationType)
+	{
+		if(ZSEtherManager)
+		{
+			ZSEtherManager->GetWalletBalance(L_EtherlinkerRequestData);
+		}
+	}
+}
+
+UZSEtherManager* UZSEthereumActorComponent::GetZsEtherManager()
+{
+	return ZSEtherManager;	
+}
+
+UZSEtherlinkerRemoteWalletManager* UZSEthereumActorComponent::GetZsEtherlinkerRemoteWalletManager()
+{
+	return ZSEtherlinkerRemoteWalletManager;	
+}
+
+void UZSEthereumActorComponent::OnBatchResponseReceived(FString Result, FEtherlinkerBatchResponseData Data)
+{
+	UE_LOG(LogTemp, Warning, TEXT("---------------Start-----------------------"));
+	UE_LOG(LogTemp, Warning, TEXT("Result = %s"), *Result);
+	UE_LOG(LogTemp, Warning, TEXT("---------------End-----------------------"));
+	OnResponseReceived.Broadcast();
+	Client_OnBatchResponseReceived(Result, Data);
+}
+
+void UZSEthereumActorComponent::Client_OnBatchResponseReceived_Implementation(const FString & Result, const FEtherlinkerBatchResponseData & Data)
+{
+	OnBatchResponseReceivedDelegate.Broadcast(Result, Data);
+}
+
+
+

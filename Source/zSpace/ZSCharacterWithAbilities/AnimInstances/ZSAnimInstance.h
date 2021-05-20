@@ -75,6 +75,8 @@ protected:
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	float CharacterRelativeRotation = 0.f;
 	
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	float MoveInputKeyTimeDownAverage = 0.f;
 	
 protected:
 	UFUNCTION()
@@ -106,5 +108,7 @@ public:
 	
 	UFUNCTION(BlueprintCallable)
 	void SetCharacterFood(ECharacterFootType NewValue);
-	
+
+	UFUNCTION(BlueprintPure)
+	FORCEINLINE ECharacterFootType GetCharacterFoot() const { return CharacterFoot; }
 };

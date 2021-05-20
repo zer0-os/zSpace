@@ -7,6 +7,8 @@
 #include "EtherlinkerTypes.h"
 #include "Components/ActorComponent.h"
 #include "Interface/ZSEthereumActorCompInterface.h"
+#include "zSpace/EthereumTerminalComponent/EthereumTerminalComponent.h"
+
 #include "ZSEthereumActorComponent.generated.h"
 
 
@@ -65,12 +67,13 @@ private:
 	class UZSEtherManager * ZSEtherManager = nullptr;
 	
 	void  GetZSEtherManager();
+
 	
 	
 	UPROPERTY(Replicated, BlueprintReadWrite, meta = (AllowPrivateAccess=true))
 	FZSWalletData WalletData;
 
-	UPROPERTY(Replicated)
+	UPROPERTY(Replicated, BlueprintReadOnly, meta = (AllowPrivateAccess=true))
 	uint8 bIsWalletInitialized:1;
 
 protected:
@@ -122,5 +125,39 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	void SetWalletDataWithMnemonic(const FString &NewWalletAddress, const FString & NewMnemonic, const FString &NewPassword);
 	
+public:
+	
+	UFUNCTION(BlueprintPure)
+	bool CheckWalletInitialization() const;
 
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+	FString GetWalletAddress();
+
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+	void Execute(const FZSEtherlinkerRequestData &  NewEtherlinkerRequestData);
+
+	UFUNCTION(BlueprintCallable)
+	class UZSEtherManager* GetZsEtherManager();
+
+	UFUNCTION(BlueprintCallable)
+	class UZSEtherlinkerRemoteWalletManager * GetZsEtherlinkerRemoteWalletManager();
+
+	UFUNCTION()
+	void OnBatchResponseReceived(FString Result, FEtherlinkerBatchResponseData Data);
+	
+	 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnBatchResponseReceivedDelegate, FString, Result, FEtherlinkerBatchResponseData, Data);
+
+	UPROPERTY(BlueprintAssignable)
+	FOnBatchResponseReceivedDelegate OnBatchResponseReceivedDelegate;
+
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FResponseReceived);
+
+	UPROPERTY(BlueprintAssignable)
+	FResponseReceived OnResponseReceived;
+
+	// [Client]
+	UFUNCTION(Client, Reliable)
+	void Client_OnBatchResponseReceived(const FString  & Result, const FEtherlinkerBatchResponseData & Data);
+	
 };

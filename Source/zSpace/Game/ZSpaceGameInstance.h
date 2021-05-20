@@ -95,5 +95,24 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void HideLoadRemoteWalletWidget();
+	
+private:
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess=true))
+	TSoftClassPtr<class UUserWidget> LoadWalletWithMnemonicWidgetSoftClassPtr;
+
+	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess=true))
+	class UUserWidget * LoadWalletWithMnemonicWidget = nullptr;
+	
+public:
+	
+	UFUNCTION(BlueprintCallable)
+	void ShowLoadWalletWithMnemonicWidget();
+
+	UFUNCTION(BlueprintCallable)
+	void HideLoadWalletWithMnemonicWidget();
+
+
+	
 
 };

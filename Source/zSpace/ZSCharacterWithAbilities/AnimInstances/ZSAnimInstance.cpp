@@ -54,6 +54,8 @@ void UZSAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	
 	CharacterRelativeRotation = CharacterRef->GetCharacterRelativeRotation();
 	StartPlayerMoveDirection = CalculateStartMoveDirection();
+
+	MoveInputKeyTimeDownAverage = CharacterRef->GetMoveInputKeyTimeDownAverage();
 }
 
 void UZSAnimInstance::OnChangedPlayerGait(EPlayerGait NewValue)
@@ -247,34 +249,48 @@ EPlayerMoveDirection UZSAnimInstance::CalculateStartMoveDirection() const
 	
 	float Yaw = UKismetMathLibrary::NormalizeAxis(CharacterRelativeRotation);
 	Yaw = UKismetMathLibrary::ClampAxis(Yaw);
+
+	if (L_PlayerMoveDirection != EPlayerMoveDirection::Forward) return L_PlayerMoveDirection;
 	
-	const auto IsEqual = UKismetMathLibrary::NearlyEqual_FloatFloat(UKismetMathLibrary::NormalizeAxis(Yaw), 0.f, 85.f);
-	if (!IsEqual)
+	const EPlayerMoveDirection& PredictPlayerMoveDirection = CalculatePlayerMoveDirection();
+	if (L_PlayerMoveDirection == EPlayerMoveDirection::Forward)
 	{
-		L_PlayerMoveDirection = ReversMoveDirection(L_PlayerMoveDirection);
-		const EPlayerMoveDirection& PredictPlayerMoveDirection = CalculatePlayerMoveDirection();
+		L_PlayerMoveDirection = PredictPlayerMoveDirection;
 		
-		if (PredictPlayerMoveDirection == L_PlayerMoveDirection)
-		{
-			L_PlayerMoveDirection = EPlayerMoveDirection::Forward;
-		}
-		if (L_PlayerMoveDirection == EPlayerMoveDirection::Right && PredictPlayerMoveDirection == EPlayerMoveDirection::Left)
-		{
-			L_PlayerMoveDirection = EPlayerMoveDirection::Backward;
-		}
-		if (L_PlayerMoveDirection == EPlayerMoveDirection::Left && PredictPlayerMoveDirection == EPlayerMoveDirection::Right)
-		{
-			L_PlayerMoveDirection = EPlayerMoveDirection::Backward;
-		}
+		// if (PredictPlayerMoveDirection == EPlayerMoveDirection::Right)
+		// {
+		// 	PRINT("XXXXXXXXX");
+		// 	L_PlayerMoveDirection = EPlayerMoveDirection::Right;
+		// }
 	}
+
+	// const auto IsEqual = UKismetMathLibrary::NearlyEqual_FloatFloat(UKismetMathLibrary::NormalizeAxis(Yaw), 0.f, 21.f);
+	// if (!IsEqual)
+	// {
+	// 	L_PlayerMoveDirection = ReversMoveDirection(L_PlayerMoveDirection);
+	// 	const EPlayerMoveDirection& PredictPlayerMoveDirection = CalculatePlayerMoveDirection();
+	// 	
+	// 	// if (PredictPlayerMoveDirection == L_PlayerMoveDirection)
+	// 	// {
+	// 	// 	L_PlayerMoveDirection = EPlayerMoveDirection::Forward;
+	// 	// }
+	// 	// if (L_PlayerMoveDirection == EPlayerMoveDirection::Right && PredictPlayerMoveDirection == EPlayerMoveDirection::Left)
+	// 	// {
+	// 	// 	L_PlayerMoveDirection = EPlayerMoveDirection::Backward;
+	// 	// }
+	// 	// if (L_PlayerMoveDirection == EPlayerMoveDirection::Left && PredictPlayerMoveDirection == EPlayerMoveDirection::Right)
+	// 	// {
+	// 	// 	L_PlayerMoveDirection = EPlayerMoveDirection::Backward;
+	// 	// }
+	// }
 	
-	UEnum* EnumPtr = FindObject<UEnum>(ANY_PACKAGE, TEXT("EPlayerMoveDirection"), true);
-	if (IsValid(EnumPtr))
-	{
-		const FName& EnumName = EnumPtr->GetNameByIndex(static_cast<uint8>(L_PlayerMoveDirection));
-		const FString EnumStr = EnumName.ToString().Replace(TEXT("EPlayerMoveDirection::"), TEXT(""));
-		PRINT_TIME(EnumStr, 0.f);
-	}
+	// UEnum* EnumPtr = FindObject<UEnum>(ANY_PACKAGE, TEXT("EPlayerMoveDirection"), true);
+	// if (IsValid(EnumPtr))
+	// {
+	// 	const FName& EnumName = EnumPtr->GetNameByIndex(static_cast<uint8>(L_PlayerMoveDirection));
+	// 	const FString EnumStr = EnumName.ToString().Replace(TEXT("EPlayerMoveDirection::"), TEXT(""));
+	// 	PRINT_TIME(EnumStr, 0.f);
+	// }
 	
 	return L_PlayerMoveDirection;
 }
