@@ -206,6 +206,7 @@ void USelectCharacterUserWidget::ShowCharacters(const TArray<FUserCharacter>& Us
 		CheckAndCreate(CurrentCharacterIndex, MainCharacterBox);
 		LeftCharacterBox->RemoveChildAt(0);
 		RightCharacterBox->RemoveChildAt(0);
+		AnimationBorderLeft->RemoveChildAt(0);
 		
 		return;
 	}
@@ -221,7 +222,7 @@ void USelectCharacterUserWidget::ShowCharacters(const TArray<FUserCharacter>& Us
 
 		Index = CurrentCharacterIndex - 1;
 		CheckAndCreate(GetLastOrFirstIndex(Index), LeftCharacterBox);
-
+		
 		return;
 	}
 	
@@ -372,6 +373,12 @@ void USelectCharacterUserWidget::UpdateBackgroundImage(bool bisRight)
 
 void USelectCharacterUserWidget::UpdateBorderToRight()
 {
+	USelectCharacterBoxUserWidget* RightSelectBox = Cast<USelectCharacterBoxUserWidget>(SelectCharacterRightBorder->GetChildAt(0));
+	if (RightSelectBox)
+	{
+		RightSelectBox->SetupWidget(GetCharacterInfoForUI(RightCharacterBox).Value);
+	}
+
 	LeftCharacterBox = AnimationBorderLeft;
 	MainCharacterBox = SelectCharacterLeftBorder;
 	RightCharacterBox = SelectCharacterMiddleBorder;
@@ -389,10 +396,16 @@ void USelectCharacterUserWidget::UpdateBorderToRight()
 
 void USelectCharacterUserWidget::UpdateBorderToLeft()
 {
-	LeftCharacterBox = SelectCharacterLeftBorder;
+	USelectCharacterBoxUserWidget* AnimationSelectBox = Cast<USelectCharacterBoxUserWidget>(AnimationBorderLeft->GetChildAt(0));
+	if (AnimationSelectBox)
+	{
+		AnimationSelectBox->SetupWidget(GetCharacterInfoForUI(LeftCharacterBox).Value);
+	}
+
 	MainCharacterBox = SelectCharacterMiddleBorder;
 	RightCharacterBox = SelectCharacterRightBorder;
-	
+	LeftCharacterBox = SelectCharacterLeftBorder;
+
 	USelectCharacterBoxUserWidget* SelectCharacterMiddleBox = Cast<USelectCharacterBoxUserWidget>(SelectCharacterMiddleBorder->GetChildAt(0));
 	if (SelectCharacterMiddleBox)
 	{
@@ -465,6 +478,11 @@ void USelectCharacterUserWidget::SetPreviewCharacterPositionByCharacterBox(USele
 	if (Widget == RightCharacterBox->GetChildAt(0))
 	{
 		Widget->SetPreviewCharacterPosition(EPreviewCharacterPosition::R_1);
+	}
+	
+	if (Widget == AnimationBorderLeft->GetChildAt(0))
+	{
+		Widget->SetPreviewCharacterPosition(EPreviewCharacterPosition::L_2);
 	}
 }
 
