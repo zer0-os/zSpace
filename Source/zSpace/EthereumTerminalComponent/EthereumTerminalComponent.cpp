@@ -2,9 +2,13 @@
 
 
 #include "zSpace/EthereumTerminalComponent/EthereumTerminalComponent.h"
+#include "zSpace/Game/ZSGamePlayerController/Components/ZSEthereumActorComponent/ZSEthereumActorComponent.h"
+#include "EtherlinkerFunctionLibrary.h"
 #include "EtherlinkerTypes.h"
+#include "EthereumTerminalDataAsset/EthereumTerminalDataAsset.h"
+#include "zSpace/Game/ZSGamePlayerController/Interfaces/EtherlinkerPCInterface/EtherlinkerPCInterface.h"
 
-FEtherlinkerRequestData FZSEtherlinkerRequestData::GetEtherlinkerRequestData()
+FEtherlinkerRequestData FZSEtherlinkerRequestData::GetEtherlinkerRequestData() const
 {
 	FEtherlinkerRequestData R_EtherlinkerRequestData;
 	R_EtherlinkerRequestData.senderId = SenderID;
@@ -44,7 +48,7 @@ UEthereumTerminalComponent::UEthereumTerminalComponent()
 	EtherlinkerRequestData.GasPrice = "22000000000";
 	EtherlinkerRequestData.GasLimit = "4300000";
 	EtherlinkerRequestData.ConvertResultFromWeiToEth = "false";
-	
+	bCallCompleted = true;
 	// ...
 }
 
@@ -53,7 +57,7 @@ UEthereumTerminalComponent::UEthereumTerminalComponent()
 void UEthereumTerminalComponent::BeginPlay()
 {
 	Super::BeginPlay();
-
+	SetZSEtherlinkerRequestData();
 	// ...
 	
 }
@@ -67,3 +71,77 @@ void UEthereumTerminalComponent::TickComponent(float DeltaTime, ELevelTick TickT
 	// ...
 }
 
+UZSEthereumActorComponent * UEthereumTerminalComponent::GetZsEthereumActorComponent(APawn * NewInteractor)
+{
+	UZSEthereumActorComponent * R_ZSEthereumActorComponent = nullptr;
+	if(IsValid(NewInteractor))
+	{
+		AController * PC =	NewInteractor->GetController();
+		if(IsValid(PC))
+		{
+			const bool IsImplemented = PC->GetClass()->ImplementsInterface(UEtherlinkerPCInterface::StaticClass());
+			if(IsImplemented)
+			{
+				R_ZSEthereumActorComponent = IEtherlinkerPCInterface::Execute_GetZSEthereumActorComponent(PC);	
+				UE_LOG(LogTemp, Log, TEXT("Got ZSEthereumActorComponent from PC"));
+			}
+			else
+			{
+				UE_LOG(LogTemp, Warning, TEXT("The PlayerController doesn't implemented IEtherlinkerPCInterface"));
+			}
+		}
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("The NewInteractor is nullptr. Please Check "));
+	}
+	return R_ZSEthereumActorComponent;
+}
+
+void UEthereumTerminalComponent::SetZSEtherlinkerRequestData()
+{
+	if(ROLE_Authority == GetOwnerRole())
+	{
+		if(EthereumTerminalDataAsset)
+		{
+			EtherlinkerRequestData = EthereumTerminalDataAsset->GetZSEtherlinkerRequestData();
+		}
+	}
+}
+
+
+void UEthereumTerminalComponent::Use(class APawn * NewInteractor)
+{
+	if(bCanBeUsed)
+	{
+		UZSEthereumActorComponent * L_ZSEthereumActorComponent = GetZsEthereumActorComponent(NewInteractor);
+		checkf(nullptr != L_ZSEthereumActorComponent, TEXT("The L_ZSEthereumActorComponent is nullptr."));
+		if(L_ZSEthereumActorComponent)
+		{
+			L_ZSEthereumActorComponent->OnResponseReceived.AddDynamic(this, &UEthereumTerminalComponent::ResponseReceived);
+			const bool L_IsWalletInitialization  = L_ZSEthereumActorComponent->CheckWalletInitialization();
+			if(L_IsWalletInitialization || EEthOperationType::createWallet == EtherlinkerRequestData.OperationType )
+			{
+				if(bCallCompleted)
+				{
+					bCallCompleted = false;
+					const FString L_WalletAddress = L_ZSEthereumActorComponent->GetWalletAddress();
+					if(UEtherlinkerFunctionLibrary::IsWalletAddressValid(L_WalletAddress) && bUseCurrentWalletAddressAsFirstParameter)
+					{
+						EtherlinkerRequestData.ContractMethodParams.Insert(L_WalletAddress, 0);
+					}
+					L_ZSEthereumActorComponent->Execute(EtherlinkerRequestData);
+				}
+			}
+			else
+			{
+				UE_LOG(LogTemp, Warning, TEXT("Error: Wallet is not initialized"));	
+			}
+		}
+	}
+}
+
+void UEthereumTerminalComponent::ResponseReceived()
+{
+	bCallCompleted = true;	
+}
