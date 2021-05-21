@@ -69,6 +69,9 @@ protected:
 	UFUNCTION(NetMulticast, Reliable)
 	void NetMulticast_SetMaxWalkSpeed(const float& NewValue);
 
+	// UFUNCTION(NetMulticast, Reliable)
+	// void NetMulticast_
+	
 	class UAnimInstance* GetAnimInstance() const;
 
 	void UpdateMaxWalkSpeed();
