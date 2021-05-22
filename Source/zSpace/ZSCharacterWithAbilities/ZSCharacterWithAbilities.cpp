@@ -299,8 +299,8 @@ void AZSCharacterWithAbilities::Server_SetIsMoveInputPressed_Implementation(bool
 	if (NewValue)
 	{
 		// Server_StopMontage(0.25f, CurrentPlayingStopMovementAnimMontage);
-		Server_StopMontage(0.25f, StopMovementAnimMontageLeft);
-		Server_StopMontage(0.25f, StopMovementAnimMontageRight);
+		Server_StopMontage(0.25f, WalkingStopMovementAnimMontageLeft);
+		Server_StopMontage(0.25f, WalkingStopMovementAnimMontageRight);
 	}
 }
 
@@ -413,8 +413,8 @@ bool AZSCharacterWithAbilities::IsStopMovementAnimMontagePlaying() const
 	UZSAnimInstance* AnimInstance = Cast<UZSAnimInstance>(GetMesh()->GetAnimInstance());
 	if(!IsValid(AnimInstance)) return false;
 
-	const bool& IsPlayingRight = AnimInstance->Montage_IsPlaying(StopMovementAnimMontageRight);
-	const bool& IsPlayingLeft = AnimInstance->Montage_IsPlaying(StopMovementAnimMontageLeft);
+	const bool& IsPlayingRight = AnimInstance->Montage_IsPlaying(WalkingStopMovementAnimMontageRight);
+	const bool& IsPlayingLeft = AnimInstance->Montage_IsPlaying(WalkingStopMovementAnimMontageLeft);
 
 	return IsPlayingRight || IsPlayingLeft;
 }
@@ -454,8 +454,8 @@ UAnimMontage* AZSCharacterWithAbilities::PlayStopMovementAnimMontage()
 	const ECharacterFootType CharacterFoot = AnimInstance->GetCharacterFoot();
 
 	UAnimMontage* Montage = CharacterFoot == ECharacterFootType::RIGHT ?
-		StopMovementAnimMontageRight : CharacterFoot == ECharacterFootType::LEFT ?
-			StopMovementAnimMontageLeft : nullptr;
+		WalkingStopMovementAnimMontageRight : CharacterFoot == ECharacterFootType::LEFT ?
+			WalkingStopMovementAnimMontageLeft : nullptr;
 
 	if (!IsValid(Montage)) return nullptr;
 	

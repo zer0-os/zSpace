@@ -119,11 +119,17 @@ protected:
 	float MoveInputKeyTimeDownAverage = 0.f;
 
 	UPROPERTY(EditDefaultsOnly, Category="Animations|Monateg")
-	class UAnimMontage* StopMovementAnimMontageRight = nullptr;
+	class UAnimMontage* WalkingStopMovementAnimMontageRight = nullptr;
 	
 	UPROPERTY(EditDefaultsOnly, Category="Animations|Monateg")
-	class UAnimMontage* StopMovementAnimMontageLeft = nullptr;
+	class UAnimMontage* WalkingStopMovementAnimMontageLeft = nullptr;
 
+	UPROPERTY(EditDefaultsOnly, Category="Animations|Monateg")
+	class UAnimMontage* RunningStopMovementAnimMontageRight = nullptr;
+	
+	UPROPERTY(EditDefaultsOnly, Category="Animations|Monateg")
+	class UAnimMontage* RunningStopMovementAnimMontageLeft = nullptr;
+	
 	// [Server]
 	UPROPERTY(Transient)
 	class UAnimMontage* CurrentPlayingStopMovementAnimMontage = nullptr;
