@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
+#include "zSpace/ZSCharacterWithAbilities/Components/DetectSurfaceTypeComponent/DetectSurfaceTypeComponent.h"
+
 #include "ZSAnimationTypes.generated.h"
 
 UENUM(BlueprintType)
@@ -32,3 +34,37 @@ enum class EPlayerMoveDirection : uint8
 	Left,
 };
 
+USTRUCT(BlueprintType)
+struct FAnimMontageLocomotion
+{
+	GENERATED_BODY()
+
+public:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	class UAnimMontage* AnimMontage = nullptr;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	EPlayerGait PlayerGait;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	ECharacterFootType CharacterFoot;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	EPlayerMoveDirection PlayerMoveDirection;
+};
+
+UCLASS(BlueprintType)
+class UAnimMontageLocomotionDataAsset : public UDataAsset
+{
+	GENERATED_BODY()
+public:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TArray<FAnimMontageLocomotion> AnimMontageLocomotionArray;
+
+	UFUNCTION(BlueprintPure)
+	class UAnimMontage* GetAnimMontageByGaitAndFoot(const EPlayerGait& PlayerGait, const ECharacterFootType& CharacterFoot);
+
+	UFUNCTION(BlueprintPure)
+	TArray<class UAnimMontage*> GetAllMontages() const;
+	
+};

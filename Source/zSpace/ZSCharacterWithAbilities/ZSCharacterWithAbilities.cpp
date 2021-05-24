@@ -73,6 +73,7 @@ void AZSCharacterWithAbilities::BeginPlay()
 	{
 		MovementComponent->OnChangedPlayerGait.AddUniqueDynamic(this, &AZSCharacterWithAbilities::OnChangedPlayerGait);
 	}
+	check(StopMovementAnimMontage);
 }
 
 void AZSCharacterWithAbilities::Tick(float NewDeltaSeconds)
@@ -298,9 +299,7 @@ void AZSCharacterWithAbilities::Server_SetIsMoveInputPressed_Implementation(bool
 	bIsMoveInputPressed = NewValue;
 	if (NewValue)
 	{
-		// Server_StopMontage(0.25f, CurrentPlayingStopMovementAnimMontage);
-		Server_StopMontage(0.25f, WalkingStopMovementAnimMontageLeft);
-		Server_StopMontage(0.25f, WalkingStopMovementAnimMontageRight);
+		StopStopMovementAnimMontage();
 	}
 }
 
@@ -413,10 +412,18 @@ bool AZSCharacterWithAbilities::IsStopMovementAnimMontagePlaying() const
 	UZSAnimInstance* AnimInstance = Cast<UZSAnimInstance>(GetMesh()->GetAnimInstance());
 	if(!IsValid(AnimInstance)) return false;
 
-	const bool& IsPlayingRight = AnimInstance->Montage_IsPlaying(WalkingStopMovementAnimMontageRight);
-	const bool& IsPlayingLeft = AnimInstance->Montage_IsPlaying(WalkingStopMovementAnimMontageLeft);
+	if (!IsValid(StopMovementAnimMontage)) return false;
 
-	return IsPlayingRight || IsPlayingLeft;
+	for (auto* Montage : StopMovementAnimMontage->GetAllMontages())
+	{
+		const bool& IsPlaying = AnimInstance->Montage_IsPlaying(Montage);
+		if (IsPlaying)
+		{
+			return true;
+		}
+	}
+
+	return false;
 }
 
 void AZSCharacterWithAbilities::Server_StopMontage_Implementation(float InBlendOutTime, const UAnimMontage* Montage)
@@ -444,6 +451,7 @@ void AZSCharacterWithAbilities::NetMulticast_StopMontage_Implementation(float In
 
 UAnimMontage* AZSCharacterWithAbilities::PlayStopMovementAnimMontage()
 {
+	if (!IsValid(StopMovementAnimMontage)) return nullptr;
 	if (IsStopMovementAnimMontagePlaying()) return nullptr;
 	
 	if(!IsValid(GetMesh())) return nullptr;
@@ -451,11 +459,13 @@ UAnimMontage* AZSCharacterWithAbilities::PlayStopMovementAnimMontage()
 	UZSAnimInstance* AnimInstance = Cast<UZSAnimInstance>(GetMesh()->GetAnimInstance());
 	if(!IsValid(AnimInstance)) return nullptr;
 
-	const ECharacterFootType CharacterFoot = AnimInstance->GetCharacterFoot();
+	UZSCharacterMovementComponent* CM = GetZSCharacterMovement();
+	if(!IsValid(CM)) return nullptr;
 
-	UAnimMontage* Montage = CharacterFoot == ECharacterFootType::RIGHT ?
-		WalkingStopMovementAnimMontageRight : CharacterFoot == ECharacterFootType::LEFT ?
-			WalkingStopMovementAnimMontageLeft : nullptr;
+	const ECharacterFootType CharacterFoot = AnimInstance->GetCharacterFoot();
+	const EPlayerGait PlayerGaitPreStanding = CM->GetPlayerGaitPreStanding();
+
+	UAnimMontage* Montage = StopMovementAnimMontage->GetAnimMontageByGaitAndFoot(PlayerGaitPreStanding, CharacterFoot);
 
 	if (!IsValid(Montage)) return nullptr;
 	
@@ -471,6 +481,28 @@ UAnimMontage* AZSCharacterWithAbilities::PlayStopMovementAnimMontage()
 	}
 
 	return nullptr;
+}
+
+void AZSCharacterWithAbilities::StopStopMovementAnimMontage()
+{
+	for (auto *Montage : StopMovementAnimMontage->GetAllMontages())
+	{
+		if (!IsValid(Montage)) return;
+		
+		if (HasAuthority())
+		{
+			NetMulticast_StopMontage(0.25f, Montage);
+		}
+		else if (IsLocallyControlled())
+		{
+			Server_StopMontage(0.25f, Montage);
+		}
+	}
+}
+
+UZSCharacterMovementComponent* AZSCharacterWithAbilities::GetZSCharacterMovement() const
+{
+	return Cast<UZSCharacterMovementComponent>(GetCharacterMovement());
 }
 
 void AZSCharacterWithAbilities::OnChangedPlayerGait(EPlayerGait CurrentPlayerGait)

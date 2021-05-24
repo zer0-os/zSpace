@@ -44,6 +44,9 @@ public:
 	UFUNCTION(BlueprintPure)
 	FORCEINLINE EPlayerGait GetPlayerGait() const { return PlayerGait; }
 
+	UFUNCTION(BlueprintPure)
+	FORCEINLINE EPlayerGait GetPlayerGaitPreStanding() const { return PlayerGaitPreStanding; }
+	
 	// For Tick Update
 	UFUNCTION(BlueprintPure)
 	FORCEINLINE bool NeedReplicatePlayerGait(const EPlayerGait& CheckPlayerGait) const { return PlayerGait != CheckPlayerGait; }
@@ -55,6 +58,9 @@ public:
 protected:
 	UPROPERTY(Replicated, BlueprintReadOnly)
 	EPlayerGait PlayerGait;
+
+	UPROPERTY(Replicated, BlueprintReadOnly)
+	EPlayerGait PlayerGaitPreStanding = EPlayerGait::Standing;
 	
 	UPROPERTY(BlueprintReadOnly)
 	class UAnimInstance* AnimInstance = nullptr;
