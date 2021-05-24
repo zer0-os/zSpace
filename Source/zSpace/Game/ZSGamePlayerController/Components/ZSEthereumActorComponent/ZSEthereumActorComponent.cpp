@@ -67,11 +67,13 @@ bool FZSWalletData::IsNotEmptyMember() const
 		UE_LOG(LogTemp, Error, TEXT("Error: wallet address can't be empty"));
 		R_Status = false;	
 	}
+	/*
 	if(WalletPath == "")
 	{
 		UE_LOG(LogTemp, Error, TEXT("Error: wallet path can't be empty"));
 		R_Status = false;	
 	}
+	*/
 	if(WalletAuthType == "")
 	{
 		
@@ -278,7 +280,8 @@ void UZSEthereumActorComponent::SetWalletDataWithMnemonic_Implementation(const F
 		L_WalletAuthenticationResponse.walletMnemonic = NewMnemonic;
 		L_WalletAuthenticationResponse.walletPassword = NewPassword;
 		L_WalletAuthenticationResponse.senderId = L_SenderID;
-		const FString L_Result = "getWalletData";
+		L_WalletAuthenticationResponse.operationType = "getWalletData";
+		const FString L_Result = "success";
 		OnRwaResponseReceived(L_Result, L_WalletAuthenticationResponse);
 	}
 }

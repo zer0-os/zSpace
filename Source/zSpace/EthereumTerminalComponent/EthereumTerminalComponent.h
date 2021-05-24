@@ -77,10 +77,10 @@ struct FZSEtherlinkerRequestData
 	FString ConvertResultFromWeiToEth;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FString GasPrice;
+	FString GasPrice = "22000000000";
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FString GasLimit;
+	FString GasLimit = "4300000";
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FString InfuraURL;

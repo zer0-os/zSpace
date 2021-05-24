@@ -19,10 +19,11 @@ FEtherlinkerRequestData FZSEtherlinkerRequestData::GetEtherlinkerRequestData() c
 	R_EtherlinkerRequestData.contractMethodName = ContractMethodName;
 	R_EtherlinkerRequestData.contractName = ContractName;
 	R_EtherlinkerRequestData.contractMethodParams = ContractMethodParams;
-	for(EEthereumParamTypes IterEthParamType : TEnumRange<EEthereumParamTypes>())
+	for(EEthereumParamTypes IterEthParamType : ContractMethodParamTypes)
 	{
 		 FString R_StrParam;
 		 UEnum::GetValueAsString<EEthereumParamTypes>(IterEthParamType, R_StrParam);
+		 R_StrParam = R_StrParam.Replace(TEXT("EEthereumParamTypes::"), TEXT(""));
 		 R_EtherlinkerRequestData.contractMethodParamTypes.Add(R_StrParam);
 	}
 	R_EtherlinkerRequestData.convertResultFromWeiToEth = ConvertResultFromWeiToEth;
@@ -33,6 +34,7 @@ FEtherlinkerRequestData FZSEtherlinkerRequestData::GetEtherlinkerRequestData() c
 	R_EtherlinkerRequestData.ethAmountToSend = EthAmountToSend;
 	FString R_StrOperationType;
 	UEnum::GetValueAsString<EEthOperationType>(OperationType, R_StrOperationType);
+	R_StrOperationType = R_StrOperationType.Replace(TEXT("EEthOperationType::"), TEXT(""));
 	R_EtherlinkerRequestData.operationType = R_StrOperationType;
 	return R_EtherlinkerRequestData;
 }
@@ -112,30 +114,37 @@ void UEthereumTerminalComponent::SetZSEtherlinkerRequestData()
 
 void UEthereumTerminalComponent::Use(class APawn * NewInteractor)
 {
-	if(bCanBeUsed)
+	if(ROLE_Authority == GetOwnerRole())
 	{
-		UZSEthereumActorComponent * L_ZSEthereumActorComponent = GetZsEthereumActorComponent(NewInteractor);
-		checkf(nullptr != L_ZSEthereumActorComponent, TEXT("The L_ZSEthereumActorComponent is nullptr."));
-		if(L_ZSEthereumActorComponent)
+		if(bCanBeUsed)
 		{
-			L_ZSEthereumActorComponent->OnResponseReceived.AddDynamic(this, &UEthereumTerminalComponent::ResponseReceived);
-			const bool L_IsWalletInitialization  = L_ZSEthereumActorComponent->CheckWalletInitialization();
-			if(L_IsWalletInitialization || EEthOperationType::createWallet == EtherlinkerRequestData.OperationType )
+			UZSEthereumActorComponent * L_ZSEthereumActorComponent = GetZsEthereumActorComponent(NewInteractor);
+			checkf(nullptr != L_ZSEthereumActorComponent, TEXT("The L_ZSEthereumActorComponent is nullptr."));
+			if(L_ZSEthereumActorComponent)
 			{
-				if(bCallCompleted)
+				const bool L_IsAlreadyBound = L_ZSEthereumActorComponent->OnResponseReceived.IsAlreadyBound(this, &UEthereumTerminalComponent::ResponseReceived );
+				if(false == L_IsAlreadyBound)
 				{
-					bCallCompleted = false;
-					const FString L_WalletAddress = L_ZSEthereumActorComponent->GetWalletAddress();
-					if(UEtherlinkerFunctionLibrary::IsWalletAddressValid(L_WalletAddress) && bUseCurrentWalletAddressAsFirstParameter)
-					{
-						EtherlinkerRequestData.ContractMethodParams.Insert(L_WalletAddress, 0);
-					}
-					L_ZSEthereumActorComponent->Execute(EtherlinkerRequestData);
+					L_ZSEthereumActorComponent->OnResponseReceived.AddDynamic(this, &UEthereumTerminalComponent::ResponseReceived);
 				}
-			}
-			else
-			{
-				UE_LOG(LogTemp, Warning, TEXT("Error: Wallet is not initialized"));	
+				const bool L_IsWalletInitialization  = L_ZSEthereumActorComponent->CheckWalletInitialization();
+				if(L_IsWalletInitialization || EEthOperationType::createWallet == EtherlinkerRequestData.OperationType )
+				{
+					if(bCallCompleted)
+					{
+						bCallCompleted = false;
+						const FString L_WalletAddress = L_ZSEthereumActorComponent->GetWalletAddress();
+						if(UEtherlinkerFunctionLibrary::IsWalletAddressValid(L_WalletAddress) && bUseCurrentWalletAddressAsFirstParameter)
+						{
+							EtherlinkerRequestData.ContractMethodParams.Insert(L_WalletAddress, 0);
+						}
+						L_ZSEthereumActorComponent->Execute(EtherlinkerRequestData);
+					}
+				}
+				else
+				{
+					UE_LOG(LogTemp, Warning, TEXT("Error: Wallet is not initialized"));	
+				}
 			}
 		}
 	}
