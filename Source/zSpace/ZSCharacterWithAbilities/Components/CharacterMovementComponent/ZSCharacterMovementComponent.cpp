@@ -43,9 +43,19 @@ void UZSCharacterMovementComponent::TickComponent(float DeltaTime, ELevelTick Ti
 
 	if (GetOwnerRole() == ROLE_Authority)
 	{
+		if (OwnerZSCharacter->IsStopMovementAnimMontagePlaying())
+		{
+			if (NeedReplicatePlayerGait(EPlayerGait::Standing))
+			{
+				Server_ChangeMovementMode(EPlayerGait::Standing);
+			}
+			return;
+		}
+		
 		// Standing
 		const float Speed = OwnerZSCharacter->GetVelocity().Size2D();
-		if (Speed == 0.f && !OwnerZSCharacter->bIsMoveInputPressed)
+		if (Speed == 0.f || !OwnerZSCharacter->bIsMoveInputPressed)
+		// if (!OwnerZSCharacter->bIsMoveInputPressed)
 		{
 			if (NeedReplicatePlayerGait(EPlayerGait::Standing))
 			{
@@ -100,6 +110,10 @@ void UZSCharacterMovementComponent::Server_ChangeMovementMode_Implementation(EPl
 {
 	PlayerGait = NewValue;
 	NetMulticast_OnChangedPlayerGait(NewValue);
+	if (NewValue != EPlayerGait::Standing)
+	{
+		PlayerGaitPreStanding = NewValue;
+	}
 }
 
 bool UZSCharacterMovementComponent::Server_ChangeMovementMode_Validate(EPlayerGait NewValue)
@@ -159,4 +173,5 @@ void UZSCharacterMovementComponent::GetLifetimeReplicatedProps(TArray<FLifetimeP
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(UZSCharacterMovementComponent, PlayerGait);
+	DOREPLIFETIME(UZSCharacterMovementComponent, PlayerGaitPreStanding);
 }
