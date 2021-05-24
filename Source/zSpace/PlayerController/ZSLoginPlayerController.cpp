@@ -39,7 +39,10 @@ void AZSLoginPlayerController::BindOnGetAllCharacters(const TArray<FUserCharacte
 
 void AZSLoginPlayerController::OnEscOnClicked()
 {
-	OnEscButtonPressed.Broadcast();
+	if (!isLoading)
+	{
+		OnEscButtonPressed.Broadcast();
+	}
 }
 
 void AZSLoginPlayerController::CheckCharacterCountAndAdd(int32 CheckCount, const TArray<FUserCharacter>& UserCharacters)
