@@ -119,16 +119,7 @@ protected:
 	float MoveInputKeyTimeDownAverage = 0.f;
 
 	UPROPERTY(EditDefaultsOnly, Category="Animations|Monateg")
-	class UAnimMontage* WalkingStopMovementAnimMontageRight = nullptr;
-	
-	UPROPERTY(EditDefaultsOnly, Category="Animations|Monateg")
-	class UAnimMontage* WalkingStopMovementAnimMontageLeft = nullptr;
-
-	UPROPERTY(EditDefaultsOnly, Category="Animations|Monateg")
-	class UAnimMontage* RunningStopMovementAnimMontageRight = nullptr;
-	
-	UPROPERTY(EditDefaultsOnly, Category="Animations|Monateg")
-	class UAnimMontage* RunningStopMovementAnimMontageLeft = nullptr;
+	UAnimMontageLocomotionDataAsset* StopMovementAnimMontage = nullptr;
 	
 	// [Server]
 	UPROPERTY(Transient)
@@ -176,6 +167,12 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	class UAnimMontage* PlayStopMovementAnimMontage();
+
+	UFUNCTION(BlueprintCallable)
+	void StopStopMovementAnimMontage();
+	
+	UFUNCTION(BlueprintPure)
+	class UZSCharacterMovementComponent* GetZSCharacterMovement() const;
 	
 protected:
 	UFUNCTION(Server, Reliable, WithValidation)
