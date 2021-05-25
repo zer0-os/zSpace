@@ -127,8 +127,6 @@ EPlayerMoveDirection UZSAnimInstance::GetMoveDirection() const
 		return UKismetMathLibrary::NearlyEqual_FloatFloat(Yaw, Value, 22.5);
 	};
 
-	PRINT_TIME(FString::SanitizeFloat(Yaw), 0.f);
-	
 	const bool bIsForward = NearlyEqual(360.f) || NearlyEqual(0.f);
 	
 	// Forward
