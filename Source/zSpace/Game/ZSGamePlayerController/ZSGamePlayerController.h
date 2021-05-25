@@ -82,5 +82,13 @@ public:
 	// Interface Etherlinker End
 	
 	// Wallet end
+
+	UFUNCTION(BlueprintCallable)
+	void UseTerminal(class UEthereumTerminalComponent  * NewEthereumTerminalComponent);
+
+	UFUNCTION(Server , Reliable, BlueprintCallable, WithValidation)
+	void Server_UserTerminal(class UEthereumTerminalComponent  * NewEthereumTerminalComponent);
+
+	
 	
 };

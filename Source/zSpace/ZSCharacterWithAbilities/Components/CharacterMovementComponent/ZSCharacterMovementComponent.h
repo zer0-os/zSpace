@@ -75,6 +75,9 @@ protected:
 	UFUNCTION(NetMulticast, Reliable)
 	void NetMulticast_SetMaxWalkSpeed(const float& NewValue);
 
+	UFUNCTION(NetMulticast, Reliable)
+	void NetMulticast_SetOrientRotationToMovement(bool NewValue);
+	// 
 	// UFUNCTION(NetMulticast, Reliable)
 	// void NetMulticast_
 	

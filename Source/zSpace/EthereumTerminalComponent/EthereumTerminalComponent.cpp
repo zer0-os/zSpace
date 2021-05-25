@@ -6,7 +6,9 @@
 #include "EtherlinkerFunctionLibrary.h"
 #include "EtherlinkerTypes.h"
 #include "EthereumTerminalDataAsset/EthereumTerminalDataAsset.h"
+#include "Math/UnitConversion.h"
 #include "zSpace/Game/ZSGamePlayerController/Interfaces/EtherlinkerPCInterface/EtherlinkerPCInterface.h"
+#include "zSpace/Game/ZSPlayerState/Components/ZSEtherManager/ZSEtherManager.h"
 
 FEtherlinkerRequestData FZSEtherlinkerRequestData::GetEtherlinkerRequestData() const
 {
@@ -100,6 +102,29 @@ UZSEthereumActorComponent * UEthereumTerminalComponent::GetZsEthereumActorCompon
 	return R_ZSEthereumActorComponent;
 }
 
+UZSEtherManager* UEthereumTerminalComponent::GetZsEtherManager(APawn* NewInteractor)
+{
+	UZSEtherManager * R_ZsEtherManager = nullptr;
+	if(IsValid(NewInteractor))
+	{
+		AController * PC =	NewInteractor->GetController();
+		if(IsValid(PC))
+		{
+			const bool IsImplemented = PC->GetClass()->ImplementsInterface(UEtherlinkerPCInterface::StaticClass());
+			if(IsImplemented)
+			{
+				R_ZsEtherManager = IEtherlinkerPCInterface::Execute_GetZSEtherManager(PC);	
+				UE_LOG(LogTemp, Log, TEXT("Got ZSEtherManager from PC"));
+			}
+			else
+			{
+				UE_LOG(LogTemp, Warning, TEXT("The PlayerController doesn't implemented IEtherlinkerPCInterface"));
+			}
+		}
+	}
+	return R_ZsEtherManager;
+}
+
 void UEthereumTerminalComponent::SetZSEtherlinkerRequestData()
 {
 	if(ROLE_Authority == GetOwnerRole())
@@ -111,22 +136,36 @@ void UEthereumTerminalComponent::SetZSEtherlinkerRequestData()
 	}
 }
 
+void UEthereumTerminalComponent::ResponseReceived(FString Result, FEtherlinkerResponseData Data)
+{
+	if(ROLE_Authority == GetOwnerRole())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("ZSpace: Result = %s"), *Result);
+		FString L_Out;
+		FJsonObjectConverter::UStructToJsonObjectString(Data, L_Out);
+		UE_LOG(LogTemp, Warning, TEXT("ZSpace: Data = %s"), *L_Out);
+		bCallCompleted = true;
+	}
+}
+
 
 void UEthereumTerminalComponent::Use(class APawn * NewInteractor)
 {
+	
 	if(ROLE_Authority == GetOwnerRole())
 	{
 		if(bCanBeUsed)
 		{
+			UZSEtherManager * L_ZsEtherManager = GetZsEtherManager(NewInteractor);
+			checkf(nullptr != L_ZsEtherManager, TEXT("The L_ZsEtherManagetr is nullptr."));
+			if(L_ZsEtherManager)
+			{
+				L_ZsEtherManager->OnResponseReceivedEvent.AddUniqueDynamic(this, &UEthereumTerminalComponent::ResponseReceived)	;
+			}
 			UZSEthereumActorComponent * L_ZSEthereumActorComponent = GetZsEthereumActorComponent(NewInteractor);
 			checkf(nullptr != L_ZSEthereumActorComponent, TEXT("The L_ZSEthereumActorComponent is nullptr."));
 			if(L_ZSEthereumActorComponent)
 			{
-				const bool L_IsAlreadyBound = L_ZSEthereumActorComponent->OnResponseReceived.IsAlreadyBound(this, &UEthereumTerminalComponent::ResponseReceived );
-				if(false == L_IsAlreadyBound)
-				{
-					L_ZSEthereumActorComponent->OnResponseReceived.AddDynamic(this, &UEthereumTerminalComponent::ResponseReceived);
-				}
 				const bool L_IsWalletInitialization  = L_ZSEthereumActorComponent->CheckWalletInitialization();
 				if(L_IsWalletInitialization || EEthOperationType::createWallet == EtherlinkerRequestData.OperationType )
 				{
@@ -150,7 +189,3 @@ void UEthereumTerminalComponent::Use(class APawn * NewInteractor)
 	}
 }
 
-void UEthereumTerminalComponent::ResponseReceived()
-{
-	bCallCompleted = true;	
-}

@@ -53,6 +53,16 @@ public:
 	EPlayerMoveDirection PlayerMoveDirection;
 };
 
+UENUM(BlueprintType)
+enum class EAnimationState : uint8
+{
+	Standing,
+	
+	Start,
+	Looping,
+	End,
+};
+
 UCLASS(BlueprintType)
 class UAnimMontageLocomotionDataAsset : public UDataAsset
 {
@@ -63,7 +73,13 @@ public:
 
 	UFUNCTION(BlueprintPure)
 	class UAnimMontage* GetAnimMontageByGaitAndFoot(const EPlayerGait& PlayerGait, const ECharacterFootType& CharacterFoot);
+	
+	UFUNCTION(BlueprintPure)
+	class UAnimMontage* GetAnimMontageByGaitAndDirection(const EPlayerGait& PlayerGait, const EPlayerMoveDirection PlayerMoveDirection);
 
+	UFUNCTION(BlueprintPure)
+	bool HasThisMontage(class UAnimMontage* ThisMontage);
+	
 	UFUNCTION(BlueprintPure)
 	TArray<class UAnimMontage*> GetAllMontages() const;
 	
