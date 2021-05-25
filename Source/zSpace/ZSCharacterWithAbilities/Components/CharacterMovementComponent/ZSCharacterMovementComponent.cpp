@@ -43,26 +43,34 @@ void UZSCharacterMovementComponent::TickComponent(float DeltaTime, ELevelTick Ti
 
 	if (GetOwnerRole() == ROLE_Authority)
 	{
-		if (OwnerZSCharacter->IsStopMovementAnimMontagePlaying())
+		if (!OwnerZSCharacter->bIsMoveInputPressed)
 		{
-			if (NeedReplicatePlayerGait(EPlayerGait::Standing))
+			if (OwnerZSCharacter->IsStopMovementAnimMontagePlaying())
 			{
-				Server_ChangeMovementMode(EPlayerGait::Standing);
+				if (NeedReplicatePlayerGait(EPlayerGait::Standing))
+				{
+					Server_ChangeMovementMode(EPlayerGait::Standing);
+				}
+				return;
 			}
-			return;
+			
+			// Standing
+			const float Speed = OwnerZSCharacter->GetVelocity().Size2D();
+			if (Speed == 0.f || !OwnerZSCharacter->bIsMoveInputPressed)
+			{
+				if (NeedReplicatePlayerGait(EPlayerGait::Standing))
+				{
+					Server_ChangeMovementMode(EPlayerGait::Standing);
+				}
+				return;
+			}
 		}
 		
-		// Standing
-		const float Speed = OwnerZSCharacter->GetVelocity().Size2D();
-		if (Speed == 0.f || !OwnerZSCharacter->bIsMoveInputPressed)
-		// if (!OwnerZSCharacter->bIsMoveInputPressed)
+		if (OwnerZSCharacter->GetAnimationState() == EAnimationState::Standing)
 		{
-			if (NeedReplicatePlayerGait(EPlayerGait::Standing))
-			{
-				Server_ChangeMovementMode(EPlayerGait::Standing);
-			}
-			return;
+			OwnerZSCharacter->PlayStartMovementAnimMontage();
 		}
+
 		// Sprinting
 		if (bRequestToStartSprinting)
 		{
@@ -113,6 +121,12 @@ void UZSCharacterMovementComponent::Server_ChangeMovementMode_Implementation(EPl
 	if (NewValue != EPlayerGait::Standing)
 	{
 		PlayerGaitPreStanding = NewValue;
+		NetMulticast_SetOrientRotationToMovement(true);
+	}
+	if (NewValue == EPlayerGait::Standing)
+	{
+		OwnerZSCharacter->Server_SetAnimationState(EAnimationState::Standing);
+		NetMulticast_SetOrientRotationToMovement(false);
 	}
 }
 
@@ -136,6 +150,11 @@ void UZSCharacterMovementComponent::NetMulticast_SetMaxWalkSpeed_Implementation(
 	{
 		MaxWalkSpeed = NewValue;
 	}
+}
+
+void UZSCharacterMovementComponent::NetMulticast_SetOrientRotationToMovement_Implementation(bool NewValue)
+{
+	bOrientRotationToMovement = NewValue;
 }
 
 UAnimInstance* UZSCharacterMovementComponent::GetAnimInstance() const
