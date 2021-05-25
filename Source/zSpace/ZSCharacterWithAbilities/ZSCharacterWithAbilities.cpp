@@ -74,6 +74,7 @@ void AZSCharacterWithAbilities::BeginPlay()
 		MovementComponent->OnChangedPlayerGait.AddUniqueDynamic(this, &AZSCharacterWithAbilities::OnChangedPlayerGait);
 	}
 	check(StopMovementAnimMontage);
+	check(StartMovementAnimMontage);
 }
 
 void AZSCharacterWithAbilities::Tick(float NewDeltaSeconds)
@@ -229,11 +230,14 @@ void AZSCharacterWithAbilities::Dodge()
 	if(GetOWSMovementComponent())
 	{
 		GetOWSMovementComponent()->DoDodge();
-		USoundBase * L_Acceleration = Cast<USoundBase>(SoundBaseAcceleration.LoadSynchronous());
-		checkf(nullptr != L_Acceleration, TEXT("The L_Acceleration is nullptr., Pleas Set Acceleration Sound."));
-		if(L_Acceleration)
+		if (bIsMoveInputPressed)
 		{
-			UGameplayStatics::PlaySoundAtLocation(this, L_Acceleration, GetActorLocation());
+			USoundBase * L_Acceleration = Cast<USoundBase>(SoundBaseAcceleration.LoadSynchronous());
+			checkf(nullptr != L_Acceleration, TEXT("The L_Acceleration is nullptr., Pleas Set Acceleration Sound."));
+			if(L_Acceleration)
+			{
+				UGameplayStatics::PlaySoundAtLocation(this, L_Acceleration, GetActorLocation());
+			}
 		}
 	}
 }
@@ -405,6 +409,11 @@ void AZSCharacterWithAbilities::NetMulticast_PlayMontage_Implementation(UAnimMon
 	PlayAnimMontage(AnimMontage, InPlayRate, StartSectionName);
 }
 
+void AZSCharacterWithAbilities::OnRep_AnimationState()
+{
+	
+}
+
 bool AZSCharacterWithAbilities::IsStopMovementAnimMontagePlaying() const
 {
 	if(!IsValid(GetMesh())) return false;
@@ -415,6 +424,27 @@ bool AZSCharacterWithAbilities::IsStopMovementAnimMontagePlaying() const
 	if (!IsValid(StopMovementAnimMontage)) return false;
 
 	for (auto* Montage : StopMovementAnimMontage->GetAllMontages())
+	{
+		const bool& IsPlaying = AnimInstance->Montage_IsPlaying(Montage);
+		if (IsPlaying)
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+
+bool AZSCharacterWithAbilities::IsStartMovementAnimMontagePlaying() const
+{
+	if(!IsValid(GetMesh())) return false;
+	
+	UZSAnimInstance* AnimInstance = Cast<UZSAnimInstance>(GetMesh()->GetAnimInstance());
+	if(!IsValid(AnimInstance)) return false;
+
+	if (!IsValid(StartMovementAnimMontage)) return false;
+	
+	for (auto* Montage : StartMovementAnimMontage->GetAllMontages())
 	{
 		const bool& IsPlaying = AnimInstance->Montage_IsPlaying(Montage);
 		if (IsPlaying)
@@ -483,6 +513,44 @@ UAnimMontage* AZSCharacterWithAbilities::PlayStopMovementAnimMontage()
 	return nullptr;
 }
 
+UAnimMontage* AZSCharacterWithAbilities::PlayStartMovementAnimMontage()
+{
+	if (!(GetIsMoveInputPressed() && AnimationState == EAnimationState::Standing)) return nullptr;
+
+	if (!IsValid(StartMovementAnimMontage)) return nullptr;
+	if (IsStartMovementAnimMontagePlaying()) return nullptr;
+	
+	if(!IsValid(GetMesh())) return nullptr;
+	
+	UZSAnimInstance* AnimInstance = Cast<UZSAnimInstance>(GetMesh()->GetAnimInstance());
+	if(!IsValid(AnimInstance)) return nullptr;
+
+	UZSCharacterMovementComponent* CM = GetZSCharacterMovement();
+	if(!IsValid(CM)) return nullptr;
+
+	const EPlayerGait PlayerGait = CM->GetPlayerGait();
+	const EPlayerMoveDirection& PlayerMoveDirection = AnimInstance->CalculateStartMoveDirection();
+	
+	UAnimMontage* Montage = StartMovementAnimMontage->GetAnimMontageByGaitAndDirection(PlayerGait, PlayerMoveDirection);
+	
+	if (!IsValid(Montage)) return nullptr;
+	
+	if (HasAuthority())
+	{
+		NetMulticast_PlayMontage(Montage, 1.f, NAME_None, true);
+		Server_SetAnimationState(EAnimationState::Start);
+		return Montage;
+	}
+	else if (IsLocallyControlled())
+	{
+		Server_PlayMontage(Montage, 1.f, NAME_None, true);
+		Server_SetAnimationState(EAnimationState::Start);
+		return Montage;
+	}
+	
+	return nullptr;
+}
+
 void AZSCharacterWithAbilities::StopStopMovementAnimMontage()
 {
 	for (auto *Montage : StopMovementAnimMontage->GetAllMontages())
@@ -503,6 +571,22 @@ void AZSCharacterWithAbilities::StopStopMovementAnimMontage()
 UZSCharacterMovementComponent* AZSCharacterWithAbilities::GetZSCharacterMovement() const
 {
 	return Cast<UZSCharacterMovementComponent>(GetCharacterMovement());
+}
+
+void AZSCharacterWithAbilities::NetMulticast_OnChangeAnimationState_Implementation(const EAnimationState& CurrentValue)
+{
+	OnChangeAnimationState.Broadcast(CurrentValue);
+}
+
+void AZSCharacterWithAbilities::Server_SetAnimationState_Implementation(const EAnimationState& NewValue)
+{
+	AnimationState = NewValue;
+	NetMulticast_OnChangeAnimationState(NewValue);
+}
+
+bool AZSCharacterWithAbilities::Server_SetAnimationState_Validate(const EAnimationState& NewValue)
+{
+	return true;
 }
 
 void AZSCharacterWithAbilities::OnChangedPlayerGait(EPlayerGait CurrentPlayerGait)
@@ -564,6 +648,7 @@ void AZSCharacterWithAbilities::GetLifetimeReplicatedProps(TArray<FLifetimePrope
 	DOREPLIFETIME(AZSCharacterWithAbilities, bIsMoveInputPressed);
 	DOREPLIFETIME(AZSCharacterWithAbilities, CharacterRelativeRotation);
 	DOREPLIFETIME(AZSCharacterWithAbilities, MoveInputKeyTimeDownAverage);
+	DOREPLIFETIME(AZSCharacterWithAbilities, AnimationState);
 
 	// Move Axis Values
 	DOREPLIFETIME(AZSCharacterWithAbilities, LastMoveForwardAxisValue);

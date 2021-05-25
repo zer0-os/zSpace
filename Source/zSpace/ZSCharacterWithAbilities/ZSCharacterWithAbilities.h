@@ -16,6 +16,8 @@ class ZSPACE_API AZSCharacterWithAbilities : public AOWSCharacterWithAbilities
 {
 	GENERATED_BODY()
 
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnChangeAnimationState, const EAnimationState, AnimationState);
+	
 	friend class UZSCharacterMovementComponent;
 
 public:
@@ -119,7 +121,10 @@ protected:
 	float MoveInputKeyTimeDownAverage = 0.f;
 
 	UPROPERTY(EditDefaultsOnly, Category="Animations|Monateg")
-	UAnimMontageLocomotionDataAsset* StopMovementAnimMontage = nullptr;
+	class UAnimMontageLocomotionDataAsset* StopMovementAnimMontage = nullptr;
+	
+	UPROPERTY(EditDefaultsOnly, Category="Animations|Monateg")
+	class UAnimMontageLocomotionDataAsset* StartMovementAnimMontage = nullptr;
 	
 	// [Server]
 	UPROPERTY(Transient)
@@ -128,7 +133,16 @@ protected:
 	// [Server]
 	FTimerHandle MoveInputKeyTimeDownAverage_TimerHandle;
 
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing=OnRep_AnimationState)
+	EAnimationState AnimationState;
+
+	UFUNCTION()
+	void OnRep_AnimationState();
+	
 public:
+	UPROPERTY(BlueprintAssignable)
+	FOnChangeAnimationState OnChangeAnimationState;
+	
 	UFUNCTION(BlueprintPure)
 	FORCEINLINE bool GetIsMoveInputPressed() const { return bIsMoveInputPressed; }
 	
@@ -158,6 +172,9 @@ public:
 
 	UFUNCTION(BlueprintPure)
 	bool IsStopMovementAnimMontagePlaying() const;
+	
+	UFUNCTION(BlueprintPure)
+	bool IsStartMovementAnimMontagePlaying() const;
 
 	UFUNCTION(BlueprintCallable, Server, Reliable, WithValidation)
 	void Server_StopMontage(float InBlendOutTime, const UAnimMontage* Montage);
@@ -169,12 +186,24 @@ public:
 	class UAnimMontage* PlayStopMovementAnimMontage();
 
 	UFUNCTION(BlueprintCallable)
+	class UAnimMontage* PlayStartMovementAnimMontage();
+	
+	UFUNCTION(BlueprintCallable)
 	void StopStopMovementAnimMontage();
 	
 	UFUNCTION(BlueprintPure)
 	class UZSCharacterMovementComponent* GetZSCharacterMovement() const;
+
+	UFUNCTION(Server, Reliable, WithValidation)
+	void Server_SetAnimationState(const EAnimationState& NewValue);
+	
+	UFUNCTION(BlueprintPure)
+	FORCEINLINE EAnimationState GetAnimationState() const { return AnimationState; }
 	
 protected:
+	UFUNCTION(NetMulticast, Reliable)
+	void NetMulticast_OnChangeAnimationState(const EAnimationState& CurrentValue);
+	
 	UFUNCTION(Server, Reliable, WithValidation)
 	void Server_SetIsWalking(bool NewValue);
 	

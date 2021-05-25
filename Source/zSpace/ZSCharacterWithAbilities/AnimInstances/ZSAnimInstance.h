@@ -24,6 +24,12 @@ protected:
 	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
 
 protected:
+	UPROPERTY(EditDefaultsOnly)
+	class UAnimMontageLocomotionDataAsset* StopMovementAnimMontage = nullptr;
+	
+	UPROPERTY(EditDefaultsOnly)
+	class UAnimMontageLocomotionDataAsset* StartMovementAnimMontage = nullptr;
+	
 	UPROPERTY(BlueprintReadOnly)
 	class AZSCharacterWithAbilities* CharacterRef = nullptr;
 	
@@ -77,16 +83,22 @@ protected:
 	
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	float MoveInputKeyTimeDownAverage = 0.f;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	EAnimationState AnimationState;
 	
 protected:
 	UFUNCTION()
 	void OnChangedPlayerGait(EPlayerGait NewValue);
+	
+	UFUNCTION()
+	void OnChangedAnimationState(const EAnimationState CurrentValue);
 
 	UFUNCTION(BlueprintPure)
 	bool CurveIsActive(const EAnimCurveType& AnimCurveType, const FName& CurveName) const;
-	
-	UFUNCTION(BlueprintPure)
-	bool IsMovingOnlyForward() const;
+
+	UFUNCTION()
+	void EventOnMontageBlendingOut(class UAnimMontage* Montage, bool bInterrupted);
 	
 	EPlayerMoveDirection GetMoveDirection() const;
 	
@@ -104,7 +116,7 @@ public:
 	EPlayerMoveDirection CalculateStartMoveDirection() const;
 	
 	UFUNCTION(BlueprintPure)
-	float GetPlayerMoveDirectionAsAngle() const ;
+	float GetPlayerMoveDirectionAsAngle(const EPlayerMoveDirection& P_PlayerMoveDirection) const;
 	
 	UFUNCTION(BlueprintCallable)
 	void SetCharacterFood(ECharacterFootType NewValue);
