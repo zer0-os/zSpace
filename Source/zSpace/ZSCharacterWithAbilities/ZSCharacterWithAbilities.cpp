@@ -229,11 +229,14 @@ void AZSCharacterWithAbilities::Dodge()
 	if(GetOWSMovementComponent())
 	{
 		GetOWSMovementComponent()->DoDodge();
-		USoundBase * L_Acceleration = Cast<USoundBase>(SoundBaseAcceleration.LoadSynchronous());
-		checkf(nullptr != L_Acceleration, TEXT("The L_Acceleration is nullptr., Pleas Set Acceleration Sound."));
-		if(L_Acceleration)
+		if (bIsMoveInputPressed)
 		{
-			UGameplayStatics::PlaySoundAtLocation(this, L_Acceleration, GetActorLocation());
+			USoundBase * L_Acceleration = Cast<USoundBase>(SoundBaseAcceleration.LoadSynchronous());
+			checkf(nullptr != L_Acceleration, TEXT("The L_Acceleration is nullptr., Pleas Set Acceleration Sound."));
+			if(L_Acceleration)
+			{
+				UGameplayStatics::PlaySoundAtLocation(this, L_Acceleration, GetActorLocation());
+			}
 		}
 	}
 }
