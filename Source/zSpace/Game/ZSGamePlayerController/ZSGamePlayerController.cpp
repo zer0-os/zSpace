@@ -172,6 +172,7 @@ void AZSGamePlayerController::HideOrShowGameplayWidget()
 }
 
 
+
 bool AZSGamePlayerController::ReTeleport_Validate()
 {
 	return true;
@@ -213,3 +214,37 @@ UZSEtherlinkerRemoteWalletManager* AZSGamePlayerController::GetZSEtherlinkerRemo
 {
 	return ZSEtherlinkerRemoteWalletManager;	
 }
+
+void AZSGamePlayerController::UseTerminal(UEthereumTerminalComponent* NewEthereumTerminalComponent)
+{
+	if(IsValid(NewEthereumTerminalComponent))
+	{
+		if(GetRemoteRole() < ROLE_Authority)
+		{
+			Server_UserTerminal(NewEthereumTerminalComponent);
+			return;		
+		}
+		APawn * L_Pawn = GetPawn();
+		checkf(nullptr != L_Pawn, TEXT("The L_Pawn is nullptr."));
+		if(IsValid(L_Pawn))
+		{
+			NewEthereumTerminalComponent->Use(L_Pawn);
+		}
+	}
+		
+}
+
+bool AZSGamePlayerController::Server_UserTerminal_Validate(UEthereumTerminalComponent* NewEthereumTerminalComponent)
+{
+	if(IsValid(NewEthereumTerminalComponent))
+	{
+		return false;
+	}
+	return true;
+}
+
+void AZSGamePlayerController::Server_UserTerminal_Implementation(UEthereumTerminalComponent* NewEthereumTerminalComponent)
+{
+	UseTerminal(NewEthereumTerminalComponent);	
+}
+
