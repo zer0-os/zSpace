@@ -37,6 +37,7 @@ enum class EEthereumParamTypes : uint8
 	,Address	  UMETA(DisplayName = "Address")
 	
 };
+
 ENUM_RANGE_BY_COUNT(EEthereumParamTypes, EEthereumParamTypes::Address);
 
 //ENUM_RANGE_BY_FIRST_AND_LAST(EEthereumParamTypes, EEthereumParamTypes::String, EEthereumParamTypes::Address );
@@ -134,14 +135,15 @@ private:
 	uint8 bUseCurrentWalletAddressAsFirstParameter:1;
 
 	class UZSEthereumActorComponent * GetZsEthereumActorComponent(class APawn * NewInteractor);
+
+	class UZSEtherManager * GetZsEtherManager(class APawn * NewInteractor);
 	
 public:
 
 	void SetZSEtherlinkerRequestData();
 
 	UFUNCTION()
-	void ResponseReceived();
-		
+	void ResponseReceived(FString Result, FEtherlinkerResponseData Data);
 
 	UFUNCTION(BlueprintCallable)	
 	void Use(class APawn * NewInteractor);
