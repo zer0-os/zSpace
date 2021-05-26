@@ -8,10 +8,10 @@
 
 #include "Blueprint/UserWidget.h"
 #include "WidgetLoadingManagerObject/WidgetLoadingManagerObject.h"
+#include "SoundManager/SoundManager.h"
 
 UZSpaceGameInstance::UZSpaceGameInstance(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
-	
 }
 
 void UZSpaceGameInstance::InitManageWidgetsResolution()
@@ -24,6 +24,10 @@ void UZSpaceGameInstance::InitManageWidgetsResolution()
 			this->GetOuter(), ManageWidgetsResolutionSubClass
 		);
 	}
+	if (IsValid(SoundManagerClass))
+	{	
+		SoundManagerRef = NewObject<USoundManager>(this, SoundManagerClass);
+	}		
 }
 
 class UManageWidgetsResolution* UZSpaceGameInstance::GetManageWidgetsResolution() const
@@ -58,6 +62,11 @@ void UZSpaceGameInstance::Init()
 UWidgetLoadingManagerObject* UZSpaceGameInstance::GetWidgetLoadingManagerObject() const
 {
 	return WidgetLoadingManagerObject;
+}
+
+class USoundManager* UZSpaceGameInstance::GetSoundManagerObject() const
+{
+	return SoundManagerRef;
 }
 
 void UZSpaceGameInstance::ShowCreateWalletWidget()
