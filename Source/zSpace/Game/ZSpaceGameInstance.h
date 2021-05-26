@@ -31,6 +31,9 @@ public:
 	UFUNCTION(BlueprintPure)
 	class UWidgetLoadingManagerObject * GetWidgetLoadingManagerObject() const ;
 
+	UFUNCTION(BlueprintPure)
+	class USoundManager * GetSoundManagerObject() const ;
+
 protected:
 	
 	virtual void Init() override;
@@ -59,6 +62,12 @@ protected:
 	 */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="UI")
 	TSubclassOf<class UUserWidget> LoadingWidgetSubClass;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Sounds")
+	TSubclassOf<class USoundManager> SoundManagerClass;
+
+	UPROPERTY(BlueprintReadOnly)
+	class USoundManager* SoundManagerRef;
 
 public:
 	UPROPERTY(BlueprintReadWrite, Category = "Sessions")
