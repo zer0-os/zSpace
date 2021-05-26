@@ -42,7 +42,7 @@ private:
 	float ZAxisOffset;
 
 	UPROPERTY(BlueprintReadOnly, meta=(AllowPrivateAccess=true))
-	class AOWSCharacter * Character = nullptr;
+	class AZSCharacterWithAbilities * Character = nullptr;
 
 	UPROPERTY(BlueprintReadOnly, meta=(AllowPrivateAccess=true))
 	class AZSGamePlayerController * PlayerController = nullptr;
