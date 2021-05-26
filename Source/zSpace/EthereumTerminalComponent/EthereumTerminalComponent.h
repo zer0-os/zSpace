@@ -134,17 +134,32 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess=true))
 	uint8 bUseCurrentWalletAddressAsFirstParameter:1;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess=true))
+	uint8 WalletZOrder = 10;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess=true))
+	TSoftClassPtr<class UUserWidget>  WalletBalanceClassPtr;
+
+	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess=true))
+	class UUserWidget * WalletBalance = nullptr;
+
+public:
+
+	UFUNCTION(BlueprintCallable)
+	void ShowWalletBalanceWidget();
+
+	UFUNCTION(BlueprintCallable)
+	void HideWalletBalanceWidget();
+	
 	class UZSEthereumActorComponent * GetZsEthereumActorComponent(class APawn * NewInteractor);
 
 	class UZSEtherManager * GetZsEtherManager(class APawn * NewInteractor);
 	
-public:
-
 	void SetZSEtherlinkerRequestData();
 
 	UFUNCTION()
 	void ResponseReceived(FString Result, FEtherlinkerResponseData Data);
-
+	
 	UFUNCTION(BlueprintCallable)	
 	void Use(class APawn * NewInteractor);
 };

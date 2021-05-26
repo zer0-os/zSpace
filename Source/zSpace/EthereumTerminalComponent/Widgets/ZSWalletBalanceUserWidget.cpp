@@ -2,6 +2,7 @@
 
 #include "zSpace/EthereumTerminalComponent/Widgets/ZSWalletBalanceUserWidget.h"
 
+#include "Components/Button.h"
 #include "Kismet/GameplayStatics.h"
 #include "zSpace/EthereumTerminalComponent/EthereumTerminalComponent.h"
 #include "zSpace/Game/ZSPlayerState/Components/ZSEtherManager/ZSEtherManager.h"
@@ -18,7 +19,16 @@ void UZSWalletBalanceUserWidget::NativePreConstruct()
 	{
 		TextBlockBalance->SetText(FText());
 	}
+	if(nullptr != TextBlockButtonBalance)
+	{
+		TextBlockButtonBalance->SetText(FText::FromString("Get Balance"));
+	}
+	if(ButtonGetBalance)
+	{
+		ButtonGetBalance->OnClicked.AddUniqueDynamic(this, &UZSWalletBalanceUserWidget::OnClickGetBalance);
+	}
 }
+
 
 
 void UZSWalletBalanceUserWidget::GetBalance(UEthereumTerminalComponent* NewEthereumTerminalComponent)
@@ -71,3 +81,9 @@ void UZSWalletBalanceUserWidget::ResponseReceived(FString Result, FEtherlinkerRe
 	TextBlockBalance->SetText(FText::FromString(L_Out));
 	UE_LOG(LogTemp, Warning, TEXT("UserWidget ZSpace: Data =  %s"), *L_Out);
 }
+
+void UZSWalletBalanceUserWidget::OnClickGetBalance()
+{
+	
+}
+
