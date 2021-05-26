@@ -22,6 +22,36 @@ UAnimMontage* UAnimMontageLocomotionDataAsset::GetAnimMontageByGaitAndFoot(const
 	return nullptr;
 }
 
+UAnimMontage* UAnimMontageLocomotionDataAsset::GetAnimMontageByGaitAndDirection(const EPlayerGait& PlayerGait,
+	const EPlayerMoveDirection PlayerMoveDirection)
+{
+	for (const auto& Montage : AnimMontageLocomotionArray)
+	{
+		if (IsValid(Montage.AnimMontage))
+		{
+			if (Montage.PlayerGait == PlayerGait && Montage.PlayerMoveDirection == PlayerMoveDirection)
+			{
+				return Montage.AnimMontage;
+			}
+		}
+	}
+		
+	return nullptr;
+}
+
+bool UAnimMontageLocomotionDataAsset::HasThisMontage(UAnimMontage* ThisMontage)
+{
+	for (const auto& Montage : AnimMontageLocomotionArray)
+	{
+		if (IsValid(Montage.AnimMontage) && Montage.AnimMontage == ThisMontage)
+		{
+			return true;
+		}
+	}
+		
+	return false;
+}
+
 TArray<UAnimMontage*> UAnimMontageLocomotionDataAsset::GetAllMontages() const
 {
 	TArray<UAnimMontage*> Result;

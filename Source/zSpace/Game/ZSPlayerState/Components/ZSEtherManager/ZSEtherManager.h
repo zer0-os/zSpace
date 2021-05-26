@@ -18,4 +18,16 @@ public:
 	
 	UZSEtherManager();
 
+
+	UFUNCTION(Client, Reliable)
+	void Client_ResponseReceived(const FString & Result, const FEtherlinkerResponseData & Data);
+
+	UFUNCTION()
+	void Server_ResponseReceived(FString  Result, FEtherlinkerResponseData  Data);
+
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FClientResponseReceivedEvent, FString,  Result, FEtherlinkerResponseData, Data);
+
+	UPROPERTY(BlueprintAssignable)
+	FClientResponseReceivedEvent OnClientResponseReceivedEvent;
+
 };

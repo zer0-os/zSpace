@@ -228,12 +228,12 @@ void UZSEthereumActorComponent::BindEvents()
 	checkf(nullptr != ZSEtherlinkerRemoteWalletManager, TEXT("The ZSEtherlinkerRemoteWalletManager is nullptr."));
 	if(IsValid(ZSEtherlinkerRemoteWalletManager))
 	{
-		ZSEtherlinkerRemoteWalletManager->OnResponseReceivedDelegate.AddDynamic(this, &UZSEthereumActorComponent::OnRwaResponseReceived);
+		ZSEtherlinkerRemoteWalletManager->OnResponseReceivedDelegate.AddUniqueDynamic(this, &UZSEthereumActorComponent::OnRwaResponseReceived);
 	}
 	checkf(nullptr != ZSEtherManager, TEXT("The ZSEtherManager is nullptr."));
 	if(IsValid(ZSEtherManager))
 	{
-		ZSEtherManager->OnBatchResponseReceivedEvent.AddDynamic(this, &UZSEthereumActorComponent::OnBatchResponseReceived);
+		ZSEtherManager->OnBatchResponseReceivedEvent.AddUniqueDynamic(this, &UZSEthereumActorComponent::OnBatchResponseReceived);
 	}
 }
 
