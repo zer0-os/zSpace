@@ -230,7 +230,12 @@ void AZSCharacterWithAbilities::Dodge()
 	if(GetOWSMovementComponent())
 	{
 		GetOWSMovementComponent()->DoDodge();
-		if (bIsMoveInputPressed)
+		
+		if (AnimationState == EAnimationState::Start)
+		{
+			StopStartMovementAnimMontage();
+		}
+		if (AnimationState != EAnimationState::Standing)
 		{
 			USoundBase * L_Acceleration = Cast<USoundBase>(SoundBaseAcceleration.LoadSynchronous());
 			checkf(nullptr != L_Acceleration, TEXT("The L_Acceleration is nullptr., Pleas Set Acceleration Sound."));
@@ -566,6 +571,24 @@ void AZSCharacterWithAbilities::StopStopMovementAnimMontage()
 			Server_StopMontage(0.25f, Montage);
 		}
 	}
+}
+
+void AZSCharacterWithAbilities::StopStartMovementAnimMontage()
+{
+	for (auto *Montage : StartMovementAnimMontage->GetAllMontages())
+	{
+		if (!IsValid(Montage)) return;
+		
+		if (HasAuthority())
+		{
+			NetMulticast_StopMontage(0.25f, Montage);
+		}
+		else if (IsLocallyControlled())
+		{
+			Server_StopMontage(0.25f, Montage);
+		}
+	}
+
 }
 
 UZSCharacterMovementComponent* AZSCharacterWithAbilities::GetZSCharacterMovement() const

@@ -190,6 +190,9 @@ public:
 	
 	UFUNCTION(BlueprintCallable)
 	void StopStopMovementAnimMontage();
+
+	UFUNCTION(BlueprintCallable)
+	void StopStartMovementAnimMontage();
 	
 	UFUNCTION(BlueprintPure)
 	class UZSCharacterMovementComponent* GetZSCharacterMovement() const;
