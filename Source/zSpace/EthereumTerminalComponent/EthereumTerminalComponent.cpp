@@ -75,6 +75,43 @@ void UEthereumTerminalComponent::TickComponent(float DeltaTime, ELevelTick TickT
 	// ...
 }
 
+void UEthereumTerminalComponent::ShowWalletBalanceWidget()
+{
+	if(GetOwnerRole() < ROLE_Authority)
+	{
+		if(WalletBalance == nullptr)
+		{
+			const TSubclassOf<UUserWidget> L_WalletBalanceClass = WalletBalanceClassPtr.LoadSynchronous();
+			if(L_WalletBalanceClass)
+			{
+				APlayerController * PC = UGameplayStatics::GetPlayerController(this, 0);
+				checkf(nullptr != PC, TEXT("The PC is nullptr."))
+				WalletBalance = CreateWidget<UUserWidget>(PC, L_WalletBalanceClass);
+			}
+			else
+			{
+				UE_LOG(LogTemp, Warning, TEXT("The WalletBalanceClassPtr is nullptr. Please set WalletbalanceClass."));
+			}
+		}
+		if(WalletBalance)
+		{
+			if(false == WalletBalance->IsInViewport())
+			{
+				WalletBalance->AddToViewport(WalletZOrder);	
+			}
+		}
+	}
+}
+
+void UEthereumTerminalComponent::HideWalletBalanceWidget()
+{
+	if(WalletBalance)
+	{
+		WalletBalance->RemoveFromViewport();
+	}
+
+}
+
 UZSEthereumActorComponent * UEthereumTerminalComponent::GetZsEthereumActorComponent(APawn * NewInteractor)
 {
 	UZSEthereumActorComponent * R_ZSEthereumActorComponent = nullptr;

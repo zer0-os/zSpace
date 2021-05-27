@@ -34,7 +34,7 @@ private:
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget, AllowPrivateAccess=true))
 	UTextBlock * TextBlockButtonBalance = nullptr;
 
-
+	
 public:
 
 	UFUNCTION(BlueprintCallable)
@@ -51,9 +51,14 @@ public:
 	UFUNCTION()
 	void ResponseReceived(FString  Result, struct FEtherlinkerResponseData Data);
 
+	UFUNCTION()
+	void OnClickGetBalance();
 
 	
 	
 };
+
+
+
 
 
