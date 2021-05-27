@@ -5,6 +5,8 @@
 
 #include "zSpace/UI/SelectCharacterUserWidget.h"
 #include "Engine/CanvasRenderTarget2D.h"
+#include "Kismet/KismetMathLibrary.h"
+#include "Kismet/KismetSystemLibrary.h"
 #include "UObject/NoExportTypes.h"
 
 FIntPoint UConvertEResolutionToFIntPointOrViceVersa::GetIntPoint(const UObject* WorldContext, EResolution Resolution)
@@ -28,9 +30,25 @@ FIntPoint UConvertEResolutionToFIntPointOrViceVersa::GetIntPoint(const UObject* 
 
 EResolution UConvertEResolutionToFIntPointOrViceVersa::GetEnumResolution(const UObject* WorldContext, FIntPoint Resolution)
 {
-	if (Resolution.X == 5120 && Resolution.Y == 1440) return EResolution::R_5120X1440;
-	if (Resolution.X == 1920 && Resolution.Y == 1080) return EResolution::R_1920X1080;
-	if (Resolution.X == 1440 && Resolution.Y == 900) return EResolution::R_1440X900;
+	float ErrorTolerance = 0.f;
+	UWorld *World = WorldContext->GetWorld();
+	if (IsValid(WorldContext))
+	{
+		const EWorldType::Type WorldType = World->WorldType;
+		if (WorldType == EWorldType::PIE)
+		{
+			ErrorTolerance = 100.f;
+		}
+	}
+	
+	auto Compare = [ErrorTolerance](const float A, const float B) -> bool
+	{
+		return UKismetMathLibrary::NearlyEqual_FloatFloat(A, B, ErrorTolerance);
+	};
+	
+	if (Compare(Resolution.X, 5120.f) && Compare(Resolution.Y, 1440.f)) return EResolution::R_5120X1440;
+	if (Compare(Resolution.X, 1920.f) && Compare(Resolution.Y, 1080.f)) return EResolution::R_1920X1080;
+	if (Compare(Resolution.X, 1440.f) && Compare(Resolution.Y, 900.f)) return EResolution::R_1440X900;
 
 	return EResolution::None;
 }
