@@ -19,6 +19,7 @@
 #include "Kismet/KismetSystemLibrary.h"
 #include "Net/UnrealNetwork.h"
 #include "zSpace/zSpace.h"
+#include "zSpace/BlueprintFunctionLibrary/UIBlueprintFunctionLibrary.h"
 
 AZSCharacterWithAbilities::AZSCharacterWithAbilities(const FObjectInitializer& NewObjectInitializer) : Super(NewObjectInitializer.SetDefaultSubobjectClass<UZSCharacterMovementComponent>(ACharacter::CharacterMovementComponentName))
 {
@@ -75,6 +76,16 @@ void AZSCharacterWithAbilities::BeginPlay()
 	}
 	check(StopMovementAnimMontage);
 	check(StartMovementAnimMontage);
+
+	const EResolution& Resolution = UUIBlueprintFunctionLibrary::GetCurrentScreenResolutionEnum(this);
+	if (Resolution == EResolution::R_5120X1440)
+	{
+		SpringArmComponent->TargetArmLength = 640.f;
+	}
+	else if (Resolution != EResolution::None)
+	{
+		SpringArmComponent->TargetArmLength = 300.f;
+	}
 }
 
 void AZSCharacterWithAbilities::Tick(float NewDeltaSeconds)
@@ -593,7 +604,6 @@ void AZSCharacterWithAbilities::StopStartMovementAnimMontage()
 			Server_StopMontage(0.25f, Montage);
 		}
 	}
-
 }
 
 UZSCharacterMovementComponent* AZSCharacterWithAbilities::GetZSCharacterMovement() const
