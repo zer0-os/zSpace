@@ -246,13 +246,18 @@ void AZSCharacterWithAbilities::Dodge()
 		{
 			StopStartMovementAnimMontage();
 		}
-		if (AnimationState != EAnimationState::Standing)
+
+		UZSCharacterMovementComponent* MovementComponent = Cast<UZSCharacterMovementComponent>(GetCharacterMovement());
+		if (IsValid(MovementComponent))
 		{
-			USoundBase * L_Acceleration = Cast<USoundBase>(SoundBaseAcceleration.LoadSynchronous());
-			checkf(nullptr != L_Acceleration, TEXT("The L_Acceleration is nullptr., Pleas Set Acceleration Sound."));
-			if(L_Acceleration)
+			if (AnimationState != EAnimationState::Standing && MovementComponent->IsFalling() == false)
 			{
-				UGameplayStatics::PlaySoundAtLocation(this, L_Acceleration, GetActorLocation());
+				USoundBase * L_Acceleration = Cast<USoundBase>(SoundBaseAcceleration.LoadSynchronous());
+				checkf(nullptr != L_Acceleration, TEXT("The L_Acceleration is nullptr., Pleas Set Acceleration Sound."));
+				if(L_Acceleration)
+				{
+					UGameplayStatics::PlaySoundAtLocation(this, L_Acceleration, GetActorLocation());
+				}
 			}
 		}
 	}
