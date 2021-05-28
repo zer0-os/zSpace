@@ -127,10 +127,6 @@ protected:
 	class UAnimMontageLocomotionDataAsset* StartMovementAnimMontage = nullptr;
 	
 	// [Server]
-	UPROPERTY(Transient)
-	class UAnimMontage* CurrentPlayingStopMovementAnimMontage = nullptr;
-	
-	// [Server]
 	FTimerHandle MoveInputKeyTimeDownAverage_TimerHandle;
 
 	UPROPERTY(BlueprintReadOnly, ReplicatedUsing=OnRep_AnimationState)

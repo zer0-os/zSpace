@@ -62,6 +62,10 @@ protected:
 	UPROPERTY(Replicated, BlueprintReadOnly)
 	EPlayerGait PlayerGaitPreStanding = EPlayerGait::Standing;
 	
+	// Update When Animation State is equal StartMovingAnimation
+	UPROPERTY(Replicated, BlueprintReadOnly)
+	float ControlYawWhenStartAnimationPlaying = 0.f;
+	
 	UPROPERTY(BlueprintReadOnly)
 	class UAnimInstance* AnimInstance = nullptr;
 

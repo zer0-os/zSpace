@@ -242,7 +242,7 @@ void AZSCharacterWithAbilities::Dodge()
 	{
 		GetOWSMovementComponent()->DoDodge();
 		
-		if (AnimationState == EAnimationState::Start)
+		if (AnimationState == EAnimationState::StartMovingAnimation)
 		{
 			StopStartMovementAnimMontage();
 		}
@@ -559,13 +559,13 @@ UAnimMontage* AZSCharacterWithAbilities::PlayStartMovementAnimMontage()
 	if (HasAuthority())
 	{
 		NetMulticast_PlayMontage(Montage, 1.f, NAME_None, true);
-		Server_SetAnimationState(EAnimationState::Start);
+		Server_SetAnimationState(EAnimationState::StartMovingAnimation);
 		return Montage;
 	}
 	else if (IsLocallyControlled())
 	{
 		Server_PlayMontage(Montage, 1.f, NAME_None, true);
-		Server_SetAnimationState(EAnimationState::Start);
+		Server_SetAnimationState(EAnimationState::StartMovingAnimation);
 		return Montage;
 	}
 	
@@ -633,7 +633,7 @@ void AZSCharacterWithAbilities::OnChangedPlayerGait(EPlayerGait CurrentPlayerGai
 	{
 		if (HasAuthority())
 		{
-			CurrentPlayingStopMovementAnimMontage = PlayStopMovementAnimMontage();
+			PlayStopMovementAnimMontage();
 		}
 	}
 }

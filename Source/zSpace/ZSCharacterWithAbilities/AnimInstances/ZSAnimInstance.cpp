@@ -102,11 +102,11 @@ void UZSAnimInstance::EventOnMontageBlendingOut(UAnimMontage* Montage, bool bInt
 		{
 			if (StartMovementAnimMontage->HasThisMontage(Montage))
 			{
-				CharacterRef->Server_SetAnimationState(EAnimationState::Looping);
+				CharacterRef->Server_SetAnimationState(EAnimationState::LoopingInPlaceAnimation);
 			}
 			if (StopMovementAnimMontage->HasThisMontage(Montage))
 			{
-				CharacterRef->Server_SetAnimationState(EAnimationState::End);
+				CharacterRef->Server_SetAnimationState(EAnimationState::StopMovingAnimation);
 			}
 		}
 	}
