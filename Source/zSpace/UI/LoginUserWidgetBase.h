@@ -36,6 +36,9 @@ public:
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCosmetic)
 	void OnPressedEnter();
 
+	UFUNCTION(BlueprintCallable)
+	void UnBindToPreviousMenuEvent();
+
 	UFUNCTION()
 	void ToPreviousMenu();
 };
