@@ -39,9 +39,12 @@ FIntPoint UUIBlueprintFunctionLibrary::GetCurrentScreenResolution(const UObject*
 	if (IsValid(World))
 	{
 		APlayerController* PC = World->GetFirstPlayerController();
-		int32 SizeX, SizeY;
-		PC->GetViewportSize(SizeX, SizeY);
-		return FIntPoint(SizeX, SizeY);
+		if (IsValid(PC))
+		{
+			int32 SizeX, SizeY;
+			PC->GetViewportSize(SizeX, SizeY);
+			return FIntPoint(SizeX, SizeY);
+		}
 	}
 	
 	return FIntPoint::ZeroValue;
