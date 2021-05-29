@@ -193,5 +193,4 @@ void UZSCharacterMovementComponent::GetLifetimeReplicatedProps(TArray<FLifetimeP
 
 	DOREPLIFETIME(UZSCharacterMovementComponent, PlayerGait);
 	DOREPLIFETIME(UZSCharacterMovementComponent, PlayerGaitPreStanding);
-	DOREPLIFETIME(UZSCharacterMovementComponent, ControlYawWhenStartAnimationPlaying);
 }

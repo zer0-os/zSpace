@@ -546,10 +546,10 @@ UAnimMontage* AZSCharacterWithAbilities::PlayStartMovementAnimMontage()
 	UZSAnimInstance* AnimInstance = Cast<UZSAnimInstance>(GetMesh()->GetAnimInstance());
 	if(!IsValid(AnimInstance)) return nullptr;
 
-	UZSCharacterMovementComponent* CM = GetZSCharacterMovement();
-	if(!IsValid(CM)) return nullptr;
+	UZSCharacterMovementComponent* L_CharacterMovementComponent = GetZSCharacterMovement();
+	if(!IsValid(L_CharacterMovementComponent)) return nullptr;
 
-	const EPlayerGait PlayerGait = CM->GetPlayerGait();
+	const EPlayerGait PlayerGait = L_CharacterMovementComponent->GetPlayerGait();
 	const EPlayerMoveDirection& PlayerMoveDirection = AnimInstance->CalculateStartMoveDirection();
 	
 	UAnimMontage* Montage = StartMovementAnimMontage->GetAnimMontageByGaitAndDirection(PlayerGait, PlayerMoveDirection);

@@ -59,17 +59,6 @@ void UZSAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	
 	CharacterRelativeRotation = CharacterRef->GetCharacterRelativeRotation();
 
-	// if (Speed == 0.f)
-	// {
-	// 	StartPlayerMoveDirection = CalculateStartMoveDirection();
-	// }
-
-	// static int X = 0;
-	// if (X == 10.f)
-	// {
-	// 	X = 0;
-	// }
-	// X++;
 	StartPlayerMoveDirection = CalculateStartMoveDirection();
 	
 	MoveInputKeyTimeDownAverage = CharacterRef->GetMoveInputKeyTimeDownAverage();
