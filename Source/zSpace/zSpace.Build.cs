@@ -22,6 +22,7 @@ public class zSpace : ModuleRules
 			, "UniversalVoiceChatPro"
 			, "PhysicsCore"
             , "MediaAssets"
+            , "Etherlinker"
 			});
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });

@@ -128,6 +128,11 @@ public:
 	
 	UPROPERTY(BlueprintReadOnly)
 	EPreviewCharacterPosition PreviewCharacterDirection;
+
+	friend bool operator ==(const FCharacterInfoForUI& A, const FCharacterInfoForUI& B)
+	{
+		return A.CharacterName == B.CharacterName;
+	}
 };
 
 USTRUCT(BlueprintType)

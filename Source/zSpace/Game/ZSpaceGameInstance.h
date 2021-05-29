@@ -31,13 +31,13 @@ public:
 	UFUNCTION(BlueprintPure)
 	class UWidgetLoadingManagerObject * GetWidgetLoadingManagerObject() const ;
 
+	UFUNCTION(BlueprintPure)
+	class USoundManager * GetSoundManagerObject() const ;
+
 protected:
 	
 	virtual void Init() override;
 
-	
-protected:
-	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="UI")
 	TSubclassOf<class UManageWidgetsResolution> ManageWidgetsResolutionSubClass;
 
@@ -63,8 +63,65 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="UI")
 	TSubclassOf<class UUserWidget> LoadingWidgetSubClass;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Sounds")
+	TSubclassOf<class USoundManager> SoundManagerClass;
+
+	UPROPERTY(BlueprintReadOnly)
+	class USoundManager* SoundManagerRef;
+
 public:
 	UPROPERTY(BlueprintReadWrite, Category = "Sessions")
 	FString CharacterName;
+	
+private:
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess=true))
+	TSoftClassPtr<class UUserWidget> CreateWalletWidgetSoftClassPtr;
+
+	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess=true))
+	class UUserWidget * CreateWalletWidget = nullptr;
+	
+public:
+	
+	UFUNCTION(BlueprintCallable)
+	void ShowCreateWalletWidget();
+
+	UFUNCTION(BlueprintCallable)
+	void HideCreateWalletWidget();
+
+private:
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess=true))
+	TSoftClassPtr<class UUserWidget> LoadRemoteWalletWidgetSoftClassPtr;
+
+	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess=true))
+	class UUserWidget * LoadRemoteWalletWidget = nullptr;
+	
+public:
+	
+	UFUNCTION(BlueprintCallable)
+	void ShowLoadRemoteWalletWidget();
+
+	UFUNCTION(BlueprintCallable)
+	void HideLoadRemoteWalletWidget();
+	
+private:
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess=true))
+	TSoftClassPtr<class UUserWidget> LoadWalletWithMnemonicWidgetSoftClassPtr;
+
+	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess=true))
+	class UUserWidget * LoadWalletWithMnemonicWidget = nullptr;
+	
+public:
+	
+	UFUNCTION(BlueprintCallable)
+	void ShowLoadWalletWithMnemonicWidget();
+
+	UFUNCTION(BlueprintCallable)
+	void HideLoadWalletWithMnemonicWidget();
+
+
+	
 
 };

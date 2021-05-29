@@ -73,6 +73,9 @@ public:
 	UPROPERTY(BlueprintReadWrite)
 	TArray<FCustomCharacterDataStruct> CustomCharacterDataMeshArray;
 	
+	UPROPERTY(BlueprintReadWrite)
+	uint8 isLoading : 1;
+
 protected:
 	UPROPERTY(BlueprintGetter=GetUserSessionGUID, BlueprintSetter=SetUserSessionGUID)
 	FString UserSessionGUID;

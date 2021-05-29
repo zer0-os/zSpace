@@ -8,8 +8,12 @@
 #include "Components/BoxComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetSystemLibrary.h"
-#include "zSpace/ZSGamePlayerController/ZSGamePlayerController.h"
+#include "zSpace/Game/ZSGamePlayerController/ZSGamePlayerController.h"
 #include "Blueprint/UserWidget.h"
+#include "../ZSCharacterWithAbilities/ZSCharacterWithAbilities.h"
+#include "../Game/ZSpaceGameInstance.h"
+#include "../Game/SoundManager/SoundManager.h"
+#include "zSpace/zSpace.h"
 
 // Sets default values
 AZSTravelToMapActor::AZSTravelToMapActor()
@@ -47,7 +51,7 @@ void AZSTravelToMapActor::Tick(float DeltaTime)
 
 void AZSTravelToMapActor::GetOWSCharacter(AActor * NewOtherActor)
 {
-	Character = Cast<AOWSCharacter>(NewOtherActor);
+	Character = Cast<AZSCharacterWithAbilities>(NewOtherActor);
 }
 
 void AZSTravelToMapActor::GetPlayerController(AOWSCharacter* NewOWSCharacter)
@@ -143,29 +147,45 @@ void AZSTravelToMapActor::DisableCharacterMovement()
 void AZSTravelToMapActor::ComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 
+	UZSpaceGameInstance* GameInstance = Cast<UZSpaceGameInstance>(GetGameInstance());
+	if (GameInstance)
+	{
+		USoundManager* SoundManager = GameInstance->GetSoundManagerObject();
+		if (SoundManager)
+		{
+			SoundManager->PlayPortalSoundByType(EPortalSoundType::FadeIn);
+		}
+	}
+
 	if(HasAuthority())
 	{
 		GetOWSCharacter(OtherActor);
 		GetPlayerController(Character);
 		GetPlayerState(PlayerController);
-		const bool L_IsEmpty = IsAvailableTravelToMap();
-		if(L_IsEmpty)
+			
+		FTimerHandle Timer;
+
+		GetWorld()->GetTimerManager().SetTimer(Timer, [&]()
 		{
-			if(UseDynamicSpawnLocation)
+			const bool L_IsEmpty = IsAvailableTravelToMap();
+			if(L_IsEmpty)
 			{
-				DetermineDynamicSpawnAxisAndSetAppropriateOffset();		
-			}
-			if(ShowLoadingDialog)
-			{
-				const FString L_CharacterName = GetCharacterName();
-				ShowLoadingEvent(L_CharacterName);
-				DisableCharacterMovement();
-				if(IsValid(PlayerController))
+				if(UseDynamicSpawnLocation)
 				{
-					GetMapServerToTravelTo(PlayerController, ERPGSchemeToChooseMap::MapWithFewestPlayers, 0);
+					DetermineDynamicSpawnAxisAndSetAppropriateOffset();		
+				}
+				if(ShowLoadingDialog)
+				{
+					const FString L_CharacterName = GetCharacterName();
+					ShowLoadingEvent(L_CharacterName);
+					DisableCharacterMovement();
+					if(IsValid(PlayerController))
+					{
+						GetMapServerToTravelTo(PlayerController, ERPGSchemeToChooseMap::MapWithFewestPlayers, 0);
+					}
 				}
 			}
-		}
+		}, 0.5f, false);
 	}
 	
 }
