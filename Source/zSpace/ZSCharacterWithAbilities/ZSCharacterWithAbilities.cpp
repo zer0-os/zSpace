@@ -169,6 +169,8 @@ void AZSCharacterWithAbilities::Jump()
 {
 	JumpIntoWater();
 	Super::Jump();
+
+	Server_StopMontage(0.25f, AttackMontage);
 }
 
 void AZSCharacterWithAbilities::StopJumping()
@@ -283,6 +285,7 @@ void AZSCharacterWithAbilities::OnStartCrouching()
 	if (CanCrouch())
 	{
 		Crouch();
+		Server_StopMontage(0.25f, AttackMontage);
 	}
 }
 
