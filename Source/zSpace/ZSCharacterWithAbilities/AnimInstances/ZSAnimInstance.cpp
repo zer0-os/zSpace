@@ -97,6 +97,17 @@ void UZSAnimInstance::EventOnMontageBlendingOut(UAnimMontage* Montage, bool bInt
 			{
 				CharacterRef->Server_SetAnimationState(EAnimationState::StopMovingAnimation);
 			}
+			if (Montage == CharacterRef->GetAttackMontage())
+			{
+				if (bIsMoveInputPressed)
+				{
+					CharacterRef->Server_SetAnimationState(EAnimationState::LoopingInPlaceAnimation);
+				}
+				else
+				{
+					CharacterRef->Server_SetAnimationState(EAnimationState::Standing);
+				}
+			}
 		}
 	}
 }
