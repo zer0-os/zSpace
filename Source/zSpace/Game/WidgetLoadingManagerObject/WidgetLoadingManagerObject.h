@@ -18,8 +18,18 @@ private:
 	
 	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess=true))
 	class UUserWidget * UserWidgetLoading = nullptr;
+
+	UPROPERTY()
+	class UZSpaceGameInstance * ZSpaceGameInstance = nullptr;
+
+	uint8 bNotShowLoadingWidget:1;
 	
 public:
+
+	UFUNCTION(BlueprintCallable)
+	void SetNotShowLoadingWidget(bool NewNotShowLoadingWidget);
+
+	void SetZSpaceGameInstance(class UZSpaceGameInstance * NewZSpaceGameInstance);
 
 	UFUNCTION(BlueprintCallable, meta = (NewZOrder=99))
 	void ShowLoadingWidget(TSubclassOf<class UUserWidget> NewLoadingWidget, int32 NewZOrder);

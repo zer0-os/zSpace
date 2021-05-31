@@ -59,17 +59,6 @@ void UZSAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	
 	CharacterRelativeRotation = CharacterRef->GetCharacterRelativeRotation();
 
-	// if (Speed == 0.f)
-	// {
-	// 	StartPlayerMoveDirection = CalculateStartMoveDirection();
-	// }
-
-	// static int X = 0;
-	// if (X == 10.f)
-	// {
-	// 	X = 0;
-	// }
-	// X++;
 	StartPlayerMoveDirection = CalculateStartMoveDirection();
 	
 	MoveInputKeyTimeDownAverage = CharacterRef->GetMoveInputKeyTimeDownAverage();
@@ -102,11 +91,22 @@ void UZSAnimInstance::EventOnMontageBlendingOut(UAnimMontage* Montage, bool bInt
 		{
 			if (StartMovementAnimMontage->HasThisMontage(Montage))
 			{
-				CharacterRef->Server_SetAnimationState(EAnimationState::Looping);
+				CharacterRef->Server_SetAnimationState(EAnimationState::LoopingInPlaceAnimation);
 			}
 			if (StopMovementAnimMontage->HasThisMontage(Montage))
 			{
-				CharacterRef->Server_SetAnimationState(EAnimationState::End);
+				CharacterRef->Server_SetAnimationState(EAnimationState::StopMovingAnimation);
+			}
+			if (Montage == CharacterRef->GetAttackMontage())
+			{
+				if (bIsMoveInputPressed)
+				{
+					CharacterRef->Server_SetAnimationState(EAnimationState::LoopingInPlaceAnimation);
+				}
+				else
+				{
+					CharacterRef->Server_SetAnimationState(EAnimationState::Standing);
+				}
 			}
 		}
 	}

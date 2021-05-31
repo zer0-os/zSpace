@@ -126,9 +126,8 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category="Animations|Monateg")
 	class UAnimMontageLocomotionDataAsset* StartMovementAnimMontage = nullptr;
 	
-	// [Server]
-	UPROPERTY(Transient)
-	class UAnimMontage* CurrentPlayingStopMovementAnimMontage = nullptr;
+	UPROPERTY(EditDefaultsOnly, Category="Animations|Monateg")
+	class UAnimMontage* AttackMontage = nullptr;
 	
 	// [Server]
 	FTimerHandle MoveInputKeyTimeDownAverage_TimerHandle;
@@ -164,6 +163,9 @@ public:
 	UFUNCTION(BlueprintPure)
 	FORCEINLINE float GetMoveInputKeyTimeDownAverage() const { return MoveInputKeyTimeDownAverage; }
 
+	UFUNCTION(BlueprintPure)
+	FORCEINLINE UAnimMontage* GetAttackMontage() const { return AttackMontage; }
+	
 	UFUNCTION(BlueprintCallable, Server, Reliable, WithValidation)
 	void Server_PlayMontage(class UAnimMontage* AnimMontage, float InPlayRate = 1.f, FName StartSectionName = NAME_None, bool PlayInServer = false);
 
@@ -190,6 +192,9 @@ public:
 	
 	UFUNCTION(BlueprintCallable)
 	void StopStopMovementAnimMontage();
+
+	UFUNCTION(BlueprintCallable)
+	void StopStartMovementAnimMontage();
 	
 	UFUNCTION(BlueprintPure)
 	class UZSCharacterMovementComponent* GetZSCharacterMovement() const;

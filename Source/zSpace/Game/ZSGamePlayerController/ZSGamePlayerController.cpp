@@ -248,3 +248,7 @@ void AZSGamePlayerController::Server_UserTerminal_Implementation(UEthereumTermin
 	UseTerminal(NewEthereumTerminalComponent);	
 }
 
+void AZSGamePlayerController::CallOnNotifyGetAllUserCharacters(const TArray<FUserCharacter>& NewUserCharacter)
+{
+	OnNotifyGetAllUserCharacters.Broadcast(NewUserCharacter);
+}

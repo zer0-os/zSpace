@@ -89,6 +89,14 @@ public:
 	UFUNCTION(Server , Reliable, BlueprintCallable, WithValidation)
 	void Server_UserTerminal(class UEthereumTerminalComponent  * NewEthereumTerminalComponent);
 
+public:
 	
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FNotifyGetAllUserCharacters, const TArray<struct FUserCharacter> &, UserCharacter);
+
+	UPROPERTY(BlueprintAssignable)
+	FNotifyGetAllUserCharacters OnNotifyGetAllUserCharacters;
+
+	UFUNCTION(BlueprintCallable)
+	void CallOnNotifyGetAllUserCharacters(const TArray<struct FUserCharacter> & NewUserCharacter);
 	
 };

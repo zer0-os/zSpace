@@ -57,6 +57,15 @@ void ULoginUserWidgetBase::OnTextCommitted(const FText& Text, ETextCommit::Type 
 	}
 }
 
+void ULoginUserWidgetBase::UnBindToPreviousMenuEvent()
+{
+	AZSLoginPlayerController* PlayerController = Cast<AZSLoginPlayerController>(GetOwningPlayer());
+	if (IsValid(PlayerController))
+	{
+		PlayerController->OnEscButtonPressed.RemoveDynamic(this, &ULoginUserWidgetBase::ToPreviousMenu);
+	}
+}
+
 void ULoginUserWidgetBase::ToPreviousMenu()
 {
 	UZSpaceGameInstance* GameInstance = GetGameInstance<UZSpaceGameInstance>();

@@ -19,6 +19,7 @@
 #include "Kismet/KismetSystemLibrary.h"
 #include "Net/UnrealNetwork.h"
 #include "zSpace/zSpace.h"
+#include "zSpace/BlueprintFunctionLibrary/UIBlueprintFunctionLibrary.h"
 
 AZSCharacterWithAbilities::AZSCharacterWithAbilities(const FObjectInitializer& NewObjectInitializer) : Super(NewObjectInitializer.SetDefaultSubobjectClass<UZSCharacterMovementComponent>(ACharacter::CharacterMovementComponentName))
 {
@@ -75,6 +76,16 @@ void AZSCharacterWithAbilities::BeginPlay()
 	}
 	check(StopMovementAnimMontage);
 	check(StartMovementAnimMontage);
+
+	const EResolution& Resolution = UUIBlueprintFunctionLibrary::GetCurrentScreenResolutionEnum(this);
+	if (Resolution == EResolution::R_5120X1440)
+	{
+		SpringArmComponent->TargetArmLength = 640.f;
+	}
+	else if (Resolution != EResolution::None)
+	{
+		SpringArmComponent->TargetArmLength = 300.f;
+	}
 }
 
 void AZSCharacterWithAbilities::Tick(float NewDeltaSeconds)
@@ -158,6 +169,8 @@ void AZSCharacterWithAbilities::Jump()
 {
 	JumpIntoWater();
 	Super::Jump();
+
+	Server_StopMontage(0.25f, AttackMontage);
 }
 
 void AZSCharacterWithAbilities::StopJumping()
@@ -230,13 +243,23 @@ void AZSCharacterWithAbilities::Dodge()
 	if(GetOWSMovementComponent())
 	{
 		GetOWSMovementComponent()->DoDodge();
-		if (bIsMoveInputPressed)
+		
+		if (AnimationState == EAnimationState::StartMovingAnimation)
 		{
-			USoundBase * L_Acceleration = Cast<USoundBase>(SoundBaseAcceleration.LoadSynchronous());
-			checkf(nullptr != L_Acceleration, TEXT("The L_Acceleration is nullptr., Pleas Set Acceleration Sound."));
-			if(L_Acceleration)
+			StopStartMovementAnimMontage();
+		}
+
+		UZSCharacterMovementComponent* MovementComponent = Cast<UZSCharacterMovementComponent>(GetCharacterMovement());
+		if (IsValid(MovementComponent))
+		{
+			if (AnimationState != EAnimationState::Standing && MovementComponent->IsFalling() == false)
 			{
-				UGameplayStatics::PlaySoundAtLocation(this, L_Acceleration, GetActorLocation());
+				USoundBase * L_Acceleration = Cast<USoundBase>(SoundBaseAcceleration.LoadSynchronous());
+				checkf(nullptr != L_Acceleration, TEXT("The L_Acceleration is nullptr., Pleas Set Acceleration Sound."));
+				if(L_Acceleration)
+				{
+					UGameplayStatics::PlaySoundAtLocation(this, L_Acceleration, GetActorLocation());
+				}
 			}
 		}
 	}
@@ -262,6 +285,7 @@ void AZSCharacterWithAbilities::OnStartCrouching()
 	if (CanCrouch())
 	{
 		Crouch();
+		Server_StopMontage(0.25f, AttackMontage);
 	}
 }
 
@@ -525,10 +549,10 @@ UAnimMontage* AZSCharacterWithAbilities::PlayStartMovementAnimMontage()
 	UZSAnimInstance* AnimInstance = Cast<UZSAnimInstance>(GetMesh()->GetAnimInstance());
 	if(!IsValid(AnimInstance)) return nullptr;
 
-	UZSCharacterMovementComponent* CM = GetZSCharacterMovement();
-	if(!IsValid(CM)) return nullptr;
+	UZSCharacterMovementComponent* L_CharacterMovementComponent = GetZSCharacterMovement();
+	if(!IsValid(L_CharacterMovementComponent)) return nullptr;
 
-	const EPlayerGait PlayerGait = CM->GetPlayerGait();
+	const EPlayerGait PlayerGait = L_CharacterMovementComponent->GetPlayerGait();
 	const EPlayerMoveDirection& PlayerMoveDirection = AnimInstance->CalculateStartMoveDirection();
 	
 	UAnimMontage* Montage = StartMovementAnimMontage->GetAnimMontageByGaitAndDirection(PlayerGait, PlayerMoveDirection);
@@ -538,13 +562,13 @@ UAnimMontage* AZSCharacterWithAbilities::PlayStartMovementAnimMontage()
 	if (HasAuthority())
 	{
 		NetMulticast_PlayMontage(Montage, 1.f, NAME_None, true);
-		Server_SetAnimationState(EAnimationState::Start);
+		Server_SetAnimationState(EAnimationState::StartMovingAnimation);
 		return Montage;
 	}
 	else if (IsLocallyControlled())
 	{
 		Server_PlayMontage(Montage, 1.f, NAME_None, true);
-		Server_SetAnimationState(EAnimationState::Start);
+		Server_SetAnimationState(EAnimationState::StartMovingAnimation);
 		return Montage;
 	}
 	
@@ -554,6 +578,23 @@ UAnimMontage* AZSCharacterWithAbilities::PlayStartMovementAnimMontage()
 void AZSCharacterWithAbilities::StopStopMovementAnimMontage()
 {
 	for (auto *Montage : StopMovementAnimMontage->GetAllMontages())
+	{
+		if (!IsValid(Montage)) return;
+		
+		if (HasAuthority())
+		{
+			NetMulticast_StopMontage(0.25f, Montage);
+		}
+		else if (IsLocallyControlled())
+		{
+			Server_StopMontage(0.25f, Montage);
+		}
+	}
+}
+
+void AZSCharacterWithAbilities::StopStartMovementAnimMontage()
+{
+	for (auto *Montage : StartMovementAnimMontage->GetAllMontages())
 	{
 		if (!IsValid(Montage)) return;
 		
@@ -595,7 +636,7 @@ void AZSCharacterWithAbilities::OnChangedPlayerGait(EPlayerGait CurrentPlayerGai
 	{
 		if (HasAuthority())
 		{
-			CurrentPlayingStopMovementAnimMontage = PlayStopMovementAnimMontage();
+			PlayStopMovementAnimMontage();
 		}
 	}
 }
