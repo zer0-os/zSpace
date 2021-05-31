@@ -4,15 +4,30 @@
 #include "zSpace/Game/WidgetLoadingManagerObject/WidgetLoadingManagerObject.h"
 #include "Blueprint/UserWidget.h"
 #include "Kismet/GameplayStatics.h"
+#include "zSpace/Game/ZSpaceGameInstance.h"
+
+void UWidgetLoadingManagerObject::SetNotShowLoadingWidget(bool NewNotShowLoadingWidget)
+{
+	bNotShowLoadingWidget = NewNotShowLoadingWidget;	
+}
+
+void UWidgetLoadingManagerObject::SetZSpaceGameInstance(UZSpaceGameInstance* NewZSpaceGameInstance)
+{
+	ZSpaceGameInstance = NewZSpaceGameInstance;	
+}
 
 void UWidgetLoadingManagerObject::ShowLoadingWidget(TSubclassOf<UUserWidget> NewLoadingWidget, int32 NewZOrder)
 {
+	if(bNotShowLoadingWidget)
+	{
+		return;
+	}
 	checkf(NewLoadingWidget != nullptr, TEXT("The NewLoadingWidget is nullptr."));
 	if(NewLoadingWidget)
 	{
-		HideLoadingWidget();
-		APlayerController * PC = UGameplayStatics::GetPlayerController(this, 0);
-		UserWidgetLoading = CreateWidget<UUserWidget>(PC, NewLoadingWidget);
+		//HideLoadingWidget();
+		UGameInstance * GameInstance = UGameplayStatics::GetGameInstance(GetOuter());
+		UserWidgetLoading = CreateWidget<UUserWidget>(GameInstance, NewLoadingWidget);
 		if(UserWidgetLoading)
 		{
 			UserWidgetLoading->AddToViewport(NewZOrder);
