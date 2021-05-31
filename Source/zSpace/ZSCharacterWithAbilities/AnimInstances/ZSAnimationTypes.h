@@ -57,10 +57,14 @@ UENUM(BlueprintType)
 enum class EAnimationState : uint8
 {
 	Standing,
-	
-	Start,
-	Looping,
-	End,
+
+	// Movement
+	StartMovingAnimation,
+	LoopingInPlaceAnimation,
+	StopMovingAnimation,
+
+	// Attack
+	AttackingAnimation,
 };
 
 UCLASS(BlueprintType)

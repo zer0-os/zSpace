@@ -169,6 +169,8 @@ void AZSCharacterWithAbilities::Jump()
 {
 	JumpIntoWater();
 	Super::Jump();
+
+	Server_StopMontage(0.25f, AttackMontage);
 }
 
 void AZSCharacterWithAbilities::StopJumping()
@@ -242,7 +244,7 @@ void AZSCharacterWithAbilities::Dodge()
 	{
 		GetOWSMovementComponent()->DoDodge();
 		
-		if (AnimationState == EAnimationState::Start)
+		if (AnimationState == EAnimationState::StartMovingAnimation)
 		{
 			StopStartMovementAnimMontage();
 		}
@@ -283,6 +285,7 @@ void AZSCharacterWithAbilities::OnStartCrouching()
 	if (CanCrouch())
 	{
 		Crouch();
+		Server_StopMontage(0.25f, AttackMontage);
 	}
 }
 
@@ -546,10 +549,10 @@ UAnimMontage* AZSCharacterWithAbilities::PlayStartMovementAnimMontage()
 	UZSAnimInstance* AnimInstance = Cast<UZSAnimInstance>(GetMesh()->GetAnimInstance());
 	if(!IsValid(AnimInstance)) return nullptr;
 
-	UZSCharacterMovementComponent* CM = GetZSCharacterMovement();
-	if(!IsValid(CM)) return nullptr;
+	UZSCharacterMovementComponent* L_CharacterMovementComponent = GetZSCharacterMovement();
+	if(!IsValid(L_CharacterMovementComponent)) return nullptr;
 
-	const EPlayerGait PlayerGait = CM->GetPlayerGait();
+	const EPlayerGait PlayerGait = L_CharacterMovementComponent->GetPlayerGait();
 	const EPlayerMoveDirection& PlayerMoveDirection = AnimInstance->CalculateStartMoveDirection();
 	
 	UAnimMontage* Montage = StartMovementAnimMontage->GetAnimMontageByGaitAndDirection(PlayerGait, PlayerMoveDirection);
@@ -559,13 +562,13 @@ UAnimMontage* AZSCharacterWithAbilities::PlayStartMovementAnimMontage()
 	if (HasAuthority())
 	{
 		NetMulticast_PlayMontage(Montage, 1.f, NAME_None, true);
-		Server_SetAnimationState(EAnimationState::Start);
+		Server_SetAnimationState(EAnimationState::StartMovingAnimation);
 		return Montage;
 	}
 	else if (IsLocallyControlled())
 	{
 		Server_PlayMontage(Montage, 1.f, NAME_None, true);
-		Server_SetAnimationState(EAnimationState::Start);
+		Server_SetAnimationState(EAnimationState::StartMovingAnimation);
 		return Montage;
 	}
 	
@@ -633,7 +636,7 @@ void AZSCharacterWithAbilities::OnChangedPlayerGait(EPlayerGait CurrentPlayerGai
 	{
 		if (HasAuthority())
 		{
-			CurrentPlayingStopMovementAnimMontage = PlayStopMovementAnimMontage();
+			PlayStopMovementAnimMontage();
 		}
 	}
 }
