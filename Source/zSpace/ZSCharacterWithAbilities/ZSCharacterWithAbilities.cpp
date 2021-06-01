@@ -339,22 +339,6 @@ bool AZSCharacterWithAbilities::Server_SetIsMoveInputPressed_Validate(bool NewVa
 void AZSCharacterWithAbilities::Server_SetMoveForwardAxisValue_Implementation(const float& NewValue)
 {
 	MoveForwardAxisValue = NewValue;
-	return;
-	
-	if (NewValue != 0.f)
-	{
-		LastMoveForwardAxisValue = NewValue;
-	}
-	
-	if (NewValue == 0.f)
-	{
-		FTimerManager& TimerManager = GetWorldTimerManager();
-		FTimerHandle TimerHandle;
-		TimerManager.SetTimer(TimerHandle, [this]()
-		{
-			LastMoveForwardAxisValue = 0.f;
-		}, 0.5f, false, 0.5f);
-	}
 }
 
 bool AZSCharacterWithAbilities::Server_SetMoveForwardAxisValue_Validate(const float& NewValue)
@@ -365,22 +349,6 @@ bool AZSCharacterWithAbilities::Server_SetMoveForwardAxisValue_Validate(const fl
 void AZSCharacterWithAbilities::Server_SetMoveRightAxisValue_Implementation(const float& NewValue)
 {
 	MoveRightAxisValue = NewValue;
-	return;
-	
-	if (NewValue != 0.f)
-	{
-		LastMoveRightAxisValue = NewValue;
-	}
-	
-	if (NewValue == 0.f)
-	{
-		FTimerManager& TimerManager = GetWorldTimerManager();
-		FTimerHandle TimerHandle;
-		TimerManager.SetTimer(TimerHandle, [this]()
-		{
-			LastMoveRightAxisValue = 0.f;
-		}, 0.5f, false, 0.5f);
-	}
 }
 
 bool AZSCharacterWithAbilities::Server_SetMoveRightAxisValue_Validate(const float& NewValue)
@@ -592,7 +560,7 @@ void AZSCharacterWithAbilities::StopStopMovementAnimMontage()
 	}
 }
 
-void AZSCharacterWithAbilities::StopStartMovementAnimMontage()
+void AZSCharacterWithAbilities::StopStartMovementAnimMontage(float InBlendOutTime/*=0.25*/)
 {
 	for (auto *Montage : StartMovementAnimMontage->GetAllMontages())
 	{
@@ -600,11 +568,11 @@ void AZSCharacterWithAbilities::StopStartMovementAnimMontage()
 		
 		if (HasAuthority())
 		{
-			NetMulticast_StopMontage(0.25f, Montage);
+			NetMulticast_StopMontage(InBlendOutTime, Montage);
 		}
 		else if (IsLocallyControlled())
 		{
-			Server_StopMontage(0.25f, Montage);
+			Server_StopMontage(InBlendOutTime, Montage);
 		}
 	}
 }
@@ -636,7 +604,14 @@ void AZSCharacterWithAbilities::OnChangedPlayerGait(EPlayerGait CurrentPlayerGai
 	{
 		if (HasAuthority())
 		{
-			PlayStopMovementAnimMontage();
+			if (MoveInputKeyTimeDownAverage > 0.04f)
+			{
+				PlayStopMovementAnimMontage();
+			}
+			else
+			{
+				StopStartMovementAnimMontage(0.25f);
+			}
 		}
 	}
 }
@@ -692,8 +667,6 @@ void AZSCharacterWithAbilities::GetLifetimeReplicatedProps(TArray<FLifetimePrope
 	DOREPLIFETIME(AZSCharacterWithAbilities, AnimationState);
 
 	// Move Axis Values
-	DOREPLIFETIME(AZSCharacterWithAbilities, LastMoveForwardAxisValue);
-	DOREPLIFETIME(AZSCharacterWithAbilities, LastMoveRightAxisValue);
 	DOREPLIFETIME(AZSCharacterWithAbilities, MoveForwardAxisValue);
 	DOREPLIFETIME(AZSCharacterWithAbilities, MoveRightAxisValue);
 }
