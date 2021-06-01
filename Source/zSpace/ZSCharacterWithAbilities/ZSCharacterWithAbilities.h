@@ -106,13 +106,7 @@ protected:
 	float MoveForwardAxisValue;
 	
 	UPROPERTY(Replicated, BlueprintReadOnly, Category="Movement")
-	float LastMoveForwardAxisValue;
-	
-	UPROPERTY(Replicated, BlueprintReadOnly, Category="Movement")
 	float MoveRightAxisValue;
-	
-	UPROPERTY(Replicated, BlueprintReadOnly, Category="Movement")
-	float LastMoveRightAxisValue;
 	
 	UPROPERTY(Replicated, BlueprintReadOnly, Category="Movement")
 	float CharacterRelativeRotation = 0.f;
@@ -149,13 +143,7 @@ public:
 	FORCEINLINE float GetMoveForwardAxisValue() const { return  MoveForwardAxisValue; }
 	
 	UFUNCTION(BlueprintPure)
-	FORCEINLINE float GetLastMoveForwardAxisValue() const { return  LastMoveForwardAxisValue; }
-	
-	UFUNCTION(BlueprintPure)
 	FORCEINLINE float GetMoveRightAxisValue() const { return  MoveRightAxisValue; }
-	
-	UFUNCTION(BlueprintPure)
-	FORCEINLINE float GetLastMoveRightAxisValue() const { return LastMoveRightAxisValue; }
 	
 	UFUNCTION(BlueprintPure)
 	FORCEINLINE float GetCharacterRelativeRotation() const { return CharacterRelativeRotation; }
@@ -194,7 +182,7 @@ public:
 	void StopStopMovementAnimMontage();
 
 	UFUNCTION(BlueprintCallable)
-	void StopStartMovementAnimMontage();
+	void StopStartMovementAnimMontage(float InBlendOutTime = 0.25);
 	
 	UFUNCTION(BlueprintPure)
 	class UZSCharacterMovementComponent* GetZSCharacterMovement() const;
