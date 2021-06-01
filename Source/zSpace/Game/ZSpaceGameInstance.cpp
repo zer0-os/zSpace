@@ -76,7 +76,8 @@ void UZSpaceGameInstance::BeginLoadingLevel(const FString& MapName)
 	{
 		if(WidgetLoadingManagerObject)
 		{
-			WidgetLoadingManagerObject->ShowLoadingWidget(LoadingWidgetSubClass, 99);
+			const TSubclassOf<UUserWidget> L_SecondLoadingWidget = WidgetLoadingManagerObject->SecondLoadingWidget.LoadSynchronous();
+			WidgetLoadingManagerObject->ShowLoadingWidget(L_SecondLoadingWidget , 99);
 		}
 	}, 0.1, false);
 }

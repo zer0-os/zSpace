@@ -64,7 +64,6 @@ protected:
 	 */
 	UPROPERTY(BlueprintReadOnly, Category="UI")
 	class UWidgetLoadingManagerObject * WidgetLoadingManagerObject = nullptr;
-	
 
 	/**
 	 * @brief The LoadingWidget is Widget 'sub class' that shows loading effect.
