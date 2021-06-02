@@ -252,7 +252,9 @@ void AZSCharacterWithAbilities::Dodge()
 		UZSCharacterMovementComponent* MovementComponent = Cast<UZSCharacterMovementComponent>(GetCharacterMovement());
 		if (IsValid(MovementComponent))
 		{
-			if (AnimationState != EAnimationState::Standing && MovementComponent->IsFalling() == false)
+			bool isAttackMontagePlaying = GetMesh()->GetAnimInstance()->Montage_IsPlaying(AttackMontage);
+			
+			if (false == isAttackMontagePlaying && AnimationState != EAnimationState::Standing && MovementComponent->IsFalling() == false && MovementComponent->MovementMode != EMovementMode::MOVE_Swimming)
 			{
 				USoundBase * L_Acceleration = Cast<USoundBase>(SoundBaseAcceleration.LoadSynchronous());
 				checkf(nullptr != L_Acceleration, TEXT("The L_Acceleration is nullptr., Pleas Set Acceleration Sound."));
