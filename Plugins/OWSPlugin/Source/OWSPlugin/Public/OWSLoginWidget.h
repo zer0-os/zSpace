@@ -80,4 +80,6 @@ public:
 	//OpenCreateAccountInBrowser
 	UFUNCTION(BlueprintCallable, Category = "Login")
 		void OpenCreateAccountInBrowser();
+	
+
 };
