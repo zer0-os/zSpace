@@ -253,7 +253,8 @@ void AZSCharacterWithAbilities::Dodge()
 		if (IsValid(MovementComponent))
 		{
 			bool isAttackMontagePlaying = GetMesh()->GetAnimInstance()->Montage_IsPlaying(AttackMontage);
-			if (false == isAttackMontagePlaying && AnimationState != EAnimationState::Standing && MovementComponent->IsFalling() == false)
+			
+			if (false == isAttackMontagePlaying && AnimationState != EAnimationState::Standing && MovementComponent->IsFalling() == false && MovementComponent->MovementMode != EMovementMode::MOVE_Swimming)
 			{
 				USoundBase * L_Acceleration = Cast<USoundBase>(SoundBaseAcceleration.LoadSynchronous());
 				checkf(nullptr != L_Acceleration, TEXT("The L_Acceleration is nullptr., Pleas Set Acceleration Sound."));
@@ -661,11 +662,12 @@ void AZSCharacterWithAbilities::GetLifetimeReplicatedProps(TArray<FLifetimePrope
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
+	DOREPLIFETIME(AZSCharacterWithAbilities, bIsDeath);
 	DOREPLIFETIME(AZSCharacterWithAbilities, bIsWalking);
+	DOREPLIFETIME(AZSCharacterWithAbilities, AnimationState);
 	DOREPLIFETIME(AZSCharacterWithAbilities, bIsMoveInputPressed);
 	DOREPLIFETIME(AZSCharacterWithAbilities, CharacterRelativeRotation);
 	DOREPLIFETIME(AZSCharacterWithAbilities, MoveInputKeyTimeDownAverage);
-	DOREPLIFETIME(AZSCharacterWithAbilities, AnimationState);
 
 	// Move Axis Values
 	DOREPLIFETIME(AZSCharacterWithAbilities, MoveForwardAxisValue);

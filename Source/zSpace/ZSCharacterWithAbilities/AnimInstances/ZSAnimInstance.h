@@ -86,6 +86,15 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	EAnimationState AnimationState;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	uint8 bIsDeath : 1;
+	
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	class UAnimSequenceBase* DeathAnimation;
+	
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	TArray<class UAnimSequenceBase*> DeathAnimations;
 	
 protected:
 	UFUNCTION()

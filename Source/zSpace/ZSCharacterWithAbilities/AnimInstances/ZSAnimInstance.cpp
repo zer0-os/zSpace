@@ -3,6 +3,7 @@
 
 #include "zSpace/ZSCharacterWithAbilities/AnimInstances/ZSAnimInstance.h"
 
+#include "Kismet/KismetArrayLibrary.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "zSpace/ZSCharacterWithAbilities/Components/CharacterMovementComponent/ZSCharacterMovementComponent.h"
 #include "zSpace/ZSCharacterWithAbilities/ZSCharacterWithAbilities.h"
@@ -62,6 +63,16 @@ void UZSAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	StartPlayerMoveDirection = CalculateStartMoveDirection();
 	
 	MoveInputKeyTimeDownAverage = CharacterRef->GetMoveInputKeyTimeDownAverage();
+
+	bIsDeath = CharacterRef->GetIsDeath();
+	if (bIsDeath)
+	{
+		if (!IsValid(DeathAnimation))
+		{
+			const int32 RandomIndex = UKismetMathLibrary::RandomIntegerInRange(0, DeathAnimations.Num() - 1);
+			DeathAnimation = DeathAnimations[RandomIndex];
+		}
+	}
 }
 
 void UZSAnimInstance::OnChangedPlayerGait(EPlayerGait NewValue)
