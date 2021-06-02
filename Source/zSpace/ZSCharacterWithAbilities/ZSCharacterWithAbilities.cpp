@@ -660,11 +660,12 @@ void AZSCharacterWithAbilities::GetLifetimeReplicatedProps(TArray<FLifetimePrope
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
+	DOREPLIFETIME(AZSCharacterWithAbilities, bIsDeath);
 	DOREPLIFETIME(AZSCharacterWithAbilities, bIsWalking);
+	DOREPLIFETIME(AZSCharacterWithAbilities, AnimationState);
 	DOREPLIFETIME(AZSCharacterWithAbilities, bIsMoveInputPressed);
 	DOREPLIFETIME(AZSCharacterWithAbilities, CharacterRelativeRotation);
 	DOREPLIFETIME(AZSCharacterWithAbilities, MoveInputKeyTimeDownAverage);
-	DOREPLIFETIME(AZSCharacterWithAbilities, AnimationState);
 
 	// Move Axis Values
 	DOREPLIFETIME(AZSCharacterWithAbilities, MoveForwardAxisValue);

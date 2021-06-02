@@ -96,6 +96,9 @@ public:
 	void OnStopCrouching();
 
 protected:
+	UPROPERTY(Replicated, BlueprintReadWrite, Category="Movement")
+	uint8 bIsDeath : 1;
+	
 	UPROPERTY(Replicated, BlueprintReadOnly, Category="Movement")
 	uint8 bIsWalking : 1;
 	
@@ -122,7 +125,7 @@ protected:
 	
 	UPROPERTY(EditDefaultsOnly, Category="Animations|Monateg")
 	class UAnimMontage* AttackMontage = nullptr;
-	
+
 	// [Server]
 	FTimerHandle MoveInputKeyTimeDownAverage_TimerHandle;
 
@@ -153,6 +156,9 @@ public:
 
 	UFUNCTION(BlueprintPure)
 	FORCEINLINE UAnimMontage* GetAttackMontage() const { return AttackMontage; }
+	
+	UFUNCTION(BlueprintPure)
+	FORCEINLINE bool GetIsDeath() const { return bIsDeath; }
 	
 	UFUNCTION(BlueprintCallable, Server, Reliable, WithValidation)
 	void Server_PlayMontage(class UAnimMontage* AnimMontage, float InPlayRate = 1.f, FName StartSectionName = NAME_None, bool PlayInServer = false);
