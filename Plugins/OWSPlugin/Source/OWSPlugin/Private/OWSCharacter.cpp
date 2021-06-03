@@ -68,6 +68,41 @@ void AOWSCharacter::Tick( float DeltaTime )
 
 }
 
+bool AOWSCharacter::CanJumpInternal_Implementation() const
+{
+	const bool bCanHoldToJumpHigher = (GetJumpMaxHoldTime() > 0.0f) && IsJumpProvidingForce();
+
+	bool CanJumpFromClimbing = Cast<UOWSCharacterMovementComponent>(GetCharacterMovement())->bIsClimbing;
+
+	return !bIsCrouched && GetCharacterMovement() && (GetCharacterMovement()->IsMovingOnGround() || bCanHoldToJumpHigher || CanJumpFromClimbing) && GetCharacterMovement()->IsJumpAllowed() && !GetCharacterMovement()->bWantsToCrouch;
+}
+
+bool AOWSCharacter::IsCharacterFacingActor(AActor* ActorToTest, float MaxAngle)
+{
+	FVector VectorToActor = ActorToTest->GetActorLocation() - GetActorLocation();
+
+	float dotProduct = FVector::DotProduct(GetActorForwardVector(), VectorToActor);
+
+	if (dotProduct < MaxAngle)
+	{
+		return true;
+	}
+
+	return false;
+}
+
+bool AOWSCharacter::IsCharacterFacingActorForward(AActor* ActorToTest, float MaxAngle)
+{
+	float dotProduct = FVector::DotProduct(GetActorForwardVector(), ActorToTest->GetActorForwardVector());
+
+	if (dotProduct >= MaxAngle)
+	{
+		return true;
+	}
+
+	return false;
+}
+
 // Called to bind functionality to input
 void AOWSCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {

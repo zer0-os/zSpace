@@ -2,6 +2,8 @@
 
 
 #include "zSpace/Game/ZSpaceGameInstance.h"
+
+
 #include "../Components/ManageWidgetsResolution.h"
 #include "Blueprint/UserWidget.h"
 #include "Engine/LevelStreaming.h"
@@ -9,6 +11,7 @@
 #include "WidgetLoadingManagerObject/WidgetLoadingManagerObject.h"
 #include "SoundManager/SoundManager.h"
 #include "ZSGamePlayerController/ZSGamePlayerController.h"
+#include "zSpace/zSpace.h"
 
 UZSpaceGameInstance::UZSpaceGameInstance(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
@@ -76,7 +79,8 @@ void UZSpaceGameInstance::BeginLoadingLevel(const FString& MapName)
 	{
 		if(WidgetLoadingManagerObject)
 		{
-			WidgetLoadingManagerObject->ShowLoadingWidget(LoadingWidgetSubClass, 99);
+			const TSubclassOf<UUserWidget> L_SecondLoadingWidget = WidgetLoadingManagerObject->SecondLoadingWidget.LoadSynchronous();
+			WidgetLoadingManagerObject->ShowLoadingWidget(L_SecondLoadingWidget , 99);
 		}
 	}, 0.1, false);
 }
@@ -251,11 +255,12 @@ void UZSpaceGameInstance::NotifyGetAllUserCharacters(const TArray<FUserCharacter
 				//UKismetSystemLibrary::PrintString(this, TEXT("*************** //// *****************"), true, true, FLinearColor::Red, 111);
 				StreamingLevelLoaded();
 			}
-			else
+			else if(nullptr == L_LevelStreaming)
 			{
 				const FString V = FString::Printf(TEXT("******************** ----------------------- ****************"));
 				//UKismetSystemLibrary::PrintString(this, V, true, true, FLinearColor::Red, 111);
 				UE_LOG(LogTemp, Warning, TEXT("The L_LevelStreming is nullptr."));
+				UE_LOG(LogTemp, Warning, TEXT("********** Level Name %s *****************"), *L_ZoneName);
 			}
 		}
 	}

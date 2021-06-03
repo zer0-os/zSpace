@@ -252,7 +252,9 @@ void AZSCharacterWithAbilities::Dodge()
 		UZSCharacterMovementComponent* MovementComponent = Cast<UZSCharacterMovementComponent>(GetCharacterMovement());
 		if (IsValid(MovementComponent))
 		{
-			if (AnimationState != EAnimationState::Standing && MovementComponent->IsFalling() == false)
+			bool isAttackMontagePlaying = GetMesh()->GetAnimInstance()->Montage_IsPlaying(AttackMontage);
+			
+			if (false == isAttackMontagePlaying && AnimationState != EAnimationState::Standing && MovementComponent->IsFalling() == false && MovementComponent->MovementMode != EMovementMode::MOVE_Swimming)
 			{
 				USoundBase * L_Acceleration = Cast<USoundBase>(SoundBaseAcceleration.LoadSynchronous());
 				checkf(nullptr != L_Acceleration, TEXT("The L_Acceleration is nullptr., Pleas Set Acceleration Sound."));
@@ -339,22 +341,6 @@ bool AZSCharacterWithAbilities::Server_SetIsMoveInputPressed_Validate(bool NewVa
 void AZSCharacterWithAbilities::Server_SetMoveForwardAxisValue_Implementation(const float& NewValue)
 {
 	MoveForwardAxisValue = NewValue;
-	return;
-	
-	if (NewValue != 0.f)
-	{
-		LastMoveForwardAxisValue = NewValue;
-	}
-	
-	if (NewValue == 0.f)
-	{
-		FTimerManager& TimerManager = GetWorldTimerManager();
-		FTimerHandle TimerHandle;
-		TimerManager.SetTimer(TimerHandle, [this]()
-		{
-			LastMoveForwardAxisValue = 0.f;
-		}, 0.5f, false, 0.5f);
-	}
 }
 
 bool AZSCharacterWithAbilities::Server_SetMoveForwardAxisValue_Validate(const float& NewValue)
@@ -365,22 +351,6 @@ bool AZSCharacterWithAbilities::Server_SetMoveForwardAxisValue_Validate(const fl
 void AZSCharacterWithAbilities::Server_SetMoveRightAxisValue_Implementation(const float& NewValue)
 {
 	MoveRightAxisValue = NewValue;
-	return;
-	
-	if (NewValue != 0.f)
-	{
-		LastMoveRightAxisValue = NewValue;
-	}
-	
-	if (NewValue == 0.f)
-	{
-		FTimerManager& TimerManager = GetWorldTimerManager();
-		FTimerHandle TimerHandle;
-		TimerManager.SetTimer(TimerHandle, [this]()
-		{
-			LastMoveRightAxisValue = 0.f;
-		}, 0.5f, false, 0.5f);
-	}
 }
 
 bool AZSCharacterWithAbilities::Server_SetMoveRightAxisValue_Validate(const float& NewValue)
@@ -592,7 +562,7 @@ void AZSCharacterWithAbilities::StopStopMovementAnimMontage()
 	}
 }
 
-void AZSCharacterWithAbilities::StopStartMovementAnimMontage()
+void AZSCharacterWithAbilities::StopStartMovementAnimMontage(float InBlendOutTime/*=0.25*/)
 {
 	for (auto *Montage : StartMovementAnimMontage->GetAllMontages())
 	{
@@ -600,11 +570,11 @@ void AZSCharacterWithAbilities::StopStartMovementAnimMontage()
 		
 		if (HasAuthority())
 		{
-			NetMulticast_StopMontage(0.25f, Montage);
+			NetMulticast_StopMontage(InBlendOutTime, Montage);
 		}
 		else if (IsLocallyControlled())
 		{
-			Server_StopMontage(0.25f, Montage);
+			Server_StopMontage(InBlendOutTime, Montage);
 		}
 	}
 }
@@ -636,7 +606,14 @@ void AZSCharacterWithAbilities::OnChangedPlayerGait(EPlayerGait CurrentPlayerGai
 	{
 		if (HasAuthority())
 		{
-			PlayStopMovementAnimMontage();
+			if (MoveInputKeyTimeDownAverage > 0.04f)
+			{
+				PlayStopMovementAnimMontage();
+			}
+			else
+			{
+				StopStartMovementAnimMontage(0.25f);
+			}
 		}
 	}
 }
@@ -685,15 +662,14 @@ void AZSCharacterWithAbilities::GetLifetimeReplicatedProps(TArray<FLifetimePrope
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
+	DOREPLIFETIME(AZSCharacterWithAbilities, bIsDeath);
 	DOREPLIFETIME(AZSCharacterWithAbilities, bIsWalking);
+	DOREPLIFETIME(AZSCharacterWithAbilities, AnimationState);
 	DOREPLIFETIME(AZSCharacterWithAbilities, bIsMoveInputPressed);
 	DOREPLIFETIME(AZSCharacterWithAbilities, CharacterRelativeRotation);
 	DOREPLIFETIME(AZSCharacterWithAbilities, MoveInputKeyTimeDownAverage);
-	DOREPLIFETIME(AZSCharacterWithAbilities, AnimationState);
 
 	// Move Axis Values
-	DOREPLIFETIME(AZSCharacterWithAbilities, LastMoveForwardAxisValue);
-	DOREPLIFETIME(AZSCharacterWithAbilities, LastMoveRightAxisValue);
 	DOREPLIFETIME(AZSCharacterWithAbilities, MoveForwardAxisValue);
 	DOREPLIFETIME(AZSCharacterWithAbilities, MoveRightAxisValue);
 }

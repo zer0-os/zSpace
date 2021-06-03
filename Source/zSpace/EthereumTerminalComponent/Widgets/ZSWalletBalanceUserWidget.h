@@ -6,7 +6,7 @@
 #include "Blueprint/UserWidget.h"
 #include "Components/TextBlock.h"
 #include "zSpace/Game/ZSGamePlayerController/ZSGamePlayerController.h"
-
+#include "EtherlinkerTypes.h"
 #include "ZSWalletBalanceUserWidget.generated.h"
 
 /**
@@ -49,7 +49,7 @@ private:
 public:
 
 	UFUNCTION()
-	void ResponseReceived(FString  Result, struct FEtherlinkerResponseData Data);
+	void ResponseReceived(FString  Result, FEtherlinkerResponseData Data);
 
 	UFUNCTION()
 	void OnClickGetBalance();

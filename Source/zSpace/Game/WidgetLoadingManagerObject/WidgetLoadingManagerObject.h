@@ -15,6 +15,11 @@ class ZSPACE_API UWidgetLoadingManagerObject : public UObject
 	GENERATED_BODY()
 	
 private:
+
+	 friend class UZSpaceGameInstance;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess=true))
+	TSoftClassPtr<class UUserWidget> SecondLoadingWidget; 
 	
 	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess=true))
 	class UUserWidget * UserWidgetLoading = nullptr;
@@ -25,6 +30,7 @@ private:
 	uint8 bNotShowLoadingWidget:1;
 	
 public:
+
 
 	UFUNCTION(BlueprintCallable)
 	void SetNotShowLoadingWidget(bool NewNotShowLoadingWidget);
