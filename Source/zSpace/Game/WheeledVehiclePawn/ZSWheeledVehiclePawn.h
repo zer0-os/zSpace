@@ -16,19 +16,24 @@ class ZSPACE_API AZSWheeledVehiclePawn : public AWheeledVehiclePawn
 
 public:
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess=true), Category="ZSCamera")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess=true))
 	class USpringArmComponent *  SpringArmComponent = nullptr;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess=true), Category="ZSCamera")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess=true))
 	class UCameraComponent * CameraComponent = nullptr;
 
-	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess=true))
+	class UAudioComponent * EngineSoundComponent = nullptr; 
 
 	UFUNCTION(BlueprintCallable)
 	class UZSVehicleMovementComponent * GetZSVehicleMovementComponent() const;
 	
 	AZSWheeledVehiclePawn(const FObjectInitializer& ObjectInitializer);
 
+protected:
+	virtual void BeginPlay() override;
+public:
+	virtual void Tick(float DeltaSeconds) override;
 protected:
 	
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
