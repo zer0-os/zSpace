@@ -5,9 +5,6 @@
 //#include "Engine.h"
 #include "CoreMinimal.h"
 
-DECLARE_LOG_CATEGORY_EXTERN(LogZSpace, Log, All);
-
-DEFINE_LOG_CATEGORY(LogZSpace);
 
 #define PRINT(X) UKismetSystemLibrary::PrintString(this, X)
 #define PRINT_FLOAT(X) UKismetSystemLibrary::PrintString(this, FString::SanitizeFloat(X))
