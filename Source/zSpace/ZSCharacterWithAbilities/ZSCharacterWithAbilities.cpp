@@ -3,23 +3,21 @@
 
 #include "ZSCharacterWithAbilities.h"
 
-#include <wrl/internal.h>
-
-#include "OWSGameMode.h"
-#include "AnimInstances/ZSAnimInstance.h"
-#include "Camera/CameraComponent.h"
 #include "Components/CharacterMovementComponent/ZSCharacterMovementComponent.h"
-#include "Components/InputComponent.h"
 #include "Components/DetectSurfaceTypeComponent/DetectSurfaceTypeComponent.h"
+#include "zSpace/BlueprintFunctionLibrary/UIBlueprintFunctionLibrary.h"
+#include "GameFramework/SpringArmComponent.h"
+#include "AnimInstances/ZSAnimInstance.h"
 #include "GameFramework/InputSettings.h"
 #include "GameFramework/PhysicsVolume.h"
-#include "GameFramework/SpringArmComponent.h"
-#include "Kismet/GameplayStatics.h"
-#include "Kismet/KismetMathLibrary.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include "Components/InputComponent.h"
+#include "Kismet/KismetMathLibrary.h"
+#include "Camera/CameraComponent.h"
+#include "Kismet/GameplayStatics.h"
 #include "Net/UnrealNetwork.h"
-#include "zSpace/zSpace.h"
-#include "zSpace/BlueprintFunctionLibrary/UIBlueprintFunctionLibrary.h"
+#include "OWSGameMode.h"
+
 
 AZSCharacterWithAbilities::AZSCharacterWithAbilities(const FObjectInitializer& NewObjectInitializer) : Super(NewObjectInitializer.SetDefaultSubobjectClass<UZSCharacterMovementComponent>(ACharacter::CharacterMovementComponentName))
 {
@@ -98,6 +96,21 @@ void AZSCharacterWithAbilities::Tick(float NewDeltaSeconds)
 		if (L_CharacterRelativeRotation != CharacterRelativeRotation)
 		{
 			CharacterRelativeRotation = L_CharacterRelativeRotation;
+		}
+
+		const float ControlRotationYawAbs = UKismetMathLibrary::NormalizeAxis(GetControlRotation().Yaw);
+		const float StartControlRotationYawAbs = StartControlRotationYaw;
+
+		const float Difference = UKismetMathLibrary::Abs(StartControlRotationYawAbs - ControlRotationYawAbs);
+
+		if (Difference > 25.f)
+		{
+			UZSAnimInstance* AnimInstance = GetAnimInstance();
+			if (IsValid(AnimInstance) && IsStartMovementAnimMontagePlaying())
+			{
+				StopStartMovementAnimMontage(0.25f);
+				Server_SetAnimationState(EAnimationState::LoopingInPlaceAnimation);
+			}
 		}
 	}
 }
@@ -529,16 +542,18 @@ UAnimMontage* AZSCharacterWithAbilities::PlayStartMovementAnimMontage()
 	
 	if (!IsValid(Montage)) return nullptr;
 	
+	Server_SetAnimationState(EAnimationState::StartMovingAnimation);
+	
 	if (HasAuthority())
 	{
 		NetMulticast_PlayMontage(Montage, 1.f, NAME_None, true);
-		Server_SetAnimationState(EAnimationState::StartMovingAnimation);
+		StartControlRotationYaw = UKismetMathLibrary::NormalizeAxis(GetControlRotation().Yaw);
+		
 		return Montage;
 	}
 	else if (IsLocallyControlled())
 	{
 		Server_PlayMontage(Montage, 1.f, NAME_None, true);
-		Server_SetAnimationState(EAnimationState::StartMovingAnimation);
 		return Montage;
 	}
 	
@@ -584,6 +599,17 @@ UZSCharacterMovementComponent* AZSCharacterWithAbilities::GetZSCharacterMovement
 	return Cast<UZSCharacterMovementComponent>(GetCharacterMovement());
 }
 
+UZSAnimInstance* AZSCharacterWithAbilities::GetAnimInstance() const
+{
+	USkeletalMeshComponent* L_Mesh = GetMesh();
+	if (IsValid(L_Mesh))
+	{
+		return Cast<UZSAnimInstance>(L_Mesh->GetAnimInstance());
+	}
+	
+	return nullptr;
+}
+
 void AZSCharacterWithAbilities::NetMulticast_OnChangeAnimationState_Implementation(const EAnimationState& CurrentValue)
 {
 	OnChangeAnimationState.Broadcast(CurrentValue);
@@ -606,7 +632,7 @@ void AZSCharacterWithAbilities::OnChangedPlayerGait(EPlayerGait CurrentPlayerGai
 	{
 		if (HasAuthority())
 		{
-			if (MoveInputKeyTimeDownAverage > 0.04f)
+			if (MoveInputKeyTimeDownAverage > 0.04f && AnimationState == EAnimationState::LoopingInPlaceAnimation)
 			{
 				PlayStopMovementAnimMontage();
 			}

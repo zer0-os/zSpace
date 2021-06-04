@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "OWSCharacterWithAbilities.h"
 #include "AnimInstances/ZSAnimationTypes.h"
+#include "AnimInstances/ZSAnimInstance.h"
 
 #include "ZSCharacterWithAbilities.generated.h"
 
@@ -134,6 +135,9 @@ protected:
 
 	UFUNCTION()
 	void OnRep_AnimationState();
+
+	// Server
+	float StartControlRotationYaw = 0.f;
 	
 public:
 	UPROPERTY(BlueprintAssignable)
@@ -198,6 +202,9 @@ public:
 	
 	UFUNCTION(BlueprintPure)
 	FORCEINLINE EAnimationState GetAnimationState() const { return AnimationState; }
+
+	UFUNCTION(BlueprintPure)
+	class UZSAnimInstance* GetAnimInstance() const;
 	
 protected:
 	UFUNCTION(NetMulticast, Reliable)
