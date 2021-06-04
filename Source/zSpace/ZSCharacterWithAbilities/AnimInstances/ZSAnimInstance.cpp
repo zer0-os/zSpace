@@ -3,12 +3,10 @@
 
 #include "zSpace/ZSCharacterWithAbilities/AnimInstances/ZSAnimInstance.h"
 
-#include "Kismet/KismetArrayLibrary.h"
-#include "Kismet/KismetMathLibrary.h"
 #include "zSpace/ZSCharacterWithAbilities/Components/CharacterMovementComponent/ZSCharacterMovementComponent.h"
 #include "zSpace/ZSCharacterWithAbilities/ZSCharacterWithAbilities.h"
 #include "Kismet/KismetSystemLibrary.h"
-#include "zSpace/zSpace.h"
+#include "Kismet/KismetMathLibrary.h"
 
 void UZSAnimInstance::NativeBeginPlay()
 {
@@ -120,6 +118,10 @@ void UZSAnimInstance::EventOnMontageBlendingOut(UAnimMontage* Montage, bool bInt
 				}
 			}
 		}
+	}
+	else if (!bIsMoveInputPressed)
+	{
+		CharacterRef->Server_SetAnimationState(EAnimationState::Standing);
 	}
 }
 
