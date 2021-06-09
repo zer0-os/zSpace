@@ -54,4 +54,23 @@ private:
 	class UWidgetInteractionComponent * WidgetInteractionComponentRight = nullptr;
 
 
+public:
+
+
+	// input Start
+
+	UFUNCTION()
+	void OculusXPressed();
+
+	UFUNCTION()
+	void OculusXReleased();
+
+	UFUNCTION()
+	void OculusAPressed();
+		
+	UFUNCTION()
+	void OculusAReleased();
+	
+	// Input End
+
 };
