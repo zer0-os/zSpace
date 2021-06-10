@@ -23,6 +23,7 @@ public class zSpace : ModuleRules
 			, "PhysicsCore"
             , "MediaAssets"
             , "Etherlinker"
+            , "OVRPlugin"
 			});
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });

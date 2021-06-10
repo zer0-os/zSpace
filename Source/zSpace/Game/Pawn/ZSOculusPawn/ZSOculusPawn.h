@@ -73,4 +73,6 @@ public:
 	
 	// Input End
 
+	UFUNCTION()
+	void HoveredWidgetChanged(class UWidgetComponent* NewWidgetComponent, class UWidgetComponent* NewPreviousWidgetComponent);
 };
