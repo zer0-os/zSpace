@@ -56,6 +56,9 @@ public:
 	UPROPERTY(BlueprintReadWrite, meta=(BindWidgetOptional))
 	class UButton* BtnPreviousMenu = nullptr;
 
+	UPROPERTY(EditDefaultsOnly, Category="Widget Data Asset")
+	class UResolutionAndWidgetDataAsset* SelectCharacterWidgetDataAsset = nullptr;
+
 protected:
 	UPROPERTY(EditDefaultsOnly)
 	UCurveFloat* OpacityCurveFloat = nullptr;
@@ -80,4 +83,7 @@ protected:
 
 	UFUNCTION()
 	void ToPreviousMenu();
+
+	UFUNCTION(BlueprintCallable)
+	void LoginSuccess(const FString& UserSessionGUID);
 };

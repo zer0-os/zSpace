@@ -30,12 +30,14 @@ void UPreLoginBaseUserWidget::OnClickedSignIn()
 {
 	if (IsValid(ManageWidgetsResolution))
 	{
-		if (IsValid(SignInWidgetDataAsset))
+		UResolutionAndWidgetDataAsset* WidgetDataAsset = ManageWidgetsResolution->GetWidgetDataAssetByWidgetType(EWidgetType::Login);
+		
+		if (IsValid(WidgetDataAsset))
 		{
 			APlayerController* PC = GetOwningPlayer();
 			if (!IsValid(PC)) return;
 
-			const TSubclassOf<UUserWidget>& WidgetSubClass = UUIBlueprintFunctionLibrary::GetWidgetSubClassForCurrentScreen(this, SignInWidgetDataAsset);
+			const TSubclassOf<UUserWidget>& WidgetSubClass = UUIBlueprintFunctionLibrary::GetWidgetSubClassForCurrentScreen(this, WidgetDataAsset);
 			const EResolution& Resolution = UUIBlueprintFunctionLibrary::GetCurrentScreenResolutionEnum(this);
 
 			UUserWidget* CreatedWidget = nullptr;
@@ -52,12 +54,14 @@ void UPreLoginBaseUserWidget::OnClickedRegister()
 {
 	if (IsValid(ManageWidgetsResolution))
 	{
-		if (IsValid(RegisterWidgetDataAsset))
+		UResolutionAndWidgetDataAsset* WidgetDataAsset = ManageWidgetsResolution->GetWidgetDataAssetByWidgetType(EWidgetType::Register);
+		
+		if (IsValid(WidgetDataAsset))
 		{
 			APlayerController* PC = GetOwningPlayer();
 			if (!IsValid(PC)) return;
 
-			const TSubclassOf<UUserWidget>& WidgetSubClass = UUIBlueprintFunctionLibrary::GetWidgetSubClassForCurrentScreen(this, RegisterWidgetDataAsset);
+			const TSubclassOf<UUserWidget>& WidgetSubClass = UUIBlueprintFunctionLibrary::GetWidgetSubClassForCurrentScreen(this, WidgetDataAsset);
 			const EResolution& Resolution = UUIBlueprintFunctionLibrary::GetCurrentScreenResolutionEnum(this);
 
 			UUserWidget* CreatedWidget = nullptr;

@@ -161,3 +161,35 @@ void ULoginUserWidgetBase::ToPreviousMenu()
 
 	RemoveFromParent();
 }
+
+void ULoginUserWidgetBase::LoginSuccess(const FString& UserSessionGUID)
+{
+	AZSLoginPlayerController* PC = GetOwningPlayer<AZSLoginPlayerController>();
+	if (IsValid(PC))
+	{
+		PC->SetUserSessionGUID(UserSessionGUID);
+		UZSpaceGameInstance* GameInstance = GetGameInstance<UZSpaceGameInstance>();
+		if (IsValid(GameInstance))
+		{
+			GameInstance->UserSessionGUID = UserSessionGUID;
+			UManageWidgetsResolution* ManageWidgetsResolution = GameInstance->GetManageWidgetsResolution();
+			if (IsValid(ManageWidgetsResolution))
+			{
+				UResolutionAndWidgetDataAsset* Asset = ManageWidgetsResolution->GetWidgetDataAssetByWidgetType(EWidgetType::SelectCharacter);
+				if (IsValid(Asset))
+				{
+					const TSubclassOf<UUserWidget>& Widget = UUIBlueprintFunctionLibrary::GetWidgetSubClassForCurrentScreen(this, Asset);
+					const EResolution& Resolution = UUIBlueprintFunctionLibrary::GetCurrentScreenResolutionEnum(this);
+
+					UUserWidget* CreatedWidget = nullptr;
+					ManageWidgetsResolution->CreateWidgetAndAddViewport(PC, Widget, Resolution, CreatedWidget);
+					if (IsValid(CreatedWidget))
+					{
+						PC->GetAllCharacters(PC->GetUserSessionGUID());
+						RemoveFromParent();
+					}
+				}
+			}
+		}
+	}
+}

@@ -33,6 +33,9 @@ protected:
 	UPROPERTY()
 	TMap<EResolution, class UUserWidget*> SelectCharacterWidgets;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	FWidgetsDataAsset WidgetsDataAsset;
+
 public:
 	UFUNCTION(BlueprintCallable, Category="UI")
 	bool CreateWidgetAndAddViewport(class APlayerController* PlayerControler, TSubclassOf<class UUserWidget> WidgetSubClass, EResolution Resolution, UUserWidget*& ReturnWidget);
@@ -51,6 +54,9 @@ public:
 
 	UFUNCTION(BlueprintSetter, BlueprintCosmetic)
 	void SetIsGameplayWidgetHidden(bool NewValue);
+
+	UFUNCTION(BlueprintPure)
+	UResolutionAndWidgetDataAsset* GetWidgetDataAssetByWidgetType(const EWidgetType& WidgetType) const;
 	
 protected:
 	UPROPERTY(BlueprintReadWrite, BlueprintGetter=GetIsGameplayWidgetHidden, BlueprintSetter=SetIsGameplayWidgetHidden)
