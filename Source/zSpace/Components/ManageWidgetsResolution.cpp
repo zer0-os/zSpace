@@ -134,3 +134,19 @@ void UManageWidgetsResolution::SetIsGameplayWidgetHidden(bool NewValue)
 	bIsGameplayWidgetHidden = NewValue;	
 }
 
+UResolutionAndWidgetDataAsset* UManageWidgetsResolution::GetWidgetDataAssetByWidgetType(
+	const EWidgetType& WidgetType) const
+{
+	switch (WidgetType)
+	{
+		case EWidgetType::PreLogin: return WidgetsDataAsset.PreLoginWidgetDataAsset.LoadSynchronous();
+		case EWidgetType::Login: return WidgetsDataAsset.LoginWidgetDataAsset.LoadSynchronous();
+		case EWidgetType::Register: return WidgetsDataAsset.RegisterWidgetDataAsset.LoadSynchronous();
+		case EWidgetType::Gameplay: return WidgetsDataAsset.GameplayWidgetDataAsset.LoadSynchronous();
+		case EWidgetType::SelectCharacter: return WidgetsDataAsset.SelectCharacterWidgetDataAsset.LoadSynchronous();
+		default: return nullptr;
+	}
+
+	return nullptr;
+}
+
