@@ -37,12 +37,6 @@ protected:
 	UPROPERTY(BlueprintReadOnly)
 	class UManageWidgetsResolution* ManageWidgetsResolution = nullptr;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	class UResolutionAndWidgetDataAsset* SignInWidgetDataAsset = nullptr;
-	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	class UResolutionAndWidgetDataAsset* RegisterWidgetDataAsset = nullptr;
-
 public:
 	virtual EWidgetType GetWidgetType_Implementation() override;
 	
