@@ -25,10 +25,12 @@ AZSOculusPawn::AZSOculusPawn()
 	MotionControllerComponentLeft = CreateDefaultSubobject<UMotionControllerComponent>(TEXT("MotionControllerComponentLeft"));
 	checkf(nullptr != MotionControllerComponentLeft, TEXT("The MotionControllerComponentLeft is nullptr."));
 	MotionControllerComponentLeft->SetupAttachment(RootComponent);
+	MotionControllerComponentLeft->MotionSource = TEXT("Left");
 	
 	MotionControllerComponentRight = CreateDefaultSubobject<UMotionControllerComponent>(TEXT("MotionControllerComponentRight"));
 	checkf(nullptr != MotionControllerComponentRight, TEXT("The MotionControllerComponentRight is nullptr."));
 	MotionControllerComponentRight->SetupAttachment(RootComponent);
+	MotionControllerComponentRight->MotionSource = TEXT("Right");
 
 	SkeletalMeshComponentLeft = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("SkeletalMeshComponentLeft"));
 	checkf(nullptr != SkeletalMeshComponentLeft, TEXT("The SkeletalMeshComponentLeft is nullptr.") );
@@ -41,10 +43,14 @@ AZSOculusPawn::AZSOculusPawn()
 	WidgetInteractionComponentLeft = CreateDefaultSubobject<UWidgetInteractionComponent>(TEXT("WidgetInteractionComponentLeft"));
 	checkf(nullptr != WidgetInteractionComponentLeft, TEXT("The WidgetInteractionComponentLeft is nullptr."));
 	WidgetInteractionComponentLeft->SetupAttachment(MotionControllerComponentLeft);
+	WidgetInteractionComponentLeft->bShowDebug = true;
+	WidgetInteractionComponentLeft->InteractionDistance = 1000;
 	
 	WidgetInteractionComponentRight = CreateDefaultSubobject<UWidgetInteractionComponent>(TEXT("WidgetInteractionComponentRight"));
 	checkf(nullptr != WidgetInteractionComponentRight, TEXT("The WidgetInteractionComponentRight is nullptr."));
 	WidgetInteractionComponentRight->SetupAttachment(MotionControllerComponentRight);
+	WidgetInteractionComponentRight->bShowDebug = true;
+	WidgetInteractionComponentRight->InteractionDistance = 1000;
 	
 
 }
@@ -67,6 +73,54 @@ void AZSOculusPawn::Tick(float DeltaTime)
 void AZSOculusPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
+	if(IsValid(PlayerInputComponent))
+	{
+		PlayerInputComponent->BindAction(TEXT("OculusXPress"), EInputEvent::IE_Pressed, this, &AZSOculusPawn::OculusXPressed);
+		PlayerInputComponent->BindAction(TEXT("OculusXPress"), EInputEvent::IE_Released, this, &AZSOculusPawn::OculusXReleased);
+		PlayerInputComponent->BindAction(TEXT("OculusAPress"), EInputEvent::IE_Pressed, this, &AZSOculusPawn::OculusAPressed);
+		PlayerInputComponent->BindAction(TEXT("OculusAPress"), EInputEvent::IE_Released, this, &AZSOculusPawn::OculusAReleased);
+	}
 
+}
+
+void AZSOculusPawn::OculusXPressed()
+{
+	checkf(nullptr != WidgetInteractionComponentLeft, TEXT("The WidgetInteractionComponentLeft is nullptr."));
+	if(IsValid(WidgetInteractionComponentLeft))
+	{
+		const FKey L_Key(EKeys::LeftMouseButton);
+		WidgetInteractionComponentLeft->PressPointerKey(L_Key);
+	}
+}
+
+void AZSOculusPawn::OculusXReleased()
+{
+	checkf(nullptr != WidgetInteractionComponentLeft, TEXT("The WidgetInteractionComponentLeft is nullptr."));
+	if(IsValid(WidgetInteractionComponentLeft))
+	{
+		const FKey L_Key(EKeys::LeftMouseButton);
+		WidgetInteractionComponentLeft->ReleasePointerKey(L_Key);
+	}
+	
+}
+
+void AZSOculusPawn::OculusAPressed()
+{
+	checkf(nullptr != WidgetInteractionComponentRight, TEXT("The WidgetInteractionComponentRight is nullptr."));
+	if(IsValid(WidgetInteractionComponentRight))
+	{
+		const FKey L_Key(EKeys::LeftMouseButton);
+		WidgetInteractionComponentRight->PressPointerKey(L_Key);
+	}
+}
+
+void AZSOculusPawn::OculusAReleased()
+{
+	checkf(nullptr != WidgetInteractionComponentRight, TEXT("The WidgetInteractionComponentRight is nullptr."));
+	if(IsValid(WidgetInteractionComponentRight))
+	{
+		const FKey L_Key(EKeys::LeftMouseButton);
+		WidgetInteractionComponentRight->ReleasePointerKey(L_Key);
+	}
 }
 
