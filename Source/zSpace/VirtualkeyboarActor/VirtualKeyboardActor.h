@@ -32,6 +32,7 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess=true))
 	class UWidgetComponent * WidgetComponentVirtualKeyboard = nullptr;
 
-	
+	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess=true))
+	uint8 bIsPressedShift:1;
 
 };

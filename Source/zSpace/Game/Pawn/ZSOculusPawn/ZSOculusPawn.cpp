@@ -6,7 +6,9 @@
 #include "MotionControllerComponent.h"
 #include "Camera/CameraComponent.h"
 #include "Components/Widget.h"
+#include "Components/WidgetComponent.h"
 #include "Components/WidgetInteractionComponent.h"
+#include "zSpace/VirtualkeyboarActor/VirtualKeyboardWidgetInterface/VirtualKeyboardWidgetInterface.h"
 
 // Sets default values
 AZSOculusPawn::AZSOculusPawn()
@@ -51,7 +53,8 @@ AZSOculusPawn::AZSOculusPawn()
 	WidgetInteractionComponentRight->SetupAttachment(MotionControllerComponentRight);
 	WidgetInteractionComponentRight->bShowDebug = true;
 	WidgetInteractionComponentRight->InteractionDistance = 1000;
-	
+
+	WidgetInteractionComponentRight->OnHoveredWidgetChanged.AddUniqueDynamic(this, &AZSOculusPawn::HoveredWidgetChanged);
 
 }
 
@@ -121,6 +124,22 @@ void AZSOculusPawn::OculusAReleased()
 	{
 		const FKey L_Key(EKeys::LeftMouseButton);
 		WidgetInteractionComponentRight->ReleasePointerKey(L_Key);
+	}
+}
+
+void AZSOculusPawn::HoveredWidgetChanged(UWidgetComponent * NewWidgetComponent, UWidgetComponent * NewPreviousWidgetComponent)
+{
+	if(IsValid(NewWidgetComponent) && IsValid(WidgetInteractionComponentRight))
+	{
+		UUserWidget * L_UserWidgetObject = NewWidgetComponent->GetUserWidgetObject();
+		if(IsValid(L_UserWidgetObject))
+		{
+			const bool L_IsImplemented = L_UserWidgetObject->GetClass()->ImplementsInterface(UVirtualKeyboardWidgetInterface::StaticClass());
+			if(L_IsImplemented)
+			{
+				IVirtualKeyboardWidgetInterface::Execute_SetWidgetInteractionComponent(L_UserWidgetObject, WidgetInteractionComponentRight);	
+			}
+		}
 	}
 }
 
