@@ -47,12 +47,16 @@ AZSOculusPawn::AZSOculusPawn()
 	WidgetInteractionComponentLeft->SetupAttachment(MotionControllerComponentLeft);
 	WidgetInteractionComponentLeft->bShowDebug = true;
 	WidgetInteractionComponentLeft->InteractionDistance = 1000;
+	WidgetInteractionComponentLeft->PointerIndex = 0;
+	WidgetInteractionComponentLeft->VirtualUserIndex = 0;
 	
 	WidgetInteractionComponentRight = CreateDefaultSubobject<UWidgetInteractionComponent>(TEXT("WidgetInteractionComponentRight"));
 	checkf(nullptr != WidgetInteractionComponentRight, TEXT("The WidgetInteractionComponentRight is nullptr."));
 	WidgetInteractionComponentRight->SetupAttachment(MotionControllerComponentRight);
 	WidgetInteractionComponentRight->bShowDebug = true;
 	WidgetInteractionComponentRight->InteractionDistance = 1000;
+	WidgetInteractionComponentRight->PointerIndex = 1;
+	WidgetInteractionComponentRight->VirtualUserIndex = 1;
 
 	WidgetInteractionComponentRight->OnHoveredWidgetChanged.AddUniqueDynamic(this, &AZSOculusPawn::HoveredWidgetChanged);
 
