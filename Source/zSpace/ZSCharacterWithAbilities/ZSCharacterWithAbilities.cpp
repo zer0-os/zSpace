@@ -256,10 +256,18 @@ void AZSCharacterWithAbilities::MoveRight(float NewValue)
 
 void AZSCharacterWithAbilities::Dodge()
 {
-	if(GetOWSMovementComponent())
+
+	const FVector L_Start = GetMesh()->GetSocketLocation(FName("head"));
+	const FVector L_End = L_Start + GetActorForwardVector() * 500;
+	TArray<AActor *> IgnoreActors;
+	FHitResult HitResult;
+
+	const bool bIsHit = UKismetSystemLibrary::LineTraceSingle(this, L_Start,  L_End, ETraceTypeQuery(), false, IgnoreActors, EDrawDebugTrace::None, HitResult, true);
+	
+	if(GetOWSMovementComponent() && !bIsHit)
 	{
 		GetOWSMovementComponent()->DoDodge();
-		
+						
 		if (AnimationState == EAnimationState::StartMovingAnimation)
 		{
 			StopStartMovementAnimMontage();
