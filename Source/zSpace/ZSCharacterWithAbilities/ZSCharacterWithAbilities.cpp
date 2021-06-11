@@ -42,6 +42,7 @@ void AZSCharacterWithAbilities::SetupPlayerInputComponent(UInputComponent* NewPl
 	if(NewPlayerInputComponent)
 	{
 		Super::SetupPlayerInputComponent(NewPlayerInputComponent);
+		
 		NewPlayerInputComponent->BindAxis(TEXT("Turn"), this, &AZSCharacterWithAbilities::Turn);
 		NewPlayerInputComponent->BindAxis(TEXT("LookUp"), this, &AZSCharacterWithAbilities::LookUp);
 		NewPlayerInputComponent->BindAxis(TEXT("MoveForward"), this, &AZSCharacterWithAbilities::MoveForward);
