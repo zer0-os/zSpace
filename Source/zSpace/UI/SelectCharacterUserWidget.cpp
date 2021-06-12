@@ -134,54 +134,6 @@ void USelectCharacterUserWidget::CreateCharacterSelectBox(const FCharacterInfoFo
 
 void USelectCharacterUserWidget::ShowCharacters(const TArray<FUserCharacter>& UserCharacters, const int32 CurrentCharacterIndex)
 {
-	auto CheckAndCreate = [this, UserCharacters](const int32 CheckIndex, UBorder* Border) -> USelectCharacterBoxUserWidget*
-	{
-		if (!IsValid(Border)) return nullptr;
-		
-		if (UserCharacters.IsValidIndex(CheckIndex))
-		{
-			FCharacterInfoForUI	CharacterInfo;	
-			const FUserCharacter& UserCharacter = UserCharacters[CheckIndex];
-			CharacterInfo.CharacterName = UserCharacter.CharacterName;
-			CharacterInfo.CharacterLevel = FString::FromInt(UserCharacter.Level);
-
-			CreateCharacterSelectBox(CharacterInfo, Border);
-
-			USelectCharacterBoxUserWidget*  L_SelectCharacterMiddleBox = Cast<USelectCharacterBoxUserWidget>(SelectCharacterMiddleBorder->GetChildAt(0));
-			if (L_SelectCharacterMiddleBox)
-			{
-				L_SelectCharacterMiddleBox->CreateCharacterNameSwitcher->SetRenderScale(FVector2D(1.3f, 1.3f));
-			}
-
-			auto* Child = Cast<USelectCharacterBoxUserWidget>(Border->GetChildAt(0));
-			if (IsValid(Child))
-			{
-				const bool bIsShowButtons =  Border == MainCharacterBox;
-				Child->WidgetSwitcherEditMode->SetVisibility(bIsShowButtons ? ESlateVisibility::Visible : ESlateVisibility::Collapsed);
-				Child->WidgetSwitcherDoneEditMode->SetVisibility(bIsShowButtons ? ESlateVisibility::Visible : ESlateVisibility::Collapsed);
-				if (!bIsShowButtons)
-				{
-					Child->NextCharacterMesh->SetVisibility(ESlateVisibility::Collapsed);
-					Child->PreviousCharacterMesh->SetVisibility(ESlateVisibility::Collapsed);
-				}
-				SetPreviewCharacterPositionByCharacterBox(Child);
-				return Child;
-			}
-		}
-		else
-		{
-			auto* Child = Cast<USelectCharacterBoxUserWidget>(Border->GetChildAt(0));
-			if (IsValid(Child))
-			{
-				Child->RemoveFromParent();
-				return Child;
-			}
-		}
-
-		return nullptr;
-	};
-
-
 	auto GetLastOrFirstIndex = [this, &UserCharacters](const int8& Index) -> uint8
 	{
 		if (Index < 0)
@@ -203,7 +155,7 @@ void USelectCharacterUserWidget::ShowCharacters(const TArray<FUserCharacter>& Us
 
 	if (UserCharacters.Num() == 1)
 	{
-		CheckAndCreate(CurrentCharacterIndex, MainCharacterBox);
+		CheckAndCreateCharacterBox(UserCharacters, CurrentCharacterIndex, MainCharacterBox);
 		LeftCharacterBox->RemoveChildAt(0);
 		RightCharacterBox->RemoveChildAt(0);
 		AnimationBorderLeft->RemoveChildAt(0);
@@ -212,16 +164,16 @@ void USelectCharacterUserWidget::ShowCharacters(const TArray<FUserCharacter>& Us
 	}
 	else
 	{
-		CheckAndCreate(CurrentCharacterIndex, MainCharacterBox);
+		CheckAndCreateCharacterBox(UserCharacters, CurrentCharacterIndex, MainCharacterBox);
 	}
 
 	if (LastChangeCharacterDirection == EChangeCharacterDirection::None)
 	{
 		Index = CurrentCharacterIndex + 1;
-		CheckAndCreate(GetLastOrFirstIndex(Index), RightCharacterBox);
+		CheckAndCreateCharacterBox(UserCharacters, GetLastOrFirstIndex(Index), RightCharacterBox);
 
 		Index = CurrentCharacterIndex - 1;
-		CheckAndCreate(GetLastOrFirstIndex(Index), LeftCharacterBox);
+		CheckAndCreateCharacterBox(UserCharacters, GetLastOrFirstIndex(Index), LeftCharacterBox);
 		
 		return;
 	}
@@ -232,13 +184,13 @@ void USelectCharacterUserWidget::ShowCharacters(const TArray<FUserCharacter>& Us
 		const bool bIsRightBordersEqual = RightCharacterBox == SelectCharacterRightBorder;
 		Value = bIsRightBordersEqual ? -1 : 1;
 		Index = CurrentCharacterIndex + Value;
-		CheckAndCreate(GetLastOrFirstIndex(Index), RightCharacterBox);
+		CheckAndCreateCharacterBox(UserCharacters, GetLastOrFirstIndex(Index), RightCharacterBox);
 
 		// Left
 		const bool bIsLeftBordersEqual = LeftCharacterBox == SelectCharacterLeftBorder;
 		Value = bIsLeftBordersEqual ? 1 : -1;
 		Index = CurrentCharacterIndex + Value;
-		CheckAndCreate(GetLastOrFirstIndex(Index), LeftCharacterBox);
+		CheckAndCreateCharacterBox(UserCharacters, GetLastOrFirstIndex(Index), LeftCharacterBox);
 	}
 	else if (LastChangeCharacterDirection == EChangeCharacterDirection::ToRight)
 	{
@@ -246,13 +198,13 @@ void USelectCharacterUserWidget::ShowCharacters(const TArray<FUserCharacter>& Us
 		const bool bIsRightBordersEqual = RightCharacterBox == SelectCharacterRightBorder;
 		Value = bIsRightBordersEqual ? 1 : -1;
 		Index = CurrentCharacterIndex + Value;
-		CheckAndCreate(GetLastOrFirstIndex(Index), RightCharacterBox);
+		CheckAndCreateCharacterBox(UserCharacters, GetLastOrFirstIndex(Index), RightCharacterBox);
 
 		// Left
 		const bool bIsLeftBordersEqual = LeftCharacterBox == SelectCharacterLeftBorder;
 		Value = bIsLeftBordersEqual ? -1 : 1;
 		Index = CurrentCharacterIndex + Value;
-		CheckAndCreate(GetLastOrFirstIndex(Index), LeftCharacterBox);
+		CheckAndCreateCharacterBox(UserCharacters, GetLastOrFirstIndex(Index), LeftCharacterBox);
 	}
 }
 
@@ -331,7 +283,7 @@ bool USelectCharacterUserWidget::CanChangeCharacter()
 
 class UTexture2D* USelectCharacterUserWidget::GetBackGroundImage()
 {
-	int32 Index = UKismetMathLibrary::RandomIntegerInRange(0, BackGroundImages.Num() - 1);
+	const int32 Index = UKismetMathLibrary::RandomIntegerInRange(0, BackGroundImages.Num() - 1);
 	if (BackGroundImages.IsValidIndex(Index))
 	{
 		return BackGroundImages[Index];
@@ -517,4 +469,51 @@ void USelectCharacterUserWidget::OnClickedAddNewCharacter()
 			SetPreviewCharacterPositionByCharacterBox(Widget);
 		}
 	}
+}
+
+USelectCharacterBoxUserWidget* USelectCharacterUserWidget::CheckAndCreateCharacterBox(const TArray<FUserCharacter>& UserCharacters, const int32 CheckIndex, UBorder* Border)
+{
+	if (!IsValid(Border)) return nullptr;
+	
+	if (UserCharacters.IsValidIndex(CheckIndex))
+	{
+		FCharacterInfoForUI	CharacterInfo;	
+		const FUserCharacter& UserCharacter = UserCharacters[CheckIndex];
+		CharacterInfo.CharacterName = UserCharacter.CharacterName;
+		CharacterInfo.CharacterLevel = FString::FromInt(UserCharacter.Level);
+
+		CreateCharacterSelectBox(CharacterInfo, Border);
+
+		USelectCharacterBoxUserWidget*  L_SelectCharacterMiddleBox = Cast<USelectCharacterBoxUserWidget>(SelectCharacterMiddleBorder->GetChildAt(0));
+		if (L_SelectCharacterMiddleBox)
+		{
+			L_SelectCharacterMiddleBox->CreateCharacterNameSwitcher->SetRenderScale(FVector2D(1.3f, 1.3f));
+		}
+
+		auto* Child = Cast<USelectCharacterBoxUserWidget>(Border->GetChildAt(0));
+		if (IsValid(Child))
+		{
+			const bool bIsShowButtons =  Border == MainCharacterBox;
+			Child->WidgetSwitcherEditMode->SetVisibility(bIsShowButtons ? ESlateVisibility::Visible : ESlateVisibility::Collapsed);
+			Child->WidgetSwitcherDoneEditMode->SetVisibility(bIsShowButtons ? ESlateVisibility::Visible : ESlateVisibility::Collapsed);
+			if (!bIsShowButtons)
+			{
+				Child->NextCharacterMesh->SetVisibility(ESlateVisibility::Collapsed);
+				Child->PreviousCharacterMesh->SetVisibility(ESlateVisibility::Collapsed);
+			}
+			SetPreviewCharacterPositionByCharacterBox(Child);
+			return Child;
+		}
+	}
+	else
+	{
+		auto* Child = Cast<USelectCharacterBoxUserWidget>(Border->GetChildAt(0));
+		if (IsValid(Child))
+		{
+			Child->RemoveFromParent();
+			return Child;
+		}
+	}
+
+	return nullptr;
 }

@@ -131,4 +131,6 @@ protected:
 
 	UFUNCTION()
 	void OnClickedAddNewCharacter();
+
+	class USelectCharacterBoxUserWidget* CheckAndCreateCharacterBox(const TArray<FUserCharacter>& UserCharacters, const int32 CheckIndex, class UBorder* Border);
 };

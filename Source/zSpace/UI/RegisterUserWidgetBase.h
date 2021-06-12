@@ -4,7 +4,9 @@
 
 #include "CoreMinimal.h"
 #include "OWSLoginWidget.h"
+#include "Components/TimelineComponent.h"
 #include "../Interfaces/UIResolutionInterface.h"
+
 #include "RegisterUserWidgetBase.generated.h"
 
 /**
@@ -18,6 +20,10 @@ class ZSPACE_API URegisterUserWidgetBase : public UOWSLoginWidget, public IUIRes
 protected:
 	virtual void NativePreConstruct() override;
 
+	virtual void NativeConstruct() override;
+
+	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
+	
 	virtual void NativeDestruct() override;
 
 	UFUNCTION()
@@ -27,10 +33,26 @@ protected:
 	void BtnCancelOnClicked();
 
 	UFUNCTION(BlueprintCallable, BlueprintCosmetic)
-	void OnSuccessRegister(class UResolutionAndWidgetDataAsset* LoginDataAsset);
+	void OnSuccessRegister();
 
 	UFUNCTION()
 	void ToPreviousMenu();
+
+protected:
+	UPROPERTY(EditDefaultsOnly)
+	UCurveFloat* OpacityCurveFloat = nullptr;
+	
+	UPROPERTY()
+	FTimeline OpacityTimeLine;
+
+	UPROPERTY()
+	FOnTimelineFloat OpacityTimelineFloat;
+	
+	UPROPERTY(EditDefaultsOnly)
+	class UMediaPlayer* MediaPlayerPreviewCard = nullptr;
+	
+	UPROPERTY(EditDefaultsOnly)
+	class UMediaSource* MediaSourcePreviewCard = nullptr;
 
 public:
 	UPROPERTY(BlueprintReadOnly)
@@ -57,12 +79,14 @@ public:
 	UPROPERTY(BlueprintReadWrite, meta=(BindWidgetOptional))
 	class UCanvasPanel* CentralPart = nullptr;
 
-	UPROPERTY(EditDefaultsOnly)
-	class UResolutionAndWidgetDataAsset* PreLoginDataAsset = nullptr;
-
 protected:
+	UFUNCTION()
+	void UpdatingOpacityTimeLine(float Value);
+	
 	void BindOnTextCommittedEvent();
 
 	UFUNCTION()
 	void OnTextCommitted(const FText& Text, ETextCommit::Type CommitMethod);
+
+	virtual EWidgetType GetWidgetType_Implementation() override;
 };

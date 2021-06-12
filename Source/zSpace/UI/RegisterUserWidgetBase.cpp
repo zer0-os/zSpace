@@ -13,10 +13,18 @@
 #include "LoginUserWidgetBase.h"
 #include "Components/Button.h"
 #include "../Types/UITypes.h"
+#include "MediaPlayer.h"
+#include "MediaSource.h"
+#include "zSpace/zSpace.h"
 
 void URegisterUserWidgetBase::NativePreConstruct()
 {
 	Super::NativePreConstruct();
+	
+	if (IsValid(MediaPlayerPreviewCard) && IsValid(MediaSourcePreviewCard))
+	{
+		MediaPlayerPreviewCard->OpenSource(MediaSourcePreviewCard);
+	}
 
 	if (IsValid(BtnRegister))
 	{
@@ -53,6 +61,26 @@ void URegisterUserWidgetBase::NativePreConstruct()
 			PlayerController->OnEscButtonPressed.AddDynamic(this, &URegisterUserWidgetBase::ToPreviousMenu);
 		}
 	}
+	
+	OpacityTimelineFloat.BindUFunction(this, FName("UpdatingOpacityTimeLine"));
+	OpacityTimeLine.AddInterpFloat(OpacityCurveFloat, OpacityTimelineFloat);
+}
+
+void URegisterUserWidgetBase::NativeConstruct()
+{
+	Super::NativeConstruct();
+
+	SetRenderOpacity(0.f);
+	
+	// UpdatingOpacityTimeLine()
+	OpacityTimeLine.PlayFromStart();
+}
+
+void URegisterUserWidgetBase::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
+{
+	Super::NativeTick(MyGeometry, InDeltaTime);
+
+	OpacityTimeLine.TickTimeline(InDeltaTime);
 }
 
 void URegisterUserWidgetBase::NativeDestruct()
@@ -63,7 +91,7 @@ void URegisterUserWidgetBase::NativeDestruct()
 	if (IsValid(PlayerController))
 	{
 		PlayerController->OnEscButtonPressed.RemoveDynamic(this, &URegisterUserWidgetBase::ToPreviousMenu);
-	}
+	}	
 }
 
 void URegisterUserWidgetBase::BtnRegisterOnClicked()
@@ -81,20 +109,24 @@ void URegisterUserWidgetBase::BtnCancelOnClicked()
 	if (!IsValid(ManageWidgetsResolution)) return;
 	
 	RemoveFromParent();
-	
-	TSubclassOf<class UUserWidget> WidgetSubClass = UUIBlueprintFunctionLibrary::GetWidgetSubClassForCurrentScreen(this, PreLoginDataAsset);
-	EResolution Resolution = UUIBlueprintFunctionLibrary::GetCurrentScreenResolutionEnum(this);
+
+	UResolutionAndWidgetDataAsset* WidgetDataAsset = ManageWidgetsResolution->GetWidgetDataAssetByWidgetType(EWidgetType::PreLogin);
+
+	const TSubclassOf<class UUserWidget>& WidgetSubClass = UUIBlueprintFunctionLibrary::GetWidgetSubClassForCurrentScreen(this, WidgetDataAsset);
+	const EResolution& Resolution = UUIBlueprintFunctionLibrary::GetCurrentScreenResolutionEnum(this);
 	UUserWidget* Widget = nullptr;
 	
 	ManageWidgetsResolution->CreateWidgetAndAddViewport(GetOwningPlayer(), WidgetSubClass, Resolution, Widget);
 }
 
-void URegisterUserWidgetBase::OnSuccessRegister(UResolutionAndWidgetDataAsset* LoginDataAsset)
+void URegisterUserWidgetBase::OnSuccessRegister()
 {
 	if (!IsValid(ManageWidgetsResolution)) return;
 
-	TSubclassOf<class UUserWidget> WidgetSubClass = UUIBlueprintFunctionLibrary::GetWidgetSubClassForCurrentScreen(this, LoginDataAsset);
-	EResolution Resolution = UUIBlueprintFunctionLibrary::GetCurrentScreenResolutionEnum(this);
+	UResolutionAndWidgetDataAsset* WidgetDataAsset = ManageWidgetsResolution->GetWidgetDataAssetByWidgetType(EWidgetType::Login);
+
+	const TSubclassOf<class UUserWidget> WidgetSubClass = UUIBlueprintFunctionLibrary::GetWidgetSubClassForCurrentScreen(this, WidgetDataAsset);
+	const EResolution Resolution = UUIBlueprintFunctionLibrary::GetCurrentScreenResolutionEnum(this);
 
 	UUserWidget* Widget = nullptr;
 
@@ -113,9 +145,9 @@ void URegisterUserWidgetBase::OnSuccessRegister(UResolutionAndWidgetDataAsset* L
 
 void URegisterUserWidgetBase::ToPreviousMenu()
 {
-	EResolution Resolution = UUIBlueprintFunctionLibrary::GetCurrentScreenResolutionEnum(this);
+	const EResolution Resolution = UUIBlueprintFunctionLibrary::GetCurrentScreenResolutionEnum(this);
 	UResolutionAndWidgetDataAsset* WidgetDataAsset = IUIResolutionInterface::Execute_GetToPreviousMenuDataAsset(this);
-	TSubclassOf<UUserWidget> WidgetSubClass = UUIBlueprintFunctionLibrary::GetWidgetSubClassForCurrentScreen(this, WidgetDataAsset);
+	const TSubclassOf<UUserWidget> WidgetSubClass = UUIBlueprintFunctionLibrary::GetWidgetSubClassForCurrentScreen(this, WidgetDataAsset);
 	UUserWidget* Widget = nullptr;
 
 	ManageWidgetsResolution->CreateWidgetAndAddViewport(GetOwningPlayer(), WidgetSubClass, Resolution, Widget);
@@ -127,6 +159,11 @@ void URegisterUserWidgetBase::ToPreviousMenu()
 	}
 
 	RemoveFromParent();
+}
+
+void URegisterUserWidgetBase::UpdatingOpacityTimeLine(float Value)
+{
+	SetRenderOpacity(Value);
 }
 
 void URegisterUserWidgetBase::BindOnTextCommittedEvent()
@@ -151,5 +188,10 @@ void URegisterUserWidgetBase::OnTextCommitted(const FText& Text, ETextCommit::Ty
 	{
 		BtnRegisterOnClicked();
 	}
+}
+
+EWidgetType URegisterUserWidgetBase::GetWidgetType_Implementation()
+{
+	return EWidgetType::Register;
 }
 
