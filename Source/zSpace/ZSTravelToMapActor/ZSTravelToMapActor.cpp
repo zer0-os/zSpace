@@ -162,6 +162,11 @@ void AZSTravelToMapActor::ComponentBeginOverlap(UPrimitiveComponent* OverlappedC
 		GetOWSCharacter(OtherActor);
 		GetPlayerController(Character);
 		GetPlayerState(PlayerController);
+
+		if (IsValid(Character))
+		{
+			Character->DisableInput(PlayerController);
+		}
 			
 		FTimerHandle Timer;
 
