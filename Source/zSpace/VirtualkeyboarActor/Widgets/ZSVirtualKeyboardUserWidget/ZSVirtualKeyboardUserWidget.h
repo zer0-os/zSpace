@@ -4,9 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+#include "Components/HorizontalBox.h"
 #include "zSpace/VirtualkeyboarActor/VirtualKeyboardWidgetInterface/VirtualKeyboardWidgetInterface.h"
-
 #include "ZSVirtualKeyboardUserWidget.generated.h"
+
 
 /**
  * 
@@ -19,6 +20,9 @@ class ZSPACE_API UZSVirtualKeyboardUserWidget : public UUserWidget , public  IVi
 
 	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess=true))
 	class UWidgetInteractionComponent * WidgetInteractionComponent = nullptr;
+
+	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess=true))
+	class AVirtualKeyboardActor * VirtualKeyboardActor = nullptr;
 	
 public:
 
@@ -30,7 +34,27 @@ public:
 	UPROPERTY(BlueprintAssignable)
 	FSetWidgetInteractionComponent OnSetWidgetInteractionComponent;
 
-	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+	UFUNCTION(BlueprintPure, BlueprintNativeEvent)
 	class UWidgetInteractionComponent * GetWidgetInteractionComponent();
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+	void SetVirtualKeyboardActor(class AVirtualKeyboardActor * NewVirtualKeyboardActor);
+	
+	//DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FSetVirtualKeyboardActor, class AVirtualKeyboardActor *, NewVirtualKeyboardActor);
+
+	//UPROPERTY(BlueprintAssignable)
+	//FSetVirtualKeyboardActor OnSetVirtualKeyboardActor;
+
+	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent)
+	void EventSetVirtualKeyboardActor();
+
+private:
+
+	UFUNCTION(BlueprintCallable)
+	void SetVirtualKeyboardActorInKey(TArray<UHorizontalBox*> NewHorizontalBox);
+
+	UFUNCTION(BlueprintCallable)
+	void SetWidgetInteractionComponentInKey(TArray<UHorizontalBox*> NewHorizontalBox);
+	
 	
 };

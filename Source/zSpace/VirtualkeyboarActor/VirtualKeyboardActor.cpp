@@ -3,6 +3,7 @@
 
 #include "zSpace/VirtualkeyboarActor/VirtualKeyboardActor.h"
 #include "Components/WidgetComponent.h"
+#include "VirtualKeyboardWidgetInterface/VirtualKeyboardWidgetInterface.h"
 
 // Sets default values
 AVirtualKeyboardActor::AVirtualKeyboardActor()
@@ -23,7 +24,7 @@ AVirtualKeyboardActor::AVirtualKeyboardActor()
 void AVirtualKeyboardActor::BeginPlay()
 {
 	Super::BeginPlay();
-	
+	SetVirtualKeyboardActor();	
 }
 
 // Called every frame
@@ -31,5 +32,32 @@ void AVirtualKeyboardActor::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+}
+
+void AVirtualKeyboardActor::OnConstruction(const FTransform& Transform)
+{
+	Super::OnConstruction(Transform);
+}
+
+void AVirtualKeyboardActor::SetVirtualKeyboardActor()
+{
+	if(IsValid(WidgetComponentVirtualKeyboard))
+	{
+		UUserWidget * L_UserWidget = WidgetComponentVirtualKeyboard->GetUserWidgetObject();
+		if(L_UserWidget)
+		{
+			const bool L_IsImplemented = L_UserWidget->GetClass()->ImplementsInterface(UVirtualKeyboardWidgetInterface::StaticClass());
+			if(L_IsImplemented)
+			{
+				IVirtualKeyboardWidgetInterface::Execute_SetVirtualKeyboardActor(L_UserWidget, this);	
+			}
+		}
+	}
+}
+
+void AVirtualKeyboardActor::SetIsPressedShift(const bool NewIsPressedShift)
+{
+	bIsPressedShift = NewIsPressedShift;
+	OnPressedShift.Broadcast(bIsPressedShift);
 }
 

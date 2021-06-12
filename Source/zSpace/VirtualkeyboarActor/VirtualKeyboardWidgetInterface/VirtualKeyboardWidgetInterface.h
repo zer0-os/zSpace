@@ -29,5 +29,8 @@ public:
 
 	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent)
 	class UWidgetInteractionComponent * GetWidgetInteractionComponent();
+
+	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent)
+	void SetVirtualKeyboardActor(class AVirtualKeyboardActor * NewVirtualKeyboardActor);
 	
 };
