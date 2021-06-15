@@ -38,6 +38,8 @@ void USoundManager::PlayPortalSoundByType(EPortalSoundType SoundType)
 
 void USoundManager::SetSoundVolumeBySoundClass(FName SoundClassName, float Volume)
 {
+	if (!IsValid(SoundClassesDataAsset)) return;
+
 	class USoundMix * L_GlobalSoundMix = SoundClassesDataAsset->GlobalSoundMix;
 	class USoundClass * L_SoundClasses = SoundClassesDataAsset->GetSoundClassByName(SoundClassName);
 
