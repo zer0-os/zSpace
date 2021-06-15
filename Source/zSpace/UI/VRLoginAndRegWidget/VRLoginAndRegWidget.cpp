@@ -63,15 +63,17 @@ void UVRLoginAndRegWidget::LoginSuccess(FString NewUserSessionGUID)
 	if(IsValid(ZSpaceGameInstance))
 	{
 		ZSpaceGameInstance->UserSessionGUID = NewUserSessionGUID;
-		if(bIsReg)
+		AZSLoginPlayerController *  PC = Cast<AZSLoginPlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
+		if(IsValid(PC))
 		{
-			AZSLoginPlayerController *  PC = Cast<AZSLoginPlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
-			if(IsValid(PC))
+			if(bIsReg)
 			{
 				const FString UserName = AZSLoginPlayerController::GetRandomString(9);
 				PC->CreateCharacter(ZSpaceGameInstance->UserSessionGUID, UserName, AZSLoginPlayerController::ClassName);
 			}
+			PC->GetAllCharacters(ZSpaceGameInstance->UserSessionGUID);
 		}
+		
 	}
 }
 
