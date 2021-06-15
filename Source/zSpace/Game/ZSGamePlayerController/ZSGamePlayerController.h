@@ -53,6 +53,9 @@ protected:
 	
 	UFUNCTION(BlueprintCallable, BlueprintCosmetic)
 	void HideOrShowGameplayWidget();
+	
+	UFUNCTION(BlueprintImplementableEvent)
+	void UpdateGameplayWidget();
 
 private:
 	// Wallet Start 
