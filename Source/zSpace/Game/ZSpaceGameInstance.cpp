@@ -110,7 +110,16 @@ void UZSpaceGameInstance::EndLoadingLevel(UWorld* NewWorld)
 				WidgetLoadingManagerObject->HideLoadingWidget();	
 			}
 		}
+
+		if (IsValid(SoundManagerRef))
+		{
+			SoundManagerRef->SetSoundVolumeBySoundClass(FName("Gameplay"), 1);
+			SoundManagerRef->SetSoundVolumeBySoundClass(FName("Ambient"), 1);
+		}
+
 	}, 1.2, false);
+
+
 }
 
 UWidgetLoadingManagerObject* UZSpaceGameInstance::GetWidgetLoadingManagerObject() const

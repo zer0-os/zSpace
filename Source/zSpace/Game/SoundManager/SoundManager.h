@@ -18,10 +18,17 @@ class ZSPACE_API USoundManager : public UObject
 private:
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(AllowPrivateAccess=true))
-	class UPortalSoundsDataAsset* PortalSounds;
+	class UPortalSoundsDataAsset* PortalSoundsDataAsset;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(AllowPrivateAccess=true))
+	class USoundClassesDataAsset* SoundClassesDataAsset;
+
 public:	
 
 	UFUNCTION(BlueprintCallable)
 	void PlayPortalSoundByType(EPortalSoundType SoundType);
+
+	UFUNCTION(BlueprintCallable)
+	void SetSoundVolumeBySoundClass(FName SoundClassName, float Volume);
 
 };
