@@ -268,20 +268,20 @@ void AZSCharacterWithAbilities::Dodge()
 	
 	if(GetOWSMovementComponent() && !bIsHit)
 	{
-		GetOWSMovementComponent()->DoDodge();
-						
-		if (AnimationState == EAnimationState::StartMovingAnimation)
-		{
-			StopStartMovementAnimMontage();
-		}
-
 		UZSCharacterMovementComponent* MovementComponent = Cast<UZSCharacterMovementComponent>(GetCharacterMovement());
+		bool isAttackMontagePlaying = GetMesh()->GetAnimInstance()->Montage_IsPlaying(AttackMontage);
+			
 		if (IsValid(MovementComponent))
 		{
-			bool isAttackMontagePlaying = GetMesh()->GetAnimInstance()->Montage_IsPlaying(AttackMontage);
-			
 			if (false == isAttackMontagePlaying && AnimationState != EAnimationState::Standing && MovementComponent->IsFalling() == false && MovementComponent->MovementMode != EMovementMode::MOVE_Swimming)
 			{
+				GetOWSMovementComponent()->DoDodge();
+						
+				if (AnimationState == EAnimationState::StartMovingAnimation)
+				{
+					StopStartMovementAnimMontage();
+				}
+
 				USoundBase * L_Acceleration = Cast<USoundBase>(SoundBaseAcceleration.LoadSynchronous());
 				checkf(nullptr != L_Acceleration, TEXT("The L_Acceleration is nullptr., Pleas Set Acceleration Sound."));
 				if(L_Acceleration)
