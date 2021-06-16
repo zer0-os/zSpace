@@ -12,6 +12,22 @@ UCLASS()
 class ZSPACE_API AVRShowCharacterActor : public AActor
 {
 	GENERATED_BODY()
+
+private:
+	
+	FHttpModule* Http;
+
+	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess=true))
+	FString RPGAPICustomerKey;
+
+	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess=true))
+	FString RPGAPIPath;
+
+	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess=true))
+	FString OWS2APIPath;
+	
+	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess=true))
+	FString OWSEncryptionKey;
 	
 public:	
 	// Sets default values for this actor's properties
@@ -38,5 +54,14 @@ private:
 	UFUNCTION()
 	void OnGetAllCharacters(const TArray<FUserCharacter>& UserCharacters);
 
+private:
 	
+	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess=true))	
+	TArray<FUserCharacter> UserCharacters;
+
+	void GetCosmeticCustomCharacterData(FString UserSessionGUID, FString CharacterName);
+	
+public:
+
+	void OnGetCosmeticCustomCharacterDataResponseReceived(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful);
 };
