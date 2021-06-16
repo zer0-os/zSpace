@@ -3,9 +3,12 @@
 
 // ReSharper disable All
 #include "zSpace/PlayerController/ZSLoginPlayerController.h"
+
+#include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "zSpace/BlueprintFunctionLibrary/OWSBlueprintFunctionLibrary.h"
+#include "zSpace/Game/ZSpaceGameInstance.h"
 
 AZSLoginPlayerController::AZSLoginPlayerController()
 {
@@ -50,8 +53,6 @@ void AZSLoginPlayerController::CheckCharacterCountAndAdd(int32 CheckCount, const
 	if (UserCharacters.Num() < CheckCount)
 	{	
 		const int32 CreateCount = CheckCount - UserCharacters.Num();
-		const FString ClassName = "MaleWarrior";
-		
 		for (int32 X(0); X < CreateCount; X++)
 		{
 			FString NewCharacterName = GetRandomString(9);
@@ -118,6 +119,11 @@ FString AZSLoginPlayerController::GetUserSessionGUID() const
 
 void AZSLoginPlayerController::SetUserSessionGUID(FString Value)
 {
+	UZSpaceGameInstance * ZSpaceGameInstance = Cast<UZSpaceGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
+	if(ZSpaceGameInstance)
+	{
+		ZSpaceGameInstance->UserSessionGUID = Value;
+	}
 	UserSessionGUID = Value;
 }
 
@@ -130,3 +136,5 @@ void AZSLoginPlayerController::SetCharacterName(FString Value)
 {
 	CharacterName = Value;
 }
+
+const FString AZSLoginPlayerController::ClassName = "MaleWarrior";

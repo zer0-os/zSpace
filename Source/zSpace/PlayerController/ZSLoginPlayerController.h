@@ -52,10 +52,6 @@ protected:
 	UFUNCTION()
 	void OnGetAllCharactersEvent(const TArray<FUserCharacter>& UserCharacters);
 
-	/**
-	 * @param Length Max Length 32
-	 */
-	FString GetRandomString(uint8 Length = 12);
 
 	UFUNCTION(BlueprintPure)
 	FCustomCharacterDataStruct GetCustomCharacterDataMeshByName(FString Character_Name) const;
@@ -64,6 +60,11 @@ protected:
 	void UpdateOrAddCustomCharacterDataMesh(const FCustomCharacterDataStruct& NewData);
 
 public:
+	/**
+	 * @param Length Max Length 32
+	 */
+	static FString GetRandomString(uint8 Length = 12);
+	
 	UPROPERTY(BlueprintAssignable)
 	FOnEscButtonPressed OnEscButtonPressed;
 	
@@ -82,6 +83,9 @@ protected:
 
 	UPROPERTY(BlueprintGetter=GetCharacterName, BlueprintSetter=SetCharacterName)
 	FString CharacterName;
+	
+public:	
+	static const FString ClassName;
 	
 };
 

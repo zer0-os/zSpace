@@ -258,11 +258,13 @@ void AZSCharacterWithAbilities::Dodge()
 {
 
 	const FVector L_Start = GetMesh()->GetSocketLocation(FName("head"));
-	const FVector L_End = L_Start + GetActorForwardVector() * 500;
+	FVector L_End = L_Start + GetActorForwardVector() * 500;
+	L_End.Z += 500;
+
 	TArray<AActor *> IgnoreActors;
 	FHitResult HitResult;
 
-	const bool bIsHit = UKismetSystemLibrary::LineTraceSingle(this, L_Start,  L_End, ETraceTypeQuery(), false, IgnoreActors, EDrawDebugTrace::None, HitResult, true);
+	const bool bIsHit = UKismetSystemLibrary::LineTraceSingle(this, L_Start,  L_End, ETraceTypeQuery(), false, IgnoreActors, EDrawDebugTrace::ForDuration, HitResult, true);
 	
 	if(GetOWSMovementComponent() && !bIsHit)
 	{

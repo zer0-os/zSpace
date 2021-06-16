@@ -167,6 +167,7 @@ void AZSGamePlayerController::HideOrShowGameplayWidget()
 		{
 			ManageWidgetsResolution->SetIsGameplayWidgetHidden(false);
 			Widget->AddToViewport();
+			UpdateGameplayWidget();
 		}
 	}
 }

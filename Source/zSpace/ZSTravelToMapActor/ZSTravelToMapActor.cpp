@@ -154,6 +154,8 @@ void AZSTravelToMapActor::ComponentBeginOverlap(UPrimitiveComponent* OverlappedC
 		if (SoundManager)
 		{
 			SoundManager->PlayPortalSoundByType(EPortalSoundType::FadeIn);
+			SoundManager->SetSoundVolumeBySoundClass(FName("Ambient"), 0);
+			SoundManager->SetSoundVolumeBySoundClass(FName("Gameplay"), 0);
 		}
 	}
 
@@ -163,11 +165,6 @@ void AZSTravelToMapActor::ComponentBeginOverlap(UPrimitiveComponent* OverlappedC
 		GetPlayerController(Character);
 		GetPlayerState(PlayerController);
 
-		if (IsValid(Character))
-		{
-			Character->DisableInput(PlayerController);
-		}
-			
 		FTimerHandle Timer;
 
 		GetWorld()->GetTimerManager().SetTimer(Timer, [&]()
