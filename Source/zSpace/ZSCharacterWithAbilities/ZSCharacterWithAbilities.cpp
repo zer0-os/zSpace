@@ -264,7 +264,7 @@ void AZSCharacterWithAbilities::Dodge()
 	TArray<AActor *> IgnoreActors;
 	FHitResult HitResult;
 
-	const bool bIsHit = UKismetSystemLibrary::LineTraceSingle(this, L_Start,  L_End, ETraceTypeQuery(), false, IgnoreActors, EDrawDebugTrace::ForDuration, HitResult, true);
+	const bool bIsHit = UKismetSystemLibrary::LineTraceSingle(this, L_Start,  L_End, ETraceTypeQuery(), false, IgnoreActors, EDrawDebugTrace::None, HitResult, true);
 	
 	if(GetOWSMovementComponent() && !bIsHit)
 	{
