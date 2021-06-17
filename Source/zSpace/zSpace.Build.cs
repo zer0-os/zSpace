@@ -24,6 +24,7 @@ public class zSpace : ModuleRules
             , "MediaAssets"
             , "Etherlinker"
             , "OVRPlugin"
+            , "HTTP"
 			});
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
