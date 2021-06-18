@@ -14,6 +14,8 @@
 #include "../Game/ZSpaceGameInstance.h"
 #include "../Game/SoundManager/SoundManager.h"
 #include "zSpace/zSpace.h"
+#include <Components/PrimitiveComponent.h>
+#include <Components/CapsuleComponent.h>
 
 // Sets default values
 AZSTravelToMapActor::AZSTravelToMapActor()
@@ -30,7 +32,6 @@ AZSTravelToMapActor::AZSTravelToMapActor()
 	BoxComponent->SetupAttachment(SceneComponentRoot);
 
 	BoxComponent->OnComponentBeginOverlap.AddDynamic(this, &AZSTravelToMapActor::ComponentBeginOverlap);
-	BoxComponent->OnComponentEndOverlap.AddDynamic(this, &AZSTravelToMapActor::ComponentEndOverlap);
 	
 	ShowLoadingDialog = true;
 }
@@ -147,23 +148,28 @@ void AZSTravelToMapActor::DisableCharacterMovement()
 void AZSTravelToMapActor::ComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 
-	UZSpaceGameInstance* GameInstance = Cast<UZSpaceGameInstance>(GetGameInstance());
-	if (GameInstance)
-	{
-		USoundManager* SoundManager = GameInstance->GetSoundManagerObject();
-		if (SoundManager)
-		{
-			SoundManager->PlayPortalSoundByType(EPortalSoundType::FadeIn);
-			SoundManager->SetSoundVolumeBySoundClass(FName("Ambient"), 0);
-			SoundManager->SetSoundVolumeBySoundClass(FName("Gameplay"), 0);
-		}
-	}
+	GetOWSCharacter(OtherActor);
+	GetPlayerController(Character);
+	GetPlayerState(PlayerController);
 
+	if (IsValid(Character))
+	{
+		UPrimitiveComponent* CapsuleComponent = Cast<UPrimitiveComponent>(Character->GetCapsuleComponent());
+
+		if(CapsuleComponent != OtherComp) return;
+		/*	DisableCharacterMovement();
+			Character->DisableInput(PlayerController);
+			Character->Server_SetAnimationState(EAnimationState::Standing);*/
+
+	}
 	if(HasAuthority())
 	{
-		GetOWSCharacter(OtherActor);
-		GetPlayerController(Character);
-		GetPlayerState(PlayerController);
+		if (IsValid(Character) && IsValid(PlayerController))
+		{
+			DisableCharacterMovement();
+			Character->DisableInput(PlayerController);
+			Character->Server_SetAnimationState(EAnimationState::Standing);
+		}
 
 		FTimerHandle Timer;
 
@@ -189,18 +195,33 @@ void AZSTravelToMapActor::ComponentBeginOverlap(UPrimitiveComponent* OverlappedC
 			}
 		}, 0.5f, false);
 	}
+	UZSpaceGameInstance* GameInstance = Cast<UZSpaceGameInstance>(GetGameInstance());
+	if (GameInstance)
+	{
+		USoundManager* SoundManager = GameInstance->GetSoundManagerObject();
+		if (SoundManager)
+		{
+			SoundManager->PlayPortalSoundByType(EPortalSoundType::FadeIn);
+			SoundManager->SetSoundVolumeBySoundClass(FName("Ambient"), 0);
+			SoundManager->SetSoundVolumeBySoundClass(FName("Gameplay"), 0);
+		}
+	}
+	UKismetSystemLibrary::PrintString(this, "Begin overlap-----", true, false, FLinearColor::Green, 20);
 	
 }
 
-void AZSTravelToMapActor::ComponentEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+void AZSTravelToMapActor::OnEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	if(HasAuthority())
+
+//	UKismetSystemLibrary::PrintString(this, "End overlap---------------------", true, false, FLinearColor::Green, 20);
+
+	if (HasAuthority())
 	{
-		AOWSCharacter * L_Character = Cast<AOWSCharacter>(OtherActor);
-		if(IsValid(L_Character))
+		AOWSCharacter* L_Character = Cast<AOWSCharacter>(OtherActor);
+		if (IsValid(L_Character))
 		{
 			FTimerHandle L_TimeHandler;
-			GetWorld()->GetTimerManager().SetTimer(L_TimeHandler, this, &AZSTravelToMapActor::ResetState , 5, false);
+			GetWorld()->GetTimerManager().SetTimer(L_TimeHandler, this, &AZSTravelToMapActor::ResetState, 5, false);
 		}
 	}
 }
@@ -319,8 +340,8 @@ void AZSTravelToMapActor::ResetState()
 	if(IsValid(Character))
 	{
 		Character->IsTransferringBetweenMaps = false;
-		Character = nullptr;
-		PlayerController = nullptr;
-		PlayerState = nullptr;
+	//	Character = nullptr;
+	//	PlayerController = nullptr;
+	//	PlayerState = nullptr;
 	}
 }
