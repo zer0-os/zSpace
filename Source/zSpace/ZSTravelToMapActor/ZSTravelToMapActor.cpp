@@ -205,9 +205,7 @@ void AZSTravelToMapActor::ComponentBeginOverlap(UPrimitiveComponent* OverlappedC
 			SoundManager->SetSoundVolumeBySoundClass(FName("Ambient"), 0);
 			SoundManager->SetSoundVolumeBySoundClass(FName("Gameplay"), 0);
 		}
-	}
-	UKismetSystemLibrary::PrintString(this, "Begin overlap-----", true, false, FLinearColor::Green, 20);
-	
+	}	
 }
 
 void AZSTravelToMapActor::OnEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
