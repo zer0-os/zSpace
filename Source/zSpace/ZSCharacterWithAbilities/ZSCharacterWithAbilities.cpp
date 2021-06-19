@@ -3,6 +3,9 @@
 
 #include "ZSCharacterWithAbilities.h"
 
+#include "HeadMountedDisplayFunctionLibrary.h"
+#include "MotionControllerComponent.h"
+#include "OculusFunctionLibrary.h"
 #include "Components/CharacterMovementComponent/ZSCharacterMovementComponent.h"
 #include "Components/DetectSurfaceTypeComponent/DetectSurfaceTypeComponent.h"
 #include "zSpace/BlueprintFunctionLibrary/UIBlueprintFunctionLibrary.h"
@@ -17,6 +20,11 @@
 #include "Kismet/GameplayStatics.h"
 #include "Net/UnrealNetwork.h"
 #include "OWSGameMode.h"
+#include "Blueprint/UserWidget.h"
+#include "Components/WidgetComponent.h"
+#include "Components/WidgetInteractionComponent.h"
+#include "zSpace/VirtualkeyboarActor/VirtualKeyboardWidgetInterface/VirtualKeyboardWidgetInterface.h"
+#include "zSpace/VR/BallisticLineComponent/BallisticLineComponent.h"
 
 
 AZSCharacterWithAbilities::AZSCharacterWithAbilities(const FObjectInitializer& NewObjectInitializer) : Super(NewObjectInitializer.SetDefaultSubobjectClass<UZSCharacterMovementComponent>(ACharacter::CharacterMovementComponentName))
@@ -31,11 +39,138 @@ AZSCharacterWithAbilities::AZSCharacterWithAbilities(const FObjectInitializer& N
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraComponent"));
 	checkf(nullptr != CameraComponent, TEXT("The CameraComponent is nullptr."));
 	CameraComponent->SetupAttachment(SpringArmComponent, USpringArmComponent::SocketName);
+	
+	SceneComponentVR = CreateDefaultSubobject<USceneComponent>(TEXT("SceneComponentVR"));
+	checkf(nullptr != SceneComponentVR, TEXT("The SceneComponentVR is nullptr."));
+	SceneComponentVR->SetupAttachment(RootComponent);
+	
+	CameraComponentVR = CreateDefaultSubobject<UCameraComponent>(TEXT("VRCameraComponent"));
+	checkf(nullptr != CameraComponent, TEXT("The VRCameraComponent is nullptr."));
+	CameraComponentVR->SetupAttachment(RootComponent);
 
 	DetectSurfaceTypeComponent = CreateDefaultSubobject<UDetectSurfaceTypeComponent>(TEXT("DetectSurfaceTypeComponent"));
 	checkf(nullptr != DetectSurfaceTypeComponent, TEXT("The DetectSurfaceTypeComponent is nullptr."));
-	AddOwnedComponent(DetectSurfaceTypeComponent);	
+	AddOwnedComponent(DetectSurfaceTypeComponent);
+	
+	MotionControllerComponentLeft = CreateDefaultSubobject<UMotionControllerComponent>(TEXT("MotionControllerComponentLeft"));
+	checkf(nullptr != MotionControllerComponentLeft, TEXT("The MotionControllerComponentLeft is nullptr."));
+	MotionControllerComponentLeft->SetupAttachment(RootComponent);
+	MotionControllerComponentLeft->MotionSource = TEXT("Left");
+	
+	MotionControllerComponentRight = CreateDefaultSubobject<UMotionControllerComponent>(TEXT("MotionControllerComponentRight"));
+	checkf(nullptr != MotionControllerComponentRight, TEXT("The MotionControllerComponentRight is nullptr."));
+	MotionControllerComponentRight->SetupAttachment(RootComponent);
+	MotionControllerComponentRight->MotionSource = TEXT("Right");
+
+	SkeletalMeshComponentLeft = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("SkeletalMeshComponentLeft"));
+	checkf(nullptr != SkeletalMeshComponentLeft, TEXT("The SkeletalMeshComponentLeft is nullptr.") );
+	SkeletalMeshComponentLeft->SetupAttachment(MotionControllerComponentLeft);
+	
+	SkeletalMeshComponentRight = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("SkeletalMeshComponentRight"));
+	checkf(nullptr != SkeletalMeshComponentRight, TEXT("The SkeletalMeshComponentRight is nullptr."));
+	SkeletalMeshComponentRight->SetupAttachment(MotionControllerComponentRight);
+
+	WidgetInteractionComponentLeft = CreateDefaultSubobject<UWidgetInteractionComponent>(TEXT("WidgetInteractionComponentLeft"));
+	checkf(nullptr != WidgetInteractionComponentLeft, TEXT("The WidgetInteractionComponentLeft is nullptr."));
+	WidgetInteractionComponentLeft->SetupAttachment(MotionControllerComponentLeft);
+	WidgetInteractionComponentLeft->bShowDebug = true;
+	WidgetInteractionComponentLeft->InteractionDistance = 1000;
+	WidgetInteractionComponentLeft->PointerIndex = 0;
+	WidgetInteractionComponentLeft->VirtualUserIndex = 0;
+	
+	WidgetInteractionComponentRight = CreateDefaultSubobject<UWidgetInteractionComponent>(TEXT("WidgetInteractionComponentRight"));
+	checkf(nullptr != WidgetInteractionComponentRight, TEXT("The WidgetInteractionComponentRight is nullptr."));
+	WidgetInteractionComponentRight->SetupAttachment(MotionControllerComponentRight);
+	WidgetInteractionComponentRight->bShowDebug = true;
+	WidgetInteractionComponentRight->InteractionDistance = 1000;
+	WidgetInteractionComponentRight->PointerIndex = 1;
+	WidgetInteractionComponentRight->VirtualUserIndex = 1;
+
+	WidgetInteractionComponentRight->OnHoveredWidgetChanged.AddUniqueDynamic(this, &AZSCharacterWithAbilities::HoveredWidgetChanged);
+
+	BallisticLineComponentLeft  = CreateDefaultSubobject<UBallisticLineComponent>(TEXT("BallisticLineComponentLeft"));
+	checkf(nullptr != BallisticLineComponentLeft, TEXT("The BallisticLineComponentLeft is nullptr.") );
+	BallisticLineComponentLeft->SetupAttachment(MotionControllerComponentLeft);
+	
+	BallisticLineComponentRight  = CreateDefaultSubobject<UBallisticLineComponent>(TEXT("BallisticLineComponentRight"));
+	checkf(nullptr != BallisticLineComponentRight, TEXT("The BallisticLineComponentRight is nullptr.") );
+	BallisticLineComponentRight->SetupAttachment(MotionControllerComponentRight);
+	
 }
+
+void AZSCharacterWithAbilities::BeginPlay()
+{
+	Super::BeginPlay();
+
+	UZSCharacterMovementComponent* MovementComponent = Cast<UZSCharacterMovementComponent>(GetCharacterMovement());
+	if (IsValid(MovementComponent))
+	{
+		MovementComponent->OnChangedPlayerGait.AddUniqueDynamic(this, &AZSCharacterWithAbilities::OnChangedPlayerGait);
+	}
+	check(StopMovementAnimMontage);
+	check(StartMovementAnimMontage);
+
+	const EResolution& Resolution = UUIBlueprintFunctionLibrary::GetCurrentScreenResolutionEnum(this);
+	if (Resolution == EResolution::R_5120X1440)
+	{
+		SpringArmComponent->TargetArmLength = 640.f;
+	}
+	else if (Resolution != EResolution::None)
+	{
+		SpringArmComponent->TargetArmLength = 300.f;
+	}
+	SetupOculusSettings();
+}
+
+void AZSCharacterWithAbilities::SetupOculusSettings()
+{
+	const EOculusDeviceType L_OculusDeviceType = UOculusFunctionLibrary::GetDeviceType();
+	if(EOculusDeviceType::Quest_Link == L_OculusDeviceType)
+	{
+		UHeadMountedDisplayFunctionLibrary::SetTrackingOrigin(EHMDTrackingOrigin::Eye);
+		USkeletalMeshComponent * CharacterSkeletalMeshComponent = GetMesh();
+		checkf(nullptr != CharacterSkeletalMeshComponent, TEXT("The CharacterSkeletalmeshComponent is nullptr."));
+		//CharacterSkeletalMeshComponent->Deactivate();
+		CharacterSkeletalMeshComponent->DestroyComponent();
+		CameraComponent->Deactivate();
+		CameraComponentVR->Activate();
+	} else if(EOculusDeviceType::OculusUnknown == L_OculusDeviceType)
+	{
+		if(IsValid(MotionControllerComponentLeft))
+		{
+			MotionControllerComponentLeft->Deactivate();
+		}
+		if(IsValid(MotionControllerComponentRight))
+		{
+			MotionControllerComponentRight->Deactivate();
+		}
+		if(IsValid(SkeletalMeshComponentLeft))
+		{
+			SkeletalMeshComponentLeft->Deactivate();
+		}
+		if(IsValid(SkeletalMeshComponentRight))
+		{
+			SkeletalMeshComponentRight->Deactivate();
+		}
+		if(IsValid(WidgetInteractionComponentLeft))
+		{
+			WidgetInteractionComponentLeft->Deactivate();
+		}
+		if(IsValid(WidgetInteractionComponentRight))
+		{
+			WidgetInteractionComponentRight->Deactivate();
+		}
+		if(IsValid(BallisticLineComponentLeft))
+		{
+			BallisticLineComponentLeft->Deactivate();
+		}
+		if(IsValid(BallisticLineComponentRight ))
+		{
+			BallisticLineComponentRight->Deactivate();
+		}
+	}
+}
+
 
 void AZSCharacterWithAbilities::SetupPlayerInputComponent(UInputComponent* NewPlayerInputComponent)
 {
@@ -61,31 +196,14 @@ void AZSCharacterWithAbilities::SetupPlayerInputComponent(UInputComponent* NewPl
 		NewPlayerInputComponent->BindAction(TEXT("Crouching"), IE_Pressed, this, &AZSCharacterWithAbilities::OnStartCrouching);
 		NewPlayerInputComponent->BindAction(TEXT("Crouching"), IE_Released, this, &AZSCharacterWithAbilities::OnStopCrouching);
 		
+		NewPlayerInputComponent->BindAction(TEXT("OculusLTeleport"), EInputEvent::IE_Pressed, this, &AZSCharacterWithAbilities::OculusLTeleportPressed);
+		NewPlayerInputComponent->BindAction(TEXT("OculusLTeleport"), EInputEvent::IE_Released, this, &AZSCharacterWithAbilities::OculusLTeleportReleased);
+		NewPlayerInputComponent->BindAction(TEXT("OculusRTeleport"), EInputEvent::IE_Pressed, this, &AZSCharacterWithAbilities::OculusRTeleportPressed);
+		NewPlayerInputComponent->BindAction(TEXT("OculusRTeleport"), EInputEvent::IE_Released, this, &AZSCharacterWithAbilities::OculusRTeleportReleased);
+		
 	}
 }
 
-void AZSCharacterWithAbilities::BeginPlay()
-{
-	Super::BeginPlay();
-
-	UZSCharacterMovementComponent* MovementComponent = Cast<UZSCharacterMovementComponent>(GetCharacterMovement());
-	if (IsValid(MovementComponent))
-	{
-		MovementComponent->OnChangedPlayerGait.AddUniqueDynamic(this, &AZSCharacterWithAbilities::OnChangedPlayerGait);
-	}
-	check(StopMovementAnimMontage);
-	check(StartMovementAnimMontage);
-
-	const EResolution& Resolution = UUIBlueprintFunctionLibrary::GetCurrentScreenResolutionEnum(this);
-	if (Resolution == EResolution::R_5120X1440)
-	{
-		SpringArmComponent->TargetArmLength = 640.f;
-	}
-	else if (Resolution != EResolution::None)
-	{
-		SpringArmComponent->TargetArmLength = 300.f;
-	}
-}
 
 void AZSCharacterWithAbilities::Tick(float NewDeltaSeconds)
 {
@@ -715,4 +833,40 @@ void AZSCharacterWithAbilities::GetLifetimeReplicatedProps(TArray<FLifetimePrope
 	// Move Axis Values
 	DOREPLIFETIME(AZSCharacterWithAbilities, MoveForwardAxisValue);
 	DOREPLIFETIME(AZSCharacterWithAbilities, MoveRightAxisValue);
+}
+
+void AZSCharacterWithAbilities::OculusLTeleportPressed()
+{
+	BallisticLineComponentLeft->ShowBallisticLine();
+}
+
+void AZSCharacterWithAbilities::OculusLTeleportReleased()
+{
+	BallisticLineComponentLeft->HideBallisticLine();
+}
+
+void AZSCharacterWithAbilities::OculusRTeleportPressed()
+{
+	BallisticLineComponentRight->ShowBallisticLine();
+}
+
+void AZSCharacterWithAbilities::OculusRTeleportReleased()
+{
+	BallisticLineComponentRight->HideBallisticLine();
+}
+
+void AZSCharacterWithAbilities::HoveredWidgetChanged(UWidgetComponent* NewWidgetComponent, UWidgetComponent* NewPreviousWidgetComponent)
+{
+	if(IsValid(NewWidgetComponent) && IsValid(WidgetInteractionComponentRight))
+	{
+		UUserWidget * L_UserWidgetObject = NewWidgetComponent->GetUserWidgetObject();
+		if(IsValid(L_UserWidgetObject))
+		{
+			const bool L_IsImplemented = L_UserWidgetObject->GetClass()->ImplementsInterface(UVirtualKeyboardWidgetInterface::StaticClass());
+			if(L_IsImplemented)
+			{
+				IVirtualKeyboardWidgetInterface::Execute_SetWidgetInteractionComponent(L_UserWidgetObject, WidgetInteractionComponentRight);	
+			}
+		}
+	}
 }

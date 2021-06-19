@@ -28,6 +28,9 @@ private:
 	class UZSpaceGameInstance * ZSpaceGameInstance = nullptr;
 
 	uint8 bNotShowLoadingWidget:1;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess=true))
+	UTexture * TextureLoading = nullptr;
 	
 public:
 

@@ -25,9 +25,11 @@ public class zSpace : ModuleRules
             , "Etherlinker"
             , "OVRPlugin"
             , "HTTP"
+            , "HeadMountedDisplay"
+            , "OculusHMD"
 			});
 
-		PrivateDependencyModuleNames.AddRange(new string[] {  });
+		PrivateDependencyModuleNames.AddRange(new string[] { "OculusHMD" });
 
         PublicIncludePathModuleNames.AddRange(new string[] { "OWSPlugin" });
 
