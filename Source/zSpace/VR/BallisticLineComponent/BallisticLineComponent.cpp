@@ -6,6 +6,7 @@
 #include <activation.h>
 #include <fstream>
 
+#include "Components/DecalComponent.h"
 #include "Components/SplineComponent.h"
 #include "Components/SplineMeshComponent.h"
 #include "Kismet/GameplayStatics.h"
@@ -18,7 +19,7 @@ UBallisticLineComponent::UBallisticLineComponent()
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
 	//PrimaryComponentTick.TickInterval = 0.1;
-
+	DecalSize = FVector(10, 100, 100);
 	// ...
 }
 
@@ -40,6 +41,11 @@ void UBallisticLineComponent::TickComponent(float DeltaTime, ELevelTick TickType
 	UpdateSplinePoints();
 	UpdateSplineMeshPosition();
 	// ...
+}
+
+void UBallisticLineComponent::SpawnDecal()
+{
+	DecalComponentDestination = UGameplayStatics::SpawnDecalAtLocation(this, DecalMaterialDestination, DecalSize, TeleportLocation);
 }
 
 void UBallisticLineComponent::CreateSplineComponent()
@@ -79,14 +85,14 @@ void UBallisticLineComponent::CreateSplineMeshComponents()
 		{
 			USplineMeshComponent * L_SplineMeshComponent = NewObject<USplineMeshComponent>(OwnerActor);
 			checkf(nullptr != L_SplineMeshComponent, TEXT("The SplineMeshComponent is nullptr."))
-			L_SplineMeshComponent->SetStaticMesh(StaticMeshBallisticLine);
-			L_SplineMeshComponent->CreateAndSetMaterialInstanceDynamicFromMaterial(0, MaterialInterfaceBallisticLine);
+			L_SplineMeshComponent->RegisterComponent();
 			L_SplineMeshComponent->SetForwardAxis(ESplineMeshAxis::Z);
 			L_SplineMeshComponent->Mobility = EComponentMobility::Movable;
 			L_SplineMeshComponent->SetStartScale(FVector2D(0.1, 0.1));
 			L_SplineMeshComponent->SetEndScale(FVector2D(0.1, 0.1));
-			L_SplineMeshComponent->RegisterComponent();
 			L_SplineMeshComponent->AttachToComponent(GetOwner()->GetRootComponent(), FAttachmentTransformRules::KeepWorldTransform);
+			L_SplineMeshComponent->SetStaticMesh(StaticMeshBallisticLine);
+			L_SplineMeshComponent->SetMaterial(0, MaterialInterfaceBallisticLine);
 			SplineMeshComponentArray.Add(L_SplineMeshComponent);
 		}
 	}
@@ -101,13 +107,15 @@ void UBallisticLineComponent::UpdateSplinePoints()
 		PredictParams.StartLocation = GetComponentLocation();
 		PredictParams.LaunchVelocity =  GetAttachParent()->GetForwardVector() * 600;
 		PredictParams.DrawDebugTime = 2;
-		PredictParams.DrawDebugType = EDrawDebugTrace::ForOneFrame;
+		PredictParams.DrawDebugType = EDrawDebugTrace::None;
 		PredictParams.SimFrequency = 15;
 		PredictParams.MaxSimTime = 2;
 		PredictParams.OverrideGravityZ = 0;
 		PredictParams.bTraceComplex = false;
 		PredictParams.bTraceWithCollision = true;
+		PredictParams.ActorsToIgnore.Add(GetOwner());
 		//PredictParams.ObjectTypes.Add(UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_WorldStatic));
+		//PredictParams.ObjectTypes.Add(UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_Pawn));
 		FPredictProjectilePathResult PredictResult;
 		bool bIsPredictSuccess = UGameplayStatics::PredictProjectilePath(GetOwner(), PredictParams, PredictResult );
 		if(bIsPredictSuccess)
@@ -122,6 +130,11 @@ void UBallisticLineComponent::UpdateSplinePoints()
 			SplineComponentBallisticLine->SetSplinePoints(Points, ESplineCoordinateSpace::World, true);
 			bIsTeleport = true;
 			TeleportLocation = PredictResult.HitResult.Location;
+			if(IsValid(DecalComponentDestination))
+			{
+				FRotator L_Rotation = UKismetMathLibrary::MakeRotationFromAxes(PredictResult.HitResult.ImpactNormal, FVector(0), FVector(0));
+				DecalComponentDestination->SetWorldLocationAndRotation(TeleportLocation, L_Rotation);
+			}
 		}
 	}
 	
@@ -154,6 +167,7 @@ void UBallisticLineComponent::ShowBallisticLine()
 	bIsTeleport = false;
 	CreateSplineComponent();
 	CreateSplineMeshComponents();
+	SpawnDecal();	
 	
 }
 
@@ -165,7 +179,10 @@ void UBallisticLineComponent::HideBallisticLine()
 	{
 		TeleportLocation.Z += 90;
 		L_Actor->TeleportTo(TeleportLocation, FRotator(), true);
-		
+	}
+	if(IsValid(DecalComponentDestination))
+	{
+		DecalComponentDestination->DestroyComponent();	
 	}
 }
 

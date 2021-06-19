@@ -25,6 +25,8 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 private:
+
+	
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess=true))
 	uint8 SplinePointAndSplineMeshCount = 20;
@@ -42,11 +44,22 @@ private:
 	TArray<class USplineMeshComponent *> SplineMeshComponentArray;
 
 	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess=true))
+	class UDecalComponent * DecalComponentDestination = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess=true))
+	class UMaterialInterface * DecalMaterialDestination = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess=true))
+	FVector DecalSize;
+
+	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess=true))
 	uint8 bIsCreatedSplineMeshComponent:1;
 
 	uint8 bIsTeleport:1;
 
 	FVector TeleportLocation;
+
+	void SpawnDecal();
 
 	void CreateSplineComponent();
 

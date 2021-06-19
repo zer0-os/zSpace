@@ -31,6 +31,8 @@ public:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	void SetupOculusSettings();
+
 	virtual void Tick(float NewDeltaSeconds) override;
 
 	virtual bool CanCrouch() const override;
@@ -47,6 +49,12 @@ private:
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, meta = (AllowPrivateAccess=true))
 	class UCameraComponent * CameraComponent =  nullptr;
+	
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, meta = (AllowPrivateAccess=true))
+	class UCameraComponent * CameraComponentVR =  nullptr;
+
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, meta = (AllowPrivateAccess=true))
+	class USceneComponent * SceneComponentVR = nullptr;	
 	
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, meta = (AllowPrivateAccess=true))
 	class UDetectSurfaceTypeComponent * DetectSurfaceTypeComponent = nullptr;
@@ -239,4 +247,49 @@ protected:
 	float CalculateMoveInputKeyTimeDownAverage() const;
 	
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+	
+private:
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta=(AllowPrivateAccess=true))
+	class UMotionControllerComponent * MotionControllerComponentLeft;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta=(AllowPrivateAccess=true))
+	class UMotionControllerComponent * MotionControllerComponentRight;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta=(AllowPrivateAccess=true))
+	class USkeletalMeshComponent * SkeletalMeshComponentLeft;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta=(AllowPrivateAccess=true))
+	class USkeletalMeshComponent * SkeletalMeshComponentRight;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta=(AllowPrivateAccess=true))
+	class UWidgetInteractionComponent * WidgetInteractionComponentLeft = nullptr;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta=(AllowPrivateAccess=true))
+	class UWidgetInteractionComponent * WidgetInteractionComponentRight = nullptr;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta=(AllowPrivateAccess=true))
+	class UBallisticLineComponent * BallisticLineComponentLeft = nullptr;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta=(AllowPrivateAccess=true))
+	class UBallisticLineComponent * BallisticLineComponentRight = nullptr;
+		
+public:
+
+	UFUNCTION()
+	void OculusLTeleportPressed();
+
+	UFUNCTION()
+	void OculusLTeleportReleased();
+	
+	UFUNCTION()
+	void OculusRTeleportPressed();
+	
+	UFUNCTION()
+	void OculusRTeleportReleased();
+	
+	UFUNCTION()
+	void HoveredWidgetChanged(class UWidgetComponent* NewWidgetComponent, class UWidgetComponent* NewPreviousWidgetComponent);
+	
 };
+
