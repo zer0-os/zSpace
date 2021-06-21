@@ -59,8 +59,10 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta=(AllowPrivateAccess=true))
 	class UBallisticLineComponent * BallisticLineComponentRight = nullptr;
 
-public:
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess=true))
+	TSoftClassPtr<class UWorld > WorldObjectPtr;
 
+public:
 
 	// input Start
 
@@ -93,6 +95,8 @@ public:
 
 	UFUNCTION()
 	void HoveredWidgetChanged(class UWidgetComponent* NewWidgetComponent, class UWidgetComponent* NewPreviousWidgetComponent);
+
+	void OpenVRLevel();
 
 	
 };
