@@ -99,7 +99,7 @@ void UZSpaceGameInstance::EndLoadingLevel(UWorld* NewWorld)
 			AZSGamePlayerController * PC = Cast<AZSGamePlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
 			if(nullptr != PC)
 			{
-				UKismetSystemLibrary::PrintString(this, "----------------- The PC is Valid -----------", true, true, FLinearColor::Red, 111);
+//				UKismetSystemLibrary::PrintString(this, "----------------- The PC is Valid -----------", true, true, FLinearColor::Red, 111);
 				PC->OnNotifyGetAllUserCharacters.AddUniqueDynamic(this, &UZSpaceGameInstance::NotifyGetAllUserCharacters);
 				PC->GetAllCharacters(UserSessionGUID); // call back function NotifyGetAllUserCharacters
 			}
