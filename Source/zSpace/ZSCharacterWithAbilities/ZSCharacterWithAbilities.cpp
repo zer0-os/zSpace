@@ -138,35 +138,35 @@ void AZSCharacterWithAbilities::SetupOculusSettings()
 	{
 		if(IsValid(MotionControllerComponentLeft))
 		{
-			MotionControllerComponentLeft->Deactivate();
+			MotionControllerComponentLeft->DestroyComponent();
 		}
 		if(IsValid(MotionControllerComponentRight))
 		{
-			MotionControllerComponentRight->Deactivate();
+			MotionControllerComponentRight->DestroyComponent();
 		}
 		if(IsValid(SkeletalMeshComponentLeft))
 		{
-			SkeletalMeshComponentLeft->Deactivate();
+			SkeletalMeshComponentLeft->DestroyComponent();
 		}
 		if(IsValid(SkeletalMeshComponentRight))
 		{
-			SkeletalMeshComponentRight->Deactivate();
+			SkeletalMeshComponentRight->DestroyComponent();
 		}
 		if(IsValid(WidgetInteractionComponentLeft))
 		{
-			WidgetInteractionComponentLeft->Deactivate();
+			WidgetInteractionComponentLeft->DestroyComponent();
 		}
 		if(IsValid(WidgetInteractionComponentRight))
 		{
-			WidgetInteractionComponentRight->Deactivate();
+			WidgetInteractionComponentRight->DestroyComponent();
 		}
 		if(IsValid(BallisticLineComponentLeft))
 		{
-			BallisticLineComponentLeft->Deactivate();
+			BallisticLineComponentLeft->DestroyComponent();
 		}
 		if(IsValid(BallisticLineComponentRight ))
 		{
-			BallisticLineComponentRight->Deactivate();
+			BallisticLineComponentRight->DestroyComponent();
 		}
 	}
 }

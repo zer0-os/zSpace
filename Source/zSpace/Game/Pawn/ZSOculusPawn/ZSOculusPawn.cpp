@@ -9,6 +9,7 @@
 #include "Components/Widget.h"
 #include "Components/WidgetComponent.h"
 #include "Components/WidgetInteractionComponent.h"
+#include "Kismet/GameplayStatics.h"
 #include "zSpace/VirtualkeyboarActor/VirtualKeyboardWidgetInterface/VirtualKeyboardWidgetInterface.h"
 #include "zSpace/VR/BallisticLineComponent/BallisticLineComponent.h"
 
@@ -180,6 +181,16 @@ void AZSOculusPawn::HoveredWidgetChanged(UWidgetComponent * NewWidgetComponent, 
 				IVirtualKeyboardWidgetInterface::Execute_SetWidgetInteractionComponent(L_UserWidgetObject, WidgetInteractionComponentRight);	
 			}
 		}
+	}
+}
+
+void AZSOculusPawn::OpenVRLevel()
+{
+	const FString LevelName = UGameplayStatics::GetCurrentLevelName(GetWorld());
+	const TSubclassOf<UWorld> L_World = WorldObjectPtr.LoadSynchronous();
+	if(L_World)
+	{
+			
 	}
 }
 
