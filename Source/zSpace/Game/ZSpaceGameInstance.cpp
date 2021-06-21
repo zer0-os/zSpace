@@ -12,6 +12,7 @@
 #include "SoundManager/SoundManager.h"
 #include "ZSGamePlayerController/ZSGamePlayerController.h"
 #include "zSpace/zSpace.h"
+#include "../BlueprintFunctionLibrary/UIBlueprintFunctionLibrary.h"
 
 UZSpaceGameInstance::UZSpaceGameInstance(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
@@ -98,7 +99,7 @@ void UZSpaceGameInstance::EndLoadingLevel(UWorld* NewWorld)
 			AZSGamePlayerController * PC = Cast<AZSGamePlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
 			if(nullptr != PC)
 			{
-				//UKismetSystemLibrary::PrintString(this, "----------------- The PC is Valid -----------", true, true, FLinearColor::Red, 111);
+//				UKismetSystemLibrary::PrintString(this, "----------------- The PC is Valid -----------", true, true, FLinearColor::Red, 111);
 				PC->OnNotifyGetAllUserCharacters.AddUniqueDynamic(this, &UZSpaceGameInstance::NotifyGetAllUserCharacters);
 				PC->GetAllCharacters(UserSessionGUID); // call back function NotifyGetAllUserCharacters
 			}
@@ -117,9 +118,34 @@ void UZSpaceGameInstance::EndLoadingLevel(UWorld* NewWorld)
 			SoundManagerRef->SetSoundVolumeBySoundClass(FName("Ambient"), 1);
 		}
 
+		HideOrShowGamplayWidget();
+
 	}, 1.2, false);
+	
+}
 
+void UZSpaceGameInstance::HideOrShowGamplayWidget()
+{
+	
+	UUserWidget* Widget = UUIBlueprintFunctionLibrary::GetWidgetByWidgetType(this, EWidgetType::Gameplay);
+	if (IsValid(Widget))
+	{
+		ManageWidgetsResolution = GetManageWidgetsResolution();
+		if (!IsValid(ManageWidgetsResolution)) return;
+		
+		if (Widget->IsInViewport() && false == bIsHUDVisible)
+		{
+			ManageWidgetsResolution->SetIsGameplayWidgetHidden(true);
+			Widget->RemoveFromParent();
+		}
+		else if(!Widget->IsInViewport() && true == bIsHUDVisible)
+		{
+			ManageWidgetsResolution->SetIsGameplayWidgetHidden(false);
+			Widget->AddToViewport();
+		}
+		
 
+	}
 }
 
 UWidgetLoadingManagerObject* UZSpaceGameInstance::GetWidgetLoadingManagerObject() const

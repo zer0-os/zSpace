@@ -162,12 +162,14 @@ void AZSGamePlayerController::HideOrShowGameplayWidget()
 		{
 			ManageWidgetsResolution->SetIsGameplayWidgetHidden(true);
 			Widget->RemoveFromParent();
+			GameInstance->bIsHUDVisible = false;
 		}
 		else
 		{
 			ManageWidgetsResolution->SetIsGameplayWidgetHidden(false);
 			Widget->AddToViewport();
 			UpdateGameplayWidget();
+			GameInstance->bIsHUDVisible = true;
 		}
 	}
 }

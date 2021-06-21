@@ -5,6 +5,8 @@
 #include "Blueprint/UserWidget.h"
 #include "Kismet/GameplayStatics.h"
 #include "zSpace/Game/ZSpaceGameInstance.h"
+#include "OculusFunctionLibrary.h"
+#include "XRLoadingScreenFunctionLibrary.h"
 
 void UWidgetLoadingManagerObject::SetNotShowLoadingWidget(bool NewNotShowLoadingWidget)
 {
@@ -23,25 +25,41 @@ void UWidgetLoadingManagerObject::ShowLoadingWidget(TSubclassOf<UUserWidget> New
 		return;
 	}
 	checkf(NewLoadingWidget != nullptr, TEXT("The NewLoadingWidget is nullptr."));
-	if(NewLoadingWidget)
+	const EOculusDeviceType L_OculusDeviceType = UOculusFunctionLibrary::GetDeviceType();
+	if(EOculusDeviceType::OculusUnknown == L_OculusDeviceType)
 	{
-		//HideLoadingWidget();
-		UGameInstance * GameInstance = UGameplayStatics::GetGameInstance(GetOuter());
-		UserWidgetLoading = CreateWidget<UUserWidget>(GameInstance, NewLoadingWidget);
-		if(UserWidgetLoading)
+		if(NewLoadingWidget)
 		{
-			UserWidgetLoading->AddToViewport(NewZOrder);
+			//HideLoadingWidget();
+			UGameInstance * GameInstance = UGameplayStatics::GetGameInstance(GetOuter());
+			UserWidgetLoading = CreateWidget<UUserWidget>(GameInstance, NewLoadingWidget);
+			if(UserWidgetLoading)
+			{
+				UserWidgetLoading->AddToViewport(NewZOrder);
+			}
 		}
+	}
+	else if(EOculusDeviceType::Quest_Link == L_OculusDeviceType)
+	{
+		UXRLoadingScreenFunctionLibrary::AddLoadingScreenSplash(TextureLoading, FVector(0), FRotator(0), FVector2D(1, 1));
 	}
 }
 
 void UWidgetLoadingManagerObject::HideLoadingWidget()
 {
-	if(IsValid(UserWidgetLoading))
+	const EOculusDeviceType L_OculusDeviceType = UOculusFunctionLibrary::GetDeviceType();
+	if(EOculusDeviceType::OculusUnknown == L_OculusDeviceType)
 	{
-		// RF_BeginDestroyed
-		//UserWidgetLoading->BeginDestroy();
-		UserWidgetLoading->RemoveFromViewport();
-		UserWidgetLoading = nullptr;
+		if(IsValid(UserWidgetLoading))
+		{
+			// RF_BeginDestroyed
+			//UserWidgetLoading->BeginDestroy();
+			UserWidgetLoading->RemoveFromViewport();
+			UserWidgetLoading = nullptr;
+		}
+	}
+	else if(EOculusDeviceType::Quest_Link == L_OculusDeviceType)
+	{
+		UXRLoadingScreenFunctionLibrary::HideLoadingScreen();
 	}
 }

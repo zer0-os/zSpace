@@ -53,9 +53,16 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta=(AllowPrivateAccess=true))
 	class UWidgetInteractionComponent * WidgetInteractionComponentRight = nullptr;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta=(AllowPrivateAccess=true))
+	class UBallisticLineComponent * BallisticLineComponentLeft = nullptr;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta=(AllowPrivateAccess=true))
+	class UBallisticLineComponent * BallisticLineComponentRight = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess=true))
+	TSoftClassPtr<class UWorld > WorldObjectPtr;
 
 public:
-
 
 	// input Start
 
@@ -70,9 +77,26 @@ public:
 		
 	UFUNCTION()
 	void OculusAReleased();
+
+	UFUNCTION()
+	void OculusLTeleportPressed();
+
+	
+	UFUNCTION()
+	void OculusLTeleportReleased();
+	
+	UFUNCTION()
+	void OculusRTeleportPressed();
+	
+	UFUNCTION()
+	void OculusRTeleportReleased();
 	
 	// Input End
 
 	UFUNCTION()
 	void HoveredWidgetChanged(class UWidgetComponent* NewWidgetComponent, class UWidgetComponent* NewPreviousWidgetComponent);
+
+	void OpenVRLevel();
+
+	
 };

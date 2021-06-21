@@ -5,10 +5,13 @@
 
 #include "MotionControllerComponent.h"
 #include "Camera/CameraComponent.h"
+#include "Components/SplineComponent.h"
 #include "Components/Widget.h"
 #include "Components/WidgetComponent.h"
 #include "Components/WidgetInteractionComponent.h"
+#include "Kismet/GameplayStatics.h"
 #include "zSpace/VirtualkeyboarActor/VirtualKeyboardWidgetInterface/VirtualKeyboardWidgetInterface.h"
+#include "zSpace/VR/BallisticLineComponent/BallisticLineComponent.h"
 
 // Sets default values
 AZSOculusPawn::AZSOculusPawn()
@@ -60,6 +63,15 @@ AZSOculusPawn::AZSOculusPawn()
 
 	WidgetInteractionComponentRight->OnHoveredWidgetChanged.AddUniqueDynamic(this, &AZSOculusPawn::HoveredWidgetChanged);
 
+	BallisticLineComponentLeft  = CreateDefaultSubobject<UBallisticLineComponent>(TEXT("BallisticLineComponentLeft"));
+	checkf(nullptr != BallisticLineComponentLeft, TEXT("The BallisticLineComponentLeft is nullptr.") );
+	BallisticLineComponentLeft->SetupAttachment(MotionControllerComponentLeft);
+	
+	BallisticLineComponentRight  = CreateDefaultSubobject<UBallisticLineComponent>(TEXT("BallisticLineComponentRight"));
+	checkf(nullptr != BallisticLineComponentRight, TEXT("The BallisticLineComponentRight is nullptr.") );
+	BallisticLineComponentRight->SetupAttachment(MotionControllerComponentRight);
+
+	
 }
 
 // Called when the game starts or when spawned
@@ -86,6 +98,11 @@ void AZSOculusPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 		PlayerInputComponent->BindAction(TEXT("OculusXPress"), EInputEvent::IE_Released, this, &AZSOculusPawn::OculusXReleased);
 		PlayerInputComponent->BindAction(TEXT("OculusAPress"), EInputEvent::IE_Pressed, this, &AZSOculusPawn::OculusAPressed);
 		PlayerInputComponent->BindAction(TEXT("OculusAPress"), EInputEvent::IE_Released, this, &AZSOculusPawn::OculusAReleased);
+		PlayerInputComponent->BindAction(TEXT("OculusLTeleport"), EInputEvent::IE_Pressed, this, &AZSOculusPawn::OculusLTeleportPressed);
+		PlayerInputComponent->BindAction(TEXT("OculusLTeleport"), EInputEvent::IE_Released, this, &AZSOculusPawn::OculusLTeleportReleased);
+		PlayerInputComponent->BindAction(TEXT("OculusRTeleport"), EInputEvent::IE_Pressed, this, &AZSOculusPawn::OculusRTeleportPressed);
+		PlayerInputComponent->BindAction(TEXT("OculusRTeleport"), EInputEvent::IE_Released, this, &AZSOculusPawn::OculusRTeleportReleased);
+		
 	}
 
 }
@@ -131,6 +148,26 @@ void AZSOculusPawn::OculusAReleased()
 	}
 }
 
+void AZSOculusPawn::OculusLTeleportPressed()
+{
+	BallisticLineComponentLeft->ShowBallisticLine();
+}
+
+void AZSOculusPawn::OculusLTeleportReleased()
+{
+	BallisticLineComponentLeft->HideBallisticLine();
+}
+
+void AZSOculusPawn::OculusRTeleportPressed()
+{
+	BallisticLineComponentRight->ShowBallisticLine();
+}
+
+void AZSOculusPawn::OculusRTeleportReleased()
+{
+	BallisticLineComponentRight->HideBallisticLine();
+}
+
 void AZSOculusPawn::HoveredWidgetChanged(UWidgetComponent * NewWidgetComponent, UWidgetComponent * NewPreviousWidgetComponent)
 {
 	if(IsValid(NewWidgetComponent) && IsValid(WidgetInteractionComponentRight))
@@ -144,6 +181,16 @@ void AZSOculusPawn::HoveredWidgetChanged(UWidgetComponent * NewWidgetComponent, 
 				IVirtualKeyboardWidgetInterface::Execute_SetWidgetInteractionComponent(L_UserWidgetObject, WidgetInteractionComponentRight);	
 			}
 		}
+	}
+}
+
+void AZSOculusPawn::OpenVRLevel()
+{
+	const FString LevelName = UGameplayStatics::GetCurrentLevelName(GetWorld());
+	const TSubclassOf<UWorld> L_World = WorldObjectPtr.LoadSynchronous();
+	if(L_World)
+	{
+			
 	}
 }
 

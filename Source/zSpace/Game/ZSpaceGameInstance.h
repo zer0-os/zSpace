@@ -45,7 +45,12 @@ public:
 	void BeginLoadingLevel(const FString& MapName);
 	
 	void EndLoadingLevel(UWorld* NewWorld);
-	
+
+	UFUNCTION(BlueprintCallable)
+	void HideOrShowGamplayWidget();
+
+	UPROPERTY(BlueprintReadWrite)
+	bool bIsHUDVisible = true;
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="UI")
 	TSubclassOf<class UManageWidgetsResolution> ManageWidgetsResolutionSubClass;
