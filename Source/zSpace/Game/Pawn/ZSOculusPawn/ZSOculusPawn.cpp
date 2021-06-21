@@ -4,6 +4,7 @@
 #include "zSpace/Game/Pawn/ZSOculusPawn/ZSOculusPawn.h"
 
 #include "MotionControllerComponent.h"
+#include "OculusFunctionLibrary.h"
 #include "Camera/CameraComponent.h"
 #include "Components/SplineComponent.h"
 #include "Components/Widget.h"
@@ -78,7 +79,7 @@ AZSOculusPawn::AZSOculusPawn()
 void AZSOculusPawn::BeginPlay()
 {
 	Super::BeginPlay();
-	
+	OpenVRLevel();	
 }
 
 // Called every frame
@@ -186,11 +187,19 @@ void AZSOculusPawn::HoveredWidgetChanged(UWidgetComponent * NewWidgetComponent, 
 
 void AZSOculusPawn::OpenVRLevel()
 {
-	const FString LevelName = UGameplayStatics::GetCurrentLevelName(GetWorld());
-	const TSubclassOf<UWorld> L_World = WorldObjectPtr.LoadSynchronous();
-	if(L_World)
+	const EOculusDeviceType L_OculusDeviceType = UOculusFunctionLibrary::GetDeviceType();
+	if(EOculusDeviceType::Quest_Link == L_OculusDeviceType)
 	{
-			
+		const FString L_CurrentLevelName = UGameplayStatics::GetCurrentLevelName(GetWorld());
+		UWorld * L_World = WorldObjectPtrLogin.LoadSynchronous();
+		if(L_World )
+		{
+			const FString L_LevelName = L_World->GetName();
+			if(L_CurrentLevelName.Equals(L_LevelName))
+			{
+				UGameplayStatics::OpenLevelBySoftObjectPtr(GetWorld(), WorldObjectPtrVR);
+			}
+		}
 	}
 }
 
