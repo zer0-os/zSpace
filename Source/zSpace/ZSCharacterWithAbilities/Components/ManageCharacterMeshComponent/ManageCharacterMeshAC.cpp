@@ -70,17 +70,6 @@ void UManageCharacterMeshAC::RequestCharacterMesh()
 
 void UManageCharacterMeshAC::OnRep_CharacterMesh()
 {
-	// FString Text = "OnRep_" + GetNameSafe(CharacterMesh);
-
-	// ENetRole R = GetOwnerRole();
-	// switch (R)
-	// {
-	// case ROLE_SimulatedProxy: UKismetSystemLibrary::PrintString(this, Text + "   Simulated", true, true, FLinearColor::Red, 25.f); break;
-	// case ROLE_AutonomousProxy: UKismetSystemLibrary::PrintString(this, Text + "   Autonomous", true, true, FLinearColor::Red, 25.f); break;
-	// case ROLE_Authority: UKismetSystemLibrary::PrintString(this, Text + "   Server", true, true, FLinearColor::Red, 25.f); break;
-	// }
-
-	
 	SetMesh(CharacterMesh);
 }
 
@@ -103,7 +92,6 @@ void UManageCharacterMeshAC::GetLifetimeReplicatedProps(TArray<FLifetimeProperty
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-	// DOREPLIFETIME(UManageCharacterMeshAC, CharacterMesh);
 	DOREPLIFETIME_CONDITION_NOTIFY(UManageCharacterMeshAC, CharacterMesh, COND_None, REPNOTIFY_Always);
 }
 

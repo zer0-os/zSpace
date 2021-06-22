@@ -8,6 +8,17 @@
 #include "CharacterUnderFootSurfaceDA.generated.h"
 
 USTRUCT(BlueprintType)
+struct FSurfaceFootStepData 
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess=true))
+	TSoftObjectPtr<class UMaterialInstance > SurfaceFootStepMaterial;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess=true))
+	FVector DecalSize;
+};
+USTRUCT(BlueprintType)
 struct FFootHitGroundEqualData
 {
 	GENERATED_BODY()
@@ -22,7 +33,6 @@ struct FFootHitGroundEqualData
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UPhysicalMaterial * PhysicalMaterial = nullptr;
-
 	
 };
 
@@ -45,6 +55,9 @@ struct FFootHitGroundData
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TSoftObjectPtr<class USoundBase> SoundBase;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	FSurfaceFootStepData SurfaceFootStepData;
 
 	bool operator==(const FFootHitGroundData& NewFootHitGroundData);
 	
@@ -71,13 +84,11 @@ struct FCharacterUnderFootSurfaceData
 	TArray<TSoftObjectPtr<class USoundBase >> SurfaceSoundBaseArray;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess=true))
-	TSoftObjectPtr<class UParticleSystem > SurfaceParticleSystem;	
+	TSoftObjectPtr<class UParticleSystem > SurfaceParticleSystem;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess=true))
-	TSoftObjectPtr<class UMaterialInstance > SurfaceFootStepMaterial;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess=true))
-	FVector DecalSize;
+	FSurfaceFootStepData SurfaceFootStepData;
+
 };
 
 /**

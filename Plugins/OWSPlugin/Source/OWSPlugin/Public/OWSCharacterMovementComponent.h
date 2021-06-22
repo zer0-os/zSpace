@@ -6,6 +6,13 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "OWSCharacterMovementComponent.generated.h"
 
+UENUM(BlueprintType)
+enum ECustomMovementMode
+{
+	TESTMOVE_Climbing      UMETA(DisplayName = "Climbing"),
+	TESTMOVE_Walking      UMETA(DisplayName = "Walking")
+};
+
 /**
  * 
  */
@@ -45,6 +52,10 @@ class OWSPLUGIN_API UOWSCharacterMovementComponent : public UCharacterMovementCo
 		//Dodge
 		FVector SavedMoveDirection;
 		uint8 bSavedWantsToDodge : 1;
+
+		//Climbing
+		uint8 bSavedWantsToClimb : 1;
+		uint8 bSavedWantsToExitClimb : 1;
 	};
 
 	class FNetworkPredictionData_Client_OWS : public FNetworkPredictionData_Client_Character
@@ -63,7 +74,6 @@ public:
 	virtual bool HandlePendingLaunch() override;
 	virtual void UpdateFromCompressedFlags(uint8 Flags) override;
 	virtual class FNetworkPredictionData_Client* GetPredictionData_Client() const override;
-	void OnMovementUpdated(float DeltaTime, const FVector& OldLocation, const FVector& OldVelocity);
 	float GetMaxSpeed() const;
 	float GetMaxAcceleration() const;
 
@@ -114,4 +124,39 @@ public:
 
 	FVector MoveDirection;
 	uint8 bWantsToDodge : 1;
+
+	//Climbing
+	UPROPERTY(Category = MovementMode, BlueprintReadOnly)
+		TEnumAsByte<enum ECustomMovementMode> NewCustomMovementMode;
+
+	//Set this to false to lock the camera Yaw while climbing
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Climbing")
+		bool bCanLookAroundWhileClimbing;
+
+	//When this is set to true it means the player has cancelled their climbing with a jump.  They can not climb again until they hit the ground.
+	UPROPERTY(BlueprintReadWrite, Category = "Climbing")
+		bool bIsCancelClimbFalling;
+
+	UPROPERTY(Category = MovementMode, BlueprintReadOnly)
+		bool bIsClimbing;
+	UPROPERTY(Category = MovementMode, BlueprintReadOnly)
+		bool bIsExitingClimb;
+
+	UFUNCTION(BlueprintCallable, Category = "Movement")
+		void SetClimbing(bool bClimbing, FRotator newRotation);
+
+	bool bLaunchForwardOnExitClimb = false;
+
+	uint8 bWantsToClimb : 1;
+	uint8 bWantsToExitClimb : 1;
+
+	bool CheckForExitToClimbing(FVector CheckPoint, FVector& WallNormal);
+
+protected:
+	virtual void PhysCustom(float deltaTime, int32 Iterations) override;
+	bool DoJump(bool bReplayingMoves);
+	void PhysCustomClimb(float deltaTime, int32 Iterations);
+	void PhysCustomWalk(float deltaTime, int32 Iterations);
+	void OnMovementUpdated(float DeltaTime, const FVector& OldLocation, const FVector& OldVelocity);
+	void ProcessLanded(const FHitResult& Hit, float remainingTime, int32 Iterations);
 };
