@@ -114,8 +114,8 @@ void UZSpaceGameInstance::EndLoadingLevel(UWorld* NewWorld)
 
 		if (IsValid(SoundManagerRef))
 		{
-			SoundManagerRef->SetSoundVolumeBySoundClass(FName("Gameplay"), 1);
-			SoundManagerRef->SetSoundVolumeBySoundClass(FName("Ambient"), 1);
+			SoundManagerRef->SetSoundVolumeBySoundClassName(FName("Gameplay"), 1);
+			SoundManagerRef->SetSoundVolumeBySoundClassName(FName("Ambient"), 1);
 		}
 
 		HideOrShowGamplayWidget();

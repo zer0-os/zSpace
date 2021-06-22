@@ -29,6 +29,8 @@ private:
 
 	uint8 bNotShowLoadingWidget:1;
 
+	uint8 bLastNotShowLoadingWidget:1;
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess=true))
 	UTexture * TextureLoading = nullptr;
 	
