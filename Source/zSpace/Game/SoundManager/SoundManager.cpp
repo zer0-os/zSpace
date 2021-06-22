@@ -36,7 +36,7 @@ void USoundManager::PlayPortalSoundByType(EPortalSoundType SoundType)
 
 }
 
-void USoundManager::SetSoundVolumeBySoundClass(FName SoundClassName, float Volume)
+void USoundManager::SetSoundVolumeBySoundClassName(FName SoundClassName, float Volume)
 {
 	if (!IsValid(SoundClassesDataAsset)) return;
 

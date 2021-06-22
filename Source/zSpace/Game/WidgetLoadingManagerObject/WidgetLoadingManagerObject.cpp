@@ -10,7 +10,19 @@
 
 void UWidgetLoadingManagerObject::SetNotShowLoadingWidget(bool NewNotShowLoadingWidget)
 {
+
+	
+	bLastNotShowLoadingWidget = bNotShowLoadingWidget;
 	bNotShowLoadingWidget = NewNotShowLoadingWidget;	
+
+	FTimerHandle Timer;
+
+	GetWorld()->GetTimerManager().SetTimer(Timer, [&]()
+	{
+		bNotShowLoadingWidget = bLastNotShowLoadingWidget;
+	}
+	 ,2.f, false );
+
 }
 
 void UWidgetLoadingManagerObject::SetZSpaceGameInstance(UZSpaceGameInstance* NewZSpaceGameInstance)

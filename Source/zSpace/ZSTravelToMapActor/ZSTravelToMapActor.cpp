@@ -16,6 +16,7 @@
 #include "zSpace/zSpace.h"
 #include <Components/PrimitiveComponent.h>
 #include <Components/CapsuleComponent.h>
+#include "../Game/WidgetLoadingManagerObject/WidgetLoadingManagerObject.h"
 
 // Sets default values
 AZSTravelToMapActor::AZSTravelToMapActor()
@@ -162,6 +163,24 @@ void AZSTravelToMapActor::ComponentBeginOverlap(UPrimitiveComponent* OverlappedC
 			Character->Server_SetAnimationState(EAnimationState::Standing);*/
 
 	}
+	UZSpaceGameInstance* GameInstance = Cast<UZSpaceGameInstance>(GetGameInstance());
+	if (GameInstance)
+	{
+		USoundManager* SoundManager = GameInstance->GetSoundManagerObject();
+		if (SoundManager)
+		{
+			SoundManager->PlayPortalSoundByType(EPortalSoundType::FadeIn);
+			SoundManager->SetSoundVolumeBySoundClassName(FName("Ambient"), 0);
+			SoundManager->SetSoundVolumeBySoundClassName(FName("Gameplay"), 0);
+		}
+		
+		UWidgetLoadingManagerObject* WidgetLoadingManagerObject = GameInstance->GetWidgetLoadingManagerObject();
+		if (IsValid(WidgetLoadingManagerObject))
+		{
+			WidgetLoadingManagerObject->SetNotShowLoadingWidget(false);
+		}
+
+	}
 	if(HasAuthority())
 	{
 		if (IsValid(Character) && IsValid(PlayerController))
@@ -195,17 +214,8 @@ void AZSTravelToMapActor::ComponentBeginOverlap(UPrimitiveComponent* OverlappedC
 			}
 		}, 0.5f, false);
 	}
-	UZSpaceGameInstance* GameInstance = Cast<UZSpaceGameInstance>(GetGameInstance());
-	if (GameInstance)
-	{
-		USoundManager* SoundManager = GameInstance->GetSoundManagerObject();
-		if (SoundManager)
-		{
-			SoundManager->PlayPortalSoundByType(EPortalSoundType::FadeIn);
-			SoundManager->SetSoundVolumeBySoundClass(FName("Ambient"), 0);
-			SoundManager->SetSoundVolumeBySoundClass(FName("Gameplay"), 0);
-		}
-	}	
+	
+		
 }
 
 void AZSTravelToMapActor::OnEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
