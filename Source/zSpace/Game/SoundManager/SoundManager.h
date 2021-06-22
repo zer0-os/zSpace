@@ -29,6 +29,6 @@ public:
 	void PlayPortalSoundByType(EPortalSoundType SoundType);
 
 	UFUNCTION(BlueprintCallable)
-	void SetSoundVolumeBySoundClass(FName SoundClassName, float Volume);
+	void SetSoundVolumeBySoundClassName(FName SoundClassName, float Volume);
 
 };

@@ -112,15 +112,16 @@ void UZSpaceGameInstance::EndLoadingLevel(UWorld* NewWorld)
 			}
 		}
 
-		if (IsValid(SoundManagerRef))
-		{
-			SoundManagerRef->SetSoundVolumeBySoundClass(FName("Gameplay"), 1);
-			SoundManagerRef->SetSoundVolumeBySoundClass(FName("Ambient"), 1);
-		}
-
 		HideOrShowGamplayWidget();
 
 	}, 1.2, false);
+	if (IsValid(SoundManagerRef))
+	{
+		SoundManagerRef->PlayPortalSoundByType(EPortalSoundType::FadeOut);
+		SoundManagerRef->SetSoundVolumeBySoundClassName(FName("Gameplay"), 1);
+		SoundManagerRef->SetSoundVolumeBySoundClassName(FName("Ambient"), 1);
+	}
+
 	
 }
 
