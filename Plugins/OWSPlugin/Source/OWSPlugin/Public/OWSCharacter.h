@@ -126,6 +126,13 @@ public:
 		int32 AlwaysRelevantPartyID;
 	*/
 
+	bool CanJumpInternal_Implementation() const;
+
+	UFUNCTION(BlueprintCallable, Category = "Interaction")
+		bool IsCharacterFacingActor(AActor* ActorToTest, float MaxAngle);
+	UFUNCTION(BlueprintCallable, Category = "Interaction")
+		bool IsCharacterFacingActorForward(AActor* ActorToTest, float MaxAngle);
+
 	UFUNCTION(BlueprintCallable, Category = "Player Controller")
 		AOWSPlayerController* GetOWSPlayerController();
 

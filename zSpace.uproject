@@ -13,7 +13,9 @@
 				"UMG",
 				"GameplayAbilities",
 				"OWSPlugin",
-				"CoreUObject"
+				"CoreUObject",
+				"Etherlinker",
+				"ChaosVehicles"
 			]
 		}
 	],
@@ -61,6 +63,14 @@
 			"Name": "Etherlinker",
 			"Enabled": true,
 			"MarketplaceURL": "com.epicgames.launcher://ue/marketplace/content/e029bbf9d6b04f95b9d9ef52e3934be5"
+		},
+		{
+			"Name": "ModelingToolsEditorMode",
+			"Enabled": true
+		},
+		{
+			"Name": "ChaosVehiclesPlugin",
+			"Enabled": true
 		}
 	],
 	"TargetPlatforms": [

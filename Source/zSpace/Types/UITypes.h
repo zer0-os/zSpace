@@ -128,6 +128,11 @@ public:
 	
 	UPROPERTY(BlueprintReadOnly)
 	EPreviewCharacterPosition PreviewCharacterDirection;
+
+	friend bool operator ==(const FCharacterInfoForUI& A, const FCharacterInfoForUI& B)
+	{
+		return A.CharacterName == B.CharacterName;
+	}
 };
 
 USTRUCT(BlueprintType)
@@ -155,8 +160,29 @@ class ZSPACE_API URenderTargetAndPosition : public UDataAsset
 	GENERATED_BODY()
 public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TMap<EPreviewCharacterPosition, UTextureRenderTarget2D*> RenderTargetAndPosition;
-	
+	TMap<EPreviewCharacterPosition, UTextureRenderTarget2D*> RenderTargetAndPosition;	
 };
+
+USTRUCT(BlueprintType)
+struct ZSPACE_API FWidgetsDataAsset
+{
+	GENERATED_USTRUCT_BODY()
+public:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TSoftObjectPtr<class UResolutionAndWidgetDataAsset> PreLoginWidgetDataAsset = nullptr;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TSoftObjectPtr<class UResolutionAndWidgetDataAsset> LoginWidgetDataAsset = nullptr;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TSoftObjectPtr<class UResolutionAndWidgetDataAsset> RegisterWidgetDataAsset = nullptr;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TSoftObjectPtr<class UResolutionAndWidgetDataAsset> SelectCharacterWidgetDataAsset = nullptr;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TSoftObjectPtr<class UResolutionAndWidgetDataAsset> GameplayWidgetDataAsset = nullptr;
+};
+
 
 

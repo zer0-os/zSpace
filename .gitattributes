@@ -8,3 +8,4 @@ Content/ancient_temple/Megascans/Surfaces/Dry_Rock_Floor_2x2_M_ui0kdbmlw_surface
 Content/ancient_temple/Megascans/3D_Assets/Roman_Column_tj1lebsfa_3d/Normal_8K_LOD0_tj1lebsfa.uasset filter=lfs diff=lfs merge=lfs -text
 Content/GrassMountains/Textures/Background/T_Background_01_A.uasset filter=lfs diff=lfs merge=lfs -text
 Content/Megascans/Surfaces/Gold_Inlay_Marble_Tiles_vdkgdbpv/Displacement_4K_vdkgdbpv.uasset filter=lfs diff=lfs merge=lfs -text
+Content/zSpaceContent/Maps/UltraDynamicSky/Textures/Sky/Real_Stars.uasset filter=lfs diff=lfs merge=lfs -text

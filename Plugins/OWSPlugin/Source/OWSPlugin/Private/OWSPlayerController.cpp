@@ -7,6 +7,7 @@
 #include "OWSGameMode.h"
 #include "OWSGameInstance.h"
 #include "GameFramework/PlayerInput.h"
+#include "Net/UnrealNetwork.h"
 #include "Runtime/Engine/Classes/GameFramework/PlayerState.h"
 #include "Runtime/Core/Public/Misc/ConfigCacheIni.h"
 #include "Runtime/Engine/Classes/Components/StaticMeshComponent.h"
@@ -1426,6 +1427,8 @@ void AOWSPlayerController::OnUserSessionSetSelectedCharacterResponseReceived(FHt
 //Get Cosmetic Custom Character Data
 void AOWSPlayerController::GetCosmeticCustomCharacterData(FString UserSessionGUID, FString CharacterName)
 {
+	Http = &FHttpModule::Get();
+
 	//AOWSPlayerController* PC = Cast<AOWSPlayerController>(this->Controller);
 	FString PlayerName = CharacterName;
 	PlayerName = PlayerName.Replace(TEXT(" "), TEXT("%20"));

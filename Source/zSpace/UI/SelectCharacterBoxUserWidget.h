@@ -67,6 +67,9 @@ public:
 	UPROPERTY(BlueprintReadWrite, meta=(BindWidget))
 	class UZSCustomButton* PreviousCharacterMesh = nullptr;
 
+	UPROPERTY(BlueprintReadWrite, meta=(BindWidget))
+	class UImage* EnterNameBG = nullptr;
+
 	UPROPERTY(BlueprintReadWrite)
 	uint8 bIsEditMode : 1;
 
@@ -95,6 +98,15 @@ public:
 
 	UFUNCTION(BlueprintGetter)
 	const FCharacterInfoForUI& GetCharacterInfoForUI() const { return CharacterInfoForUI; };
+	
+	UFUNCTION(BlueprintCallable)
+	void ChangeCreateCharacterMode();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void PlayButtonsFadeInAnimation();
+
+	UFUNCTION(BlueprintCallable)
+	void SetBackGroundImage(class UTexture2D* NewTexture);
 
 protected:
 	UFUNCTION()
@@ -109,9 +121,6 @@ protected:
 	UFUNCTION()
 	void OnClickedDoneEditModeButton();
 	
-	UFUNCTION(BlueprintCallable)
-	void ChangeCreateCharacterMode();
-
 	UFUNCTION(BlueprintCallable)
 	void ChangeNormalMode();
 
