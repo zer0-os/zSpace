@@ -60,7 +60,11 @@ private:
 	class UBallisticLineComponent * BallisticLineComponentRight = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess=true))
-	TSoftClassPtr<class UWorld > WorldObjectPtr;
+	TSoftObjectPtr<class UWorld > WorldObjectPtrLogin;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess=true))
+	TSoftObjectPtr<class UWorld > WorldObjectPtrVR;
+	
 
 public:
 
