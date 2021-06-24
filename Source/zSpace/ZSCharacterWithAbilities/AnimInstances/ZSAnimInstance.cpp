@@ -3,11 +3,10 @@
 
 #include "zSpace/ZSCharacterWithAbilities/AnimInstances/ZSAnimInstance.h"
 
-#include "Kismet/KismetMathLibrary.h"
 #include "zSpace/ZSCharacterWithAbilities/Components/CharacterMovementComponent/ZSCharacterMovementComponent.h"
 #include "zSpace/ZSCharacterWithAbilities/ZSCharacterWithAbilities.h"
 #include "Kismet/KismetSystemLibrary.h"
-#include "zSpace/zSpace.h"
+#include "Kismet/KismetMathLibrary.h"
 
 void UZSAnimInstance::NativeBeginPlay()
 {
@@ -59,20 +58,19 @@ void UZSAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	
 	CharacterRelativeRotation = CharacterRef->GetCharacterRelativeRotation();
 
-	// if (Speed == 0.f)
-	// {
-	// 	StartPlayerMoveDirection = CalculateStartMoveDirection();
-	// }
-
-	// static int X = 0;
-	// if (X == 10.f)
-	// {
-	// 	X = 0;
-	// }
-	// X++;
 	StartPlayerMoveDirection = CalculateStartMoveDirection();
 	
 	MoveInputKeyTimeDownAverage = CharacterRef->GetMoveInputKeyTimeDownAverage();
+
+	bIsDeath = CharacterRef->GetIsDeath();
+	if (bIsDeath)
+	{
+		if (!IsValid(DeathAnimation))
+		{
+			const int32 RandomIndex = UKismetMathLibrary::RandomIntegerInRange(0, DeathAnimations.Num() - 1);
+			DeathAnimation = DeathAnimations[RandomIndex];
+		}
+	}
 }
 
 void UZSAnimInstance::OnChangedPlayerGait(EPlayerGait NewValue)
@@ -102,13 +100,28 @@ void UZSAnimInstance::EventOnMontageBlendingOut(UAnimMontage* Montage, bool bInt
 		{
 			if (StartMovementAnimMontage->HasThisMontage(Montage))
 			{
-				CharacterRef->Server_SetAnimationState(EAnimationState::Looping);
+				CharacterRef->Server_SetAnimationState(EAnimationState::LoopingInPlaceAnimation);
 			}
 			if (StopMovementAnimMontage->HasThisMontage(Montage))
 			{
-				CharacterRef->Server_SetAnimationState(EAnimationState::End);
+				CharacterRef->Server_SetAnimationState(EAnimationState::StopMovingAnimation);
+			}
+			if (Montage == CharacterRef->GetAttackMontage())
+			{
+				if (bIsMoveInputPressed)
+				{
+					CharacterRef->Server_SetAnimationState(EAnimationState::LoopingInPlaceAnimation);
+				}
+				else
+				{
+					CharacterRef->Server_SetAnimationState(EAnimationState::Standing);
+				}
 			}
 		}
+	}
+	else if (!bIsMoveInputPressed)
+	{
+		CharacterRef->Server_SetAnimationState(EAnimationState::Standing);
 	}
 }
 

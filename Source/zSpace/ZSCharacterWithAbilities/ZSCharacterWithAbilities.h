@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "OWSCharacterWithAbilities.h"
 #include "AnimInstances/ZSAnimationTypes.h"
+#include "AnimInstances/ZSAnimInstance.h"
 
 #include "ZSCharacterWithAbilities.generated.h"
 
@@ -30,6 +31,8 @@ public:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	void SetupOculusSettings();
+
 	virtual void Tick(float NewDeltaSeconds) override;
 
 	virtual bool CanCrouch() const override;
@@ -46,6 +49,12 @@ private:
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, meta = (AllowPrivateAccess=true))
 	class UCameraComponent * CameraComponent =  nullptr;
+	
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, meta = (AllowPrivateAccess=true))
+	class UCameraComponent * CameraComponentVR =  nullptr;
+
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, meta = (AllowPrivateAccess=true))
+	class USceneComponent * SceneComponentVR = nullptr;	
 	
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, meta = (AllowPrivateAccess=true))
 	class UDetectSurfaceTypeComponent * DetectSurfaceTypeComponent = nullptr;
@@ -96,6 +105,9 @@ public:
 	void OnStopCrouching();
 
 protected:
+	UPROPERTY(Replicated, BlueprintReadWrite, Category="Movement")
+	uint8 bIsDeath : 1;
+	
 	UPROPERTY(Replicated, BlueprintReadOnly, Category="Movement")
 	uint8 bIsWalking : 1;
 	
@@ -106,13 +118,7 @@ protected:
 	float MoveForwardAxisValue;
 	
 	UPROPERTY(Replicated, BlueprintReadOnly, Category="Movement")
-	float LastMoveForwardAxisValue;
-	
-	UPROPERTY(Replicated, BlueprintReadOnly, Category="Movement")
 	float MoveRightAxisValue;
-	
-	UPROPERTY(Replicated, BlueprintReadOnly, Category="Movement")
-	float LastMoveRightAxisValue;
 	
 	UPROPERTY(Replicated, BlueprintReadOnly, Category="Movement")
 	float CharacterRelativeRotation = 0.f;
@@ -126,10 +132,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category="Animations|Monateg")
 	class UAnimMontageLocomotionDataAsset* StartMovementAnimMontage = nullptr;
 	
-	// [Server]
-	UPROPERTY(Transient)
-	class UAnimMontage* CurrentPlayingStopMovementAnimMontage = nullptr;
-	
+	UPROPERTY(EditDefaultsOnly, Category="Animations|Monateg")
+	class UAnimMontage* AttackMontage = nullptr;
+
 	// [Server]
 	FTimerHandle MoveInputKeyTimeDownAverage_TimerHandle;
 
@@ -138,6 +143,9 @@ protected:
 
 	UFUNCTION()
 	void OnRep_AnimationState();
+
+	// Server
+	float StartControlRotationYaw = 0.f;
 	
 public:
 	UPROPERTY(BlueprintAssignable)
@@ -150,13 +158,7 @@ public:
 	FORCEINLINE float GetMoveForwardAxisValue() const { return  MoveForwardAxisValue; }
 	
 	UFUNCTION(BlueprintPure)
-	FORCEINLINE float GetLastMoveForwardAxisValue() const { return  LastMoveForwardAxisValue; }
-	
-	UFUNCTION(BlueprintPure)
 	FORCEINLINE float GetMoveRightAxisValue() const { return  MoveRightAxisValue; }
-	
-	UFUNCTION(BlueprintPure)
-	FORCEINLINE float GetLastMoveRightAxisValue() const { return LastMoveRightAxisValue; }
 	
 	UFUNCTION(BlueprintPure)
 	FORCEINLINE float GetCharacterRelativeRotation() const { return CharacterRelativeRotation; }
@@ -164,6 +166,12 @@ public:
 	UFUNCTION(BlueprintPure)
 	FORCEINLINE float GetMoveInputKeyTimeDownAverage() const { return MoveInputKeyTimeDownAverage; }
 
+	UFUNCTION(BlueprintPure)
+	FORCEINLINE UAnimMontage* GetAttackMontage() const { return AttackMontage; }
+	
+	UFUNCTION(BlueprintPure)
+	FORCEINLINE bool GetIsDeath() const { return bIsDeath; }
+	
 	UFUNCTION(BlueprintCallable, Server, Reliable, WithValidation)
 	void Server_PlayMontage(class UAnimMontage* AnimMontage, float InPlayRate = 1.f, FName StartSectionName = NAME_None, bool PlayInServer = false);
 
@@ -190,6 +198,9 @@ public:
 	
 	UFUNCTION(BlueprintCallable)
 	void StopStopMovementAnimMontage();
+
+	UFUNCTION(BlueprintCallable)
+	void StopStartMovementAnimMontage(float InBlendOutTime = 0.25);
 	
 	UFUNCTION(BlueprintPure)
 	class UZSCharacterMovementComponent* GetZSCharacterMovement() const;
@@ -199,6 +210,9 @@ public:
 	
 	UFUNCTION(BlueprintPure)
 	FORCEINLINE EAnimationState GetAnimationState() const { return AnimationState; }
+
+	UFUNCTION(BlueprintPure)
+	class UZSAnimInstance* GetAnimInstance() const;
 	
 protected:
 	UFUNCTION(NetMulticast, Reliable)
@@ -233,4 +247,49 @@ protected:
 	float CalculateMoveInputKeyTimeDownAverage() const;
 	
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+	
+private:
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta=(AllowPrivateAccess=true))
+	class UMotionControllerComponent * MotionControllerComponentLeft;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta=(AllowPrivateAccess=true))
+	class UMotionControllerComponent * MotionControllerComponentRight;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta=(AllowPrivateAccess=true))
+	class USkeletalMeshComponent * SkeletalMeshComponentLeft;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta=(AllowPrivateAccess=true))
+	class USkeletalMeshComponent * SkeletalMeshComponentRight;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta=(AllowPrivateAccess=true))
+	class UWidgetInteractionComponent * WidgetInteractionComponentLeft = nullptr;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta=(AllowPrivateAccess=true))
+	class UWidgetInteractionComponent * WidgetInteractionComponentRight = nullptr;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta=(AllowPrivateAccess=true))
+	class UBallisticLineComponent * BallisticLineComponentLeft = nullptr;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta=(AllowPrivateAccess=true))
+	class UBallisticLineComponent * BallisticLineComponentRight = nullptr;
+		
+public:
+
+	UFUNCTION()
+	void OculusLTeleportPressed();
+
+	UFUNCTION()
+	void OculusLTeleportReleased();
+	
+	UFUNCTION()
+	void OculusRTeleportPressed();
+	
+	UFUNCTION()
+	void OculusRTeleportReleased();
+	
+	UFUNCTION()
+	void HoveredWidgetChanged(class UWidgetComponent* NewWidgetComponent, class UWidgetComponent* NewPreviousWidgetComponent);
+	
 };
+

@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "OWSGameInstance.h"
+#include "OWSPlayerController.h"
 #include "ZSpaceGameInstance.generated.h"
 
 /**
@@ -15,6 +16,8 @@ class ZSPACE_API UZSpaceGameInstance : public UOWSGameInstance
 	GENERATED_BODY()
 
 public:
+
+	
 	UZSpaceGameInstance(const FObjectInitializer& ObjectInitializer);
 
 	// [Client]
@@ -34,10 +37,21 @@ public:
 	UFUNCTION(BlueprintPure)
 	class USoundManager * GetSoundManagerObject() const ;
 
-protected:
+public:
 	
 	virtual void Init() override;
 
+	UFUNCTION()
+	void BeginLoadingLevel(const FString& MapName);
+	
+	void EndLoadingLevel(UWorld* NewWorld);
+
+	UFUNCTION(BlueprintCallable)
+	void HideOrShowGamplayWidget();
+
+	UPROPERTY(BlueprintReadWrite)
+	bool bIsHUDVisible = true;
+protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="UI")
 	TSubclassOf<class UManageWidgetsResolution> ManageWidgetsResolutionSubClass;
 
@@ -55,7 +69,6 @@ protected:
 	 */
 	UPROPERTY(BlueprintReadOnly, Category="UI")
 	class UWidgetLoadingManagerObject * WidgetLoadingManagerObject = nullptr;
-	
 
 	/**
 	 * @brief The LoadingWidget is Widget 'sub class' that shows loading effect.
@@ -121,7 +134,30 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void HideLoadWalletWithMnemonicWidget();
 
+private:
 
+	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess=true))
+	int32 CurrentSelectedCharacterIndex = -1;
+
+	UPROPERTY()
+	FTimerHandle TimerHandleLoadLevel;
+
+	UPROPERTY()
+	FTimerHandle TimerHandleEndLoadingLevel;
+
+	UPROPERTY()
+	TArray<FUserCharacter> UserCharacter;
+	
+public:
+
+	UFUNCTION(BlueprintCallable)
+	void SetCurrentSelectedCharacterIndex(const int32 & NewCurrentSelectedCharacterIndex);
+
+	UFUNCTION()
+	void NotifyGetAllUserCharacters(const TArray<struct FUserCharacter> & NewUserCharacter);
+
+	UFUNCTION()
+	void StreamingLevelLoaded();
 	
 
 };

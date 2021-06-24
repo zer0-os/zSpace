@@ -30,6 +30,9 @@ public:
 
 	virtual float GetMaxSpeed() const override;
 
+protected:
+	virtual void ProcessLanded(const FHitResult& Hit, float remainingTime, int32 Iterations) override;
+
 public:
 	UPROPERTY(BlueprintAssignable)
 	FMovementModeChanged OnMovementModeChangedDelegate;
@@ -77,9 +80,6 @@ protected:
 
 	UFUNCTION(NetMulticast, Reliable)
 	void NetMulticast_SetOrientRotationToMovement(bool NewValue);
-	// 
-	// UFUNCTION(NetMulticast, Reliable)
-	// void NetMulticast_
 	
 	class UAnimInstance* GetAnimInstance() const;
 

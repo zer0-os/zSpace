@@ -2,13 +2,15 @@
 
 
 #include "zSpace/BlueprintFunctionLibrary/UIBlueprintFunctionLibrary.h"
+
+#include "../Components/ManageWidgetsResolution.h"
 #include <GameFramework/GameUserSettings.h>
 #include <Kismet/KismetSystemLibrary.h>
 #include "../Game/ZSpaceGameInstance.h"
 #include <Blueprint/UserWidget.h>
 #include "../Types/UITypes.h"
 #include <Engine/World.h>
-#include "../Components/ManageWidgetsResolution.h"
+#include "zSpace/zSpace.h"
 
 TSubclassOf<class UUserWidget>UUIBlueprintFunctionLibrary::GetWidgetSubClassForCurrentScreen(const UObject* WorldContext, UResolutionAndWidgetDataAsset* WidgetDataAsset)
 {
@@ -33,11 +35,19 @@ TSubclassOf<class UUserWidget>UUIBlueprintFunctionLibrary::GetWidgetSubClassForC
 
 FIntPoint UUIBlueprintFunctionLibrary::GetCurrentScreenResolution(const UObject* WorldContext)
 {
-	UGameUserSettings* UserSettings = UGameUserSettings::GetGameUserSettings();
-	check(UserSettings);
-	if (!IsValid(UserSettings)) return FIntPoint::ZeroValue;
-
-	return UserSettings->GetScreenResolution();
+	UWorld* World = WorldContext->GetWorld();
+	if (IsValid(World))
+	{
+		APlayerController* PC = World->GetFirstPlayerController();
+		if (IsValid(PC))
+		{
+			int32 SizeX, SizeY;
+			PC->GetViewportSize(SizeX, SizeY);
+			return FIntPoint(SizeX, SizeY);
+		}
+	}
+	
+	return FIntPoint::ZeroValue;
 }
 
 EResolution UUIBlueprintFunctionLibrary::GetCurrentScreenResolutionEnum(const UObject* WorldContext)

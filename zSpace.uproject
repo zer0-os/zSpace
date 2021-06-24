@@ -14,7 +14,8 @@
 				"GameplayAbilities",
 				"OWSPlugin",
 				"CoreUObject",
-				"Etherlinker"
+				"Etherlinker",
+				"ChaosVehicles"
 			]
 		}
 	],
@@ -65,6 +66,10 @@
 		},
 		{
 			"Name": "ModelingToolsEditorMode",
+			"Enabled": true
+		},
+		{
+			"Name": "ChaosVehiclesPlugin",
 			"Enabled": true
 		}
 	],

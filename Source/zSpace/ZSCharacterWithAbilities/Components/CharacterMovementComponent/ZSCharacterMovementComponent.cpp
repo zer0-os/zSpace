@@ -15,6 +15,8 @@ UZSCharacterMovementComponent::UZSCharacterMovementComponent(const FObjectInitia
 	SetIsReplicatedByDefault(true);
 
 	GetNavAgentPropertiesRef().bCanCrouch = true;
+
+	bUseControllerDesiredRotation = false;
 }
 
 void UZSCharacterMovementComponent::OnMovementModeChanged(EMovementMode NewPreviousMovementMode, uint8 NewPreviousCustomMode)
@@ -114,6 +116,11 @@ float UZSCharacterMovementComponent::GetMaxSpeed() const
 	return MaxSpeed;
 }
 
+void UZSCharacterMovementComponent::ProcessLanded(const FHitResult& Hit, float remainingTime, int32 Iterations)
+{
+	UCharacterMovementComponent::ProcessLanded(Hit, remainingTime, Iterations);
+}
+
 void UZSCharacterMovementComponent::Server_ChangeMovementMode_Implementation(EPlayerGait NewValue)
 {
 	PlayerGait = NewValue;
@@ -155,6 +162,7 @@ void UZSCharacterMovementComponent::NetMulticast_SetMaxWalkSpeed_Implementation(
 void UZSCharacterMovementComponent::NetMulticast_SetOrientRotationToMovement_Implementation(bool NewValue)
 {
 	bOrientRotationToMovement = NewValue;
+	// UKismetSystemLibrary::PrintString(this, bOrientRotationToMovement ? "TRUE" : "FALSE");
 }
 
 UAnimInstance* UZSCharacterMovementComponent::GetAnimInstance() const
