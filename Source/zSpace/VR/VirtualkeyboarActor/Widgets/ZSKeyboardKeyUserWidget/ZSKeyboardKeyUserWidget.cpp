@@ -1,12 +1,12 @@
 // Copyright 2020 Sabre Dart Studios
 
 
-#include "zSpace/VirtualkeyboarActor/WIdgets/ZSKeyboardKeyUserWidget/ZSKeyboardKeyUserWidget.h"
+#include "zSpace/VR/VirtualkeyboarActor/WIdgets/ZSKeyboardKeyUserWidget/ZSKeyboardKeyUserWidget.h"
 
 #include "Components/Button.h"
 #include "Components/TextBlock.h"
 #include "Components/WidgetInteractionComponent.h"
-#include "zSpace/VirtualkeyboarActor/VirtualKeyboardActor.h"
+#include "zSpace/VR/VirtualkeyboarActor/VirtualKeyboardActor.h"
 
 void UZSKeyboardKeyUserWidget::SetWidgetInteractionComponent_Implementation( UWidgetInteractionComponent* NewWidgetInteractionComponent)
 {

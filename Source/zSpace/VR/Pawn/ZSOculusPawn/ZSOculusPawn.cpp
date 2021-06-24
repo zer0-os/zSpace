@@ -1,17 +1,15 @@
 // Copyright 2020 Sabre Dart Studios
 
 
-#include "zSpace/Game/Pawn/ZSOculusPawn/ZSOculusPawn.h"
+#include "ZSOculusPawn.h"
 
 #include "MotionControllerComponent.h"
 #include "OculusFunctionLibrary.h"
 #include "Camera/CameraComponent.h"
-#include "Components/SplineComponent.h"
-#include "Components/Widget.h"
 #include "Components/WidgetComponent.h"
 #include "Components/WidgetInteractionComponent.h"
 #include "Kismet/GameplayStatics.h"
-#include "zSpace/VirtualkeyboarActor/VirtualKeyboardWidgetInterface/VirtualKeyboardWidgetInterface.h"
+#include "zSpace/VR/VirtualkeyboarActor/VirtualKeyboardWidgetInterface/VirtualKeyboardWidgetInterface.h"
 #include "zSpace/VR/BallisticLineComponent/BallisticLineComponent.h"
 
 // Sets default values

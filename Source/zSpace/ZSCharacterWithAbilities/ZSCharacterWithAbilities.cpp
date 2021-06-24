@@ -23,8 +23,10 @@
 #include "Blueprint/UserWidget.h"
 #include "Components/WidgetComponent.h"
 #include "Components/WidgetInteractionComponent.h"
-#include "zSpace/VirtualkeyboarActor/VirtualKeyboardWidgetInterface/VirtualKeyboardWidgetInterface.h"
+#include "zSpace/Game/WheeledVehiclePawn/ZSWheeledVehiclePawn.h"
+#include "zSpace/VR/VirtualkeyboarActor/VirtualKeyboardWidgetInterface/VirtualKeyboardWidgetInterface.h"
 #include "zSpace/VR/BallisticLineComponent/BallisticLineComponent.h"
+#include "Components/BoxComponent.h"
 
 
 AZSCharacterWithAbilities::AZSCharacterWithAbilities(const FObjectInitializer& NewObjectInitializer) : Super(NewObjectInitializer.SetDefaultSubobjectClass<UZSCharacterMovementComponent>(ACharacter::CharacterMovementComponentName))
@@ -200,6 +202,7 @@ void AZSCharacterWithAbilities::SetupPlayerInputComponent(UInputComponent* NewPl
 		NewPlayerInputComponent->BindAction(TEXT("OculusLTeleport"), EInputEvent::IE_Released, this, &AZSCharacterWithAbilities::OculusLTeleportReleased);
 		NewPlayerInputComponent->BindAction(TEXT("OculusRTeleport"), EInputEvent::IE_Pressed, this, &AZSCharacterWithAbilities::OculusRTeleportPressed);
 		NewPlayerInputComponent->BindAction(TEXT("OculusRTeleport"), EInputEvent::IE_Released, this, &AZSCharacterWithAbilities::OculusRTeleportReleased);
+		NewPlayerInputComponent->BindAction(TEXT("EnterVehicle"), EInputEvent::IE_Pressed, this, &AZSCharacterWithAbilities::EnterVehicle);
 		
 	}
 }
@@ -867,4 +870,37 @@ void AZSCharacterWithAbilities::HoveredWidgetChanged(UWidgetComponent* NewWidget
 			}
 		}
 	}
+}
+
+void AZSCharacterWithAbilities::EnterVehicle_Implementation()
+{
+	UE_LOG(LogTemp, Log, TEXT("********************************** Enter Vehicle ***********************"));
+	if(ROLE_Authority > GetLocalRole())
+	{
+		UE_LOG(LogTemp, Log, TEXT("Client: Enger Vehicle "));
+		EnterVehicle();	
+	}
+	UE_LOG(LogTemp, Log, TEXT("Server: Enger Vehicle "));
+	TArray<UPrimitiveComponent *> OverlappingComponents;
+	GetOverlappingComponents(OverlappingComponents);
+	for( UPrimitiveComponent * Iter : OverlappingComponents)
+	{
+		UBoxComponent * IterBoxComponent = Cast<UBoxComponent>(Iter);
+		if(IsValid(IterBoxComponent))
+		{
+			AZSWheeledVehiclePawn * Vehicle = Cast<AZSWheeledVehiclePawn>(IterBoxComponent->GetOwner());
+			if(IsValid(IterBoxComponent) && nullptr != Vehicle )
+			{
+				AOWSPlayerController * PC = GetOWSPlayerController();
+				PC->Possess(Vehicle);
+				UE_LOG(LogTemp, Log, TEXT("Server: Posses"));
+			}
+			
+		}
+	}
+}
+
+bool AZSCharacterWithAbilities::EnterVehicle_Validate()
+{
+	return true;
 }

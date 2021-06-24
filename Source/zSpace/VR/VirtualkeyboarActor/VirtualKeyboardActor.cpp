@@ -1,7 +1,7 @@
 // Copyright 2020 Sabre Dart Studios
 
 
-#include "zSpace/VirtualkeyboarActor/VirtualKeyboardActor.h"
+#include "zSpace/VR/VirtualkeyboarActor/VirtualKeyboardActor.h"
 #include "Components/WidgetComponent.h"
 #include "VirtualKeyboardWidgetInterface/VirtualKeyboardWidgetInterface.h"
 

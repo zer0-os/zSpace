@@ -4,8 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
-#include "zSpace/VirtualkeyboarActor/VirtualKeyboardActor.h"
-#include "zSpace/VirtualkeyboarActor/VirtualKeyboardWidgetInterface/VirtualKeyboardWidgetInterface.h"
+#include "zSpace/VR/VirtualkeyboarActor/VirtualKeyboardActor.h"
+#include "zSpace/VR/VirtualkeyboarActor/VirtualKeyboardWidgetInterface/VirtualKeyboardWidgetInterface.h"
 #include "ZSKeyboardKeyUserWidget.generated.h"
 
 /**

@@ -11,8 +11,8 @@ UZSChaosVehicleWheelRear::UZSChaosVehicleWheelRear()
 	//CorneringStiffness = 500.0f;
 	bAffectedByEngine = false;
 	bAffectedByHandbrake = false;
-	bAffectedBySteering = true;
-	AxleType = EAxleType::Front;
+	bAffectedBySteering = false;
+	AxleType = EAxleType::Rear;
 	SpringRate = 200.0f;
 	SpringPreload = 100.f;
 	SuspensionDampingRatio = 0.5f;
@@ -22,4 +22,5 @@ UZSChaosVehicleWheelRear::UZSChaosVehicleWheelRear()
 	SuspensionMaxDrop = 12;
 	WheelLoadRatio = 0.5f;
 	MaxSteerAngle = 40.f;
+	SweepShape = ESweepShape::Spherecast;
 }

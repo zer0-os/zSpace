@@ -8,6 +8,7 @@
 #include "ChaosVehicleWheels/ZSChaosVehicleWheelFront.h"
 #include "ChaosVehicleWheels/ZSChaosVehicleWheelRear.h"
 #include "Components/AudioComponent.h"
+#include "Components/BoxComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "MovementComponent/ZSVehicleMovementComponent.h"
 
@@ -97,6 +98,15 @@ AZSWheeledVehiclePawn::AZSWheeledVehiclePawn(const FObjectInitializer& ObjectIni
 	// Set the inertia scale. This controls how the mass of the vehicle is distributed.
 	VehicleMovement->InertiaTensorScale = FVector(1.0f, 1.333f, 1.2f);
 
+	VehicleZoneBoxComponent = CreateDefaultSubobject<UBoxComponent>(TEXT("VehicleZoneBoxComponent"));
+	checkf(nullptr != VehicleZoneBoxComponent, TEXT("The VehicleZoneBoxComponent is nullptr."));
+	VehicleZoneBoxComponent->SetupAttachment(RootComponent);
+	VehicleZoneBoxComponent->SetCollisionProfileName(TEXT("OverlapAll"));
+	VehicleZoneBoxComponent->SetBoxExtent(FVector(86, 100, 36));
+	VehicleZoneBoxComponent->SetRelativeLocation(FVector(0,0,40));
+	
+	
+
 }
 
 void AZSWheeledVehiclePawn::BeginPlay()
@@ -179,7 +189,7 @@ void AZSWheeledVehiclePawn::HandbrakeReleased()
 
 void AZSWheeledVehiclePawn::LookUp(float NewValue)
 {
-	AddControllerRollInput(NewValue);
+	AddControllerPitchInput(NewValue);
 }
 
 void AZSWheeledVehiclePawn::LookRight(float NewValue)

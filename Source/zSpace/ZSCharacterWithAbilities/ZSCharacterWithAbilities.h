@@ -290,6 +290,9 @@ public:
 	
 	UFUNCTION()
 	void HoveredWidgetChanged(class UWidgetComponent* NewWidgetComponent, class UWidgetComponent* NewPreviousWidgetComponent);
+
+	UFUNCTION(Server, Reliable, WithValidation)
+	void EnterVehicle();
 	
 };
 

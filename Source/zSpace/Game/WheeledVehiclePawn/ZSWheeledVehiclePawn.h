@@ -27,6 +27,9 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	class UZSVehicleMovementComponent * GetZSVehicleMovementComponent() const;
+
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess=true))
+	class UBoxComponent * VehicleZoneBoxComponent = nullptr;
 	
 	AZSWheeledVehiclePawn(const FObjectInitializer& ObjectInitializer);
 

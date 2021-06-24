@@ -1,7 +1,7 @@
 // Copyright 2020 Sabre Dart Studios
 
 
-#include "zSpace/VirtualkeyboarActor/Widgets/ZSVirtualKeyboardUserWidget/ZSVirtualKeyboardUserWidget.h"
+#include "zSpace/VR/VirtualkeyboarActor/Widgets/ZSVirtualKeyboardUserWidget/ZSVirtualKeyboardUserWidget.h"
 
 void UZSVirtualKeyboardUserWidget::SetWidgetInteractionComponent_Implementation( UWidgetInteractionComponent* NewWidgetInteractionComponent)
 {
