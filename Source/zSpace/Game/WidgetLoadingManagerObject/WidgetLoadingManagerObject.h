@@ -47,5 +47,7 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void HideLoadingWidget();
+
+	void EnableOrDisableCharacterMovement(bool isEnable);
 	
 };
