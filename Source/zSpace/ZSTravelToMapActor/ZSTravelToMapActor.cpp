@@ -185,9 +185,9 @@ void AZSTravelToMapActor::ComponentBeginOverlap(UPrimitiveComponent* OverlappedC
 	{
 		if (IsValid(Character) && IsValid(PlayerController))
 		{
-			DisableCharacterMovement();
+	//		DisableCharacterMovement();
 			Character->DisableInput(PlayerController);
-			Character->Server_SetAnimationState(EAnimationState::Standing);
+	//		Character->Server_SetAnimationState(EAnimationState::Standing);
 		}
 
 		FTimerHandle Timer;
@@ -214,8 +214,6 @@ void AZSTravelToMapActor::ComponentBeginOverlap(UPrimitiveComponent* OverlappedC
 			}
 		}, 0.5f, false);
 	}
-	
-		
 }
 
 void AZSTravelToMapActor::OnEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
