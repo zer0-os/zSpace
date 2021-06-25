@@ -4,13 +4,18 @@
 #include "zSpace/Game/WheeledVehiclePawn/ZSWheeledVehiclePawn.h"
 
 #include "ChaosWheeledVehicleMovementComponent.h"
+#include "Blueprint/UserWidget.h"
 #include "Camera/CameraComponent.h"
 #include "ChaosVehicleWheels/ZSChaosVehicleWheelFront.h"
 #include "ChaosVehicleWheels/ZSChaosVehicleWheelRear.h"
 #include "Components/AudioComponent.h"
 #include "Components/BoxComponent.h"
+#include "Components/CapsuleComponent.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "Kismet/GameplayStatics.h"
 #include "MovementComponent/ZSVehicleMovementComponent.h"
+#include "VehicleWIdgetsDataAsset/VehicleWIdgetsDataAsset.h"
+#include "zSpace/ZSCharacterWithAbilities/ZSCharacterWithAbilities.h"
 
 AZSWheeledVehiclePawn::AZSWheeledVehiclePawn(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer.SetDefaultSubobjectClass<UZSVehicleMovementComponent>(AWheeledVehiclePawn::VehicleMovementComponentName))
 {
@@ -102,11 +107,63 @@ AZSWheeledVehiclePawn::AZSWheeledVehiclePawn(const FObjectInitializer& ObjectIni
 	checkf(nullptr != VehicleZoneBoxComponent, TEXT("The VehicleZoneBoxComponent is nullptr."));
 	VehicleZoneBoxComponent->SetupAttachment(RootComponent);
 	VehicleZoneBoxComponent->SetCollisionProfileName(TEXT("OverlapAll"));
-	VehicleZoneBoxComponent->SetBoxExtent(FVector(86, 100, 36));
+	VehicleZoneBoxComponent->SetBoxExtent(FVector(86, 150, 36));
 	VehicleZoneBoxComponent->SetRelativeLocation(FVector(0,0,40));
-	
-	
+	VehicleZoneBoxComponent->OnComponentBeginOverlap.AddUniqueDynamic(this, &AZSWheeledVehiclePawn::ComponentBeginOverlapVehicleZoneBoxComponent);
+	VehicleZoneBoxComponent->OnComponentEndOverlap.AddUniqueDynamic(this, &AZSWheeledVehiclePawn::ComponentEndOverlapVehicleZoneBoxComponent);
+}
 
+void AZSWheeledVehiclePawn::SetZsCharacterWithAbilities(AZSCharacterWithAbilities* NewZSCharacterWithAbilities)
+{
+	ZSCharacterWithAbilities = NewZSCharacterWithAbilities;
+}
+
+AZSCharacterWithAbilities* AZSWheeledVehiclePawn::GetCharacterWithAbilities()
+{
+	return ZSCharacterWithAbilities;
+}
+
+void AZSWheeledVehiclePawn::ShowVehicleControlWidget()
+{
+	APlayerController * PC = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+	if(IsValid(PC) && (ROLE_AutonomousProxy == PC->GetLocalRole() || UKismetSystemLibrary::IsStandalone(GetWorld()) ))
+	{
+		if(IsValid(VehicleWidgetsDataAsset))
+		{
+			if(nullptr == VehicleControlWidget)
+			{
+				const TSubclassOf<UUserWidget> L_UserWidgetControllerHelper =  VehicleWidgetsDataAsset->GetUserWidgetControlHelper();
+				VehicleControlWidget = CreateWidget<UUserWidget>(GetWorld(), L_UserWidgetControllerHelper);
+			}
+		}
+		else
+		{
+			UE_LOG(LogTemp, Error, TEXT("The VehicleWidgetDataAsset is null"));
+		}
+		if(IsValid(VehicleControlWidget))
+		{
+			if(false == VehicleControlWidget->IsInViewport())
+			{
+				VehicleControlWidget->AddToViewport(15);
+			}
+		}
+	}
+}
+
+void AZSWheeledVehiclePawn::HideVehicleControlWidget()
+{
+	APlayerController * PC = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+	if(IsValid(PC) && (ROLE_AutonomousProxy == PC->GetLocalRole() || UKismetSystemLibrary::IsStandalone(GetWorld()) ))
+	{
+		if(IsValid(VehicleControlWidget))
+		{
+			VehicleControlWidget->RemoveFromViewport();
+		}
+		else
+		{
+			UE_LOG(LogTemp, Error, TEXT("The VehicleControl Widget is null"));
+		}
+	}
 }
 
 void AZSWheeledVehiclePawn::BeginPlay()
@@ -138,7 +195,36 @@ void AZSWheeledVehiclePawn::SetupPlayerInputComponent(UInputComponent* PlayerInp
 		PlayerInputComponent->BindAction(TEXT("VehicleHandbrake"), EInputEvent::IE_Released, this, &AZSWheeledVehiclePawn::HandbrakeReleased);
 		PlayerInputComponent->BindAxis(TEXT("VehicleLookUp"),this, &AZSWheeledVehiclePawn::LookUp);
 		PlayerInputComponent->BindAxis(TEXT("LookRight"),this, &AZSWheeledVehiclePawn::LookRight);
+		PlayerInputComponent->BindAction(TEXT("LeaveVehicle"), EInputEvent::IE_Pressed, this, &AZSWheeledVehiclePawn::LeaveVehicle);
 		
+	}
+}
+
+void AZSWheeledVehiclePawn::ComponentBeginOverlapVehicleZoneBoxComponent(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	APlayerController * PC = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+	if(IsValid(PC) && (ROLE_AutonomousProxy == PC->GetLocalRole() || UKismetSystemLibrary::IsStandalone(GetWorld()) ))
+	{
+		AZSCharacterWithAbilities * Character = Cast<AZSCharacterWithAbilities>(OtherActor);
+		UCapsuleComponent * CapsuleComponent = Cast<UCapsuleComponent>(OtherComp);
+		if(IsValid(Character) && Character->GetCapsuleComponent() == CapsuleComponent)
+		{
+			ShowVehicleControlWidget();
+		}
+	}
+}
+
+void AZSWheeledVehiclePawn::ComponentEndOverlapVehicleZoneBoxComponent(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+	APlayerController * PC = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+	if(IsValid(PC) && (ROLE_AutonomousProxy == PC->GetLocalRole() || UKismetSystemLibrary::IsStandalone(GetWorld()) ))
+	{
+		AZSCharacterWithAbilities * Character = Cast<AZSCharacterWithAbilities>(OtherActor);
+		UCapsuleComponent * CapsuleComponent = Cast<UCapsuleComponent>(OtherComp);
+		if(IsValid(Character) && Character->GetCapsuleComponent() == CapsuleComponent)
+		{
+			HideVehicleControlWidget();
+		}
 	}
 }
 
@@ -196,4 +282,26 @@ void AZSWheeledVehiclePawn::LookRight(float NewValue)
 {
 	AddControllerYawInput(NewValue);
 }
+
+void AZSWheeledVehiclePawn::LeaveVehicle_Implementation()
+{
+	if(ROLE_Authority > GetLocalRole())
+	{
+		LeaveVehicle();	
+	}
+	if(IsValid(ZSCharacterWithAbilities))
+	{
+		AController * PC = GetController();
+		if(IsValid(PC))
+		{
+			PC->Possess(ZSCharacterWithAbilities);
+		}
+	}
+}
+
+bool AZSWheeledVehiclePawn::LeaveVehicle_Validate()
+{
+	return true;
+}
+
 

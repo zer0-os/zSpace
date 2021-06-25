@@ -893,6 +893,7 @@ void AZSCharacterWithAbilities::EnterVehicle_Implementation()
 			{
 				AOWSPlayerController * PC = GetOWSPlayerController();
 				PC->Possess(Vehicle);
+				Vehicle->SetZsCharacterWithAbilities(this);
 				UE_LOG(LogTemp, Log, TEXT("Server: Posses"));
 			}
 			
