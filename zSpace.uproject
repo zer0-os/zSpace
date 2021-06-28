@@ -71,6 +71,14 @@
 		{
 			"Name": "ChaosVehiclesPlugin",
 			"Enabled": true
+		},
+		{
+			"Name": "PhysXVehicles",
+			"Enabled": false
+		},
+		{
+			"Name": "ChaosCaching",
+			"Enabled": true
 		}
 	],
 	"TargetPlatforms": [

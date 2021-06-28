@@ -27,16 +27,57 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	class UZSVehicleMovementComponent * GetZSVehicleMovementComponent() const;
+
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess=true))
+	class UBoxComponent * VehicleZoneBoxComponent = nullptr;
+
+	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess=true))
+	class AZSCharacterWithAbilities * 	ZSCharacterWithAbilities = nullptr;
 	
 	AZSWheeledVehiclePawn(const FObjectInitializer& ObjectInitializer);
 
+	UFUNCTION(BlueprintCallable)
+	void SetZsCharacterWithAbilities(class AZSCharacterWithAbilities * 	NewZSCharacterWithAbilities);
+
+	
+	UFUNCTION(BlueprintCallable)
+	class AZSCharacterWithAbilities * GetCharacterWithAbilities();
+
+	UFUNCTION(BlueprintCallable)
+	void HideVehicleControlWidget();
+	
+	UFUNCTION(BlueprintCallable)
+	void ShowVehicleControlWidget();
+	
+private:
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess=true))
+	class UVehicleWidgetsDataAsset * VehicleWidgetsDataAsset = nullptr;
+	
+	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess=true))
+	class UUserWidget * VehicleControlWidget = nullptr;
+
+		
 protected:
 	virtual void BeginPlay() override;
+	
 public:
+	
 	virtual void Tick(float DeltaSeconds) override;
+
+
+	
 protected:
 	
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
+	
+public:
+	
+	UFUNCTION()
+	void ComponentBeginOverlapVehicleZoneBoxComponent(UPrimitiveComponent * OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult);
+	
+	UFUNCTION()
+	void  ComponentEndOverlapVehicleZoneBoxComponent(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
 public:
 
@@ -57,5 +98,8 @@ public:
 
 	UFUNCTION()
 	void LookRight(float NewValue);
+
+	UFUNCTION(Server, Reliable, WithValidation)
+	void LeaveVehicle();
 };
 
