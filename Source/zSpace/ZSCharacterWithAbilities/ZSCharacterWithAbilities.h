@@ -273,6 +273,11 @@ private:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta=(AllowPrivateAccess=true))
 	class UBallisticLineComponent * BallisticLineComponentRight = nullptr;
+	
+private:
+
+	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess=true))
+	TEnumAsByte<ECollisionEnabled::Type> LastCollisionEnabled;
 		
 public:
 
@@ -293,6 +298,20 @@ public:
 
 	UFUNCTION(Server, Reliable, WithValidation)
 	void EnterVehicle();
+
+	UFUNCTION(BlueprintCallable)
+	void AttachToVehicle(class AZSWheeledVehiclePawn * NewVehicle);
+
+	UFUNCTION(Client, Reliable)
+	void Client_AttachToVehicle(class AZSWheeledVehiclePawn * NewVehicle);
+
+	UFUNCTION(BlueprintCallable)
+	void DetachFromVehicle(class AZSWheeledVehiclePawn * NewVehicle);
 	
+	UFUNCTION(Client, Reliable)
+	void Client_DetachFromVehicle();
+
+	UFUNCTION(BlueprintCallable)
+	FVector GetPossibleLeaveCarLocation(class AZSWheeledVehiclePawn * NewVehicle, bool & NewStatus);
 };
 

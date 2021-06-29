@@ -27,6 +27,7 @@
 #include "zSpace/VR/VirtualkeyboarActor/VirtualKeyboardWidgetInterface/VirtualKeyboardWidgetInterface.h"
 #include "zSpace/VR/BallisticLineComponent/BallisticLineComponent.h"
 #include "Components/BoxComponent.h"
+#include "Components/CapsuleComponent.h"
 
 
 AZSCharacterWithAbilities::AZSCharacterWithAbilities(const FObjectInitializer& NewObjectInitializer) : Super(NewObjectInitializer.SetDefaultSubobjectClass<UZSCharacterMovementComponent>(ACharacter::CharacterMovementComponentName))
@@ -872,6 +873,7 @@ void AZSCharacterWithAbilities::HoveredWidgetChanged(UWidgetComponent* NewWidget
 	}
 }
 
+
 void AZSCharacterWithAbilities::EnterVehicle_Implementation()
 {
 	UE_LOG(LogTemp, Log, TEXT("********************************** Enter Vehicle ***********************"));
@@ -891,9 +893,7 @@ void AZSCharacterWithAbilities::EnterVehicle_Implementation()
 			AZSWheeledVehiclePawn * Vehicle = Cast<AZSWheeledVehiclePawn>(IterBoxComponent->GetOwner());
 			if(IsValid(IterBoxComponent) && nullptr != Vehicle )
 			{
-				AOWSPlayerController * PC = GetOWSPlayerController();
-				PC->Possess(Vehicle);
-				Vehicle->SetZsCharacterWithAbilities(this);
+				AttachToVehicle(Vehicle);
 				UE_LOG(LogTemp, Log, TEXT("Server: Posses"));
 			}
 			
@@ -905,3 +905,103 @@ bool AZSCharacterWithAbilities::EnterVehicle_Validate()
 {
 	return true;
 }
+
+void AZSCharacterWithAbilities::AttachToVehicle(AZSWheeledVehiclePawn * NewVehicle)
+{
+	if(ROLE_Authority == GetLocalRole())
+	{
+		if(IsValid(NewVehicle))
+		{
+			SetActorEnableCollision(false);
+			AttachToActor(NewVehicle, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+			const FVector L_VehicleLocation = NewVehicle->GetActorLocation();
+			UCapsuleComponent * L_CapsuleComponent = GetCapsuleComponent();
+			checkf( nullptr != L_CapsuleComponent, TEXT("The CapsuleComponent is nullptr."));
+			SetActorLocation(L_VehicleLocation);
+			SetActorHiddenInGame(true);
+			AOWSPlayerController * PC = GetOWSPlayerController();
+			Client_AttachToVehicle(NewVehicle);
+			PC->Possess(NewVehicle);
+			NewVehicle->SetZsCharacterWithAbilities(this);
+		}
+	}
+}
+
+void AZSCharacterWithAbilities::Client_AttachToVehicle_Implementation(AZSWheeledVehiclePawn* NewVehicle)
+{
+	if(IsValid(NewVehicle))
+	{
+		SetActorEnableCollision(false);
+		//AttachToActor(NewVehicle, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+		//const FVector L_VehicleLocation = NewVehicle->GetActorLocation();
+		//UCapsuleComponent * L_CapsuleComponent = GetCapsuleComponent();
+		//checkf( nullptr != L_CapsuleComponent, TEXT("The CapsuleComponent is nullptr."));
+		///SetActorLocation(L_VehicleLocation);
+		SetActorHiddenInGame(true);
+	}
+}
+
+
+void AZSCharacterWithAbilities::DetachFromVehicle(AZSWheeledVehiclePawn* NewVehicle)
+{
+	if(ROLE_Authority == GetLocalRole())
+	{
+		if(IsValid(NewVehicle))
+		{
+			bool bLeaveAvailable = false;
+			const FVector CharacterLocation = GetPossibleLeaveCarLocation(NewVehicle, bLeaveAvailable);
+			if(bLeaveAvailable)
+			{
+				APlayerController * PC = UGameplayStatics::GetPlayerController(this, 0);
+				if(PC)
+				{
+					PC->Possess(this);
+					DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+					SetActorEnableCollision(true);
+					SetActorHiddenInGame(false);
+					Client_DetachFromVehicle();
+					SetActorLocation(CharacterLocation);
+					const FVector VehicleForwardVector = GetActorForwardVector();
+					SetActorRotation(FRotator(0, NewVehicle->GetActorRotation().Yaw, 0), ETeleportType::TeleportPhysics);
+				}
+			}
+		}
+	}
+}
+
+void AZSCharacterWithAbilities::Client_DetachFromVehicle_Implementation()
+{
+	//DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+	SetActorEnableCollision(true);
+	SetActorHiddenInGame(false);
+}
+
+FVector AZSCharacterWithAbilities::GetPossibleLeaveCarLocation(AZSWheeledVehiclePawn* NewVehicle, bool & NewStatus)
+{
+	checkf(nullptr != NewVehicle, TEXT("The NewVehicle is nullptr."));
+	TArray<AActor *> ActorsToIgnore;
+	ActorsToIgnore.Add(NewVehicle->GetCharacterWithAbilities());	
+	TArray<FHitResult> OutHits;
+	const FVector VehicleRightVector =  NewVehicle->GetActorRightVector();
+	const ETraceTypeQuery TraceTypeQuery = UEngineTypes::ConvertToTraceType(ECollisionChannel::ECC_Visibility);
+	const FVector Start = NewVehicle->GetActorLocation();
+	FVector End = NewVehicle->GetActorLocation() + (VehicleRightVector * 300);
+	const bool bIsHit = UKismetSystemLibrary::LineTraceMulti(NewVehicle, Start, End, TraceTypeQuery,true, ActorsToIgnore, EDrawDebugTrace::ForDuration, OutHits, true);
+	if(!bIsHit)
+	{
+		NewStatus = true;
+		return End;
+	}
+	End = NewVehicle->GetActorLocation() + (VehicleRightVector * -300);
+	const bool bIsHit1 = UKismetSystemLibrary::LineTraceMulti(NewVehicle, Start, End, TraceTypeQuery,true, ActorsToIgnore, EDrawDebugTrace::ForDuration, OutHits, true);
+	if(!bIsHit1)
+	{
+		NewStatus = true;
+		return End;
+	}
+	NewStatus = false;
+	UE_LOG(LogTemp, Warning, TEXT("The Character deosn't leave from vehicle becouse not available location"));
+	return FVector::ZeroVector;	
+	
+}
+
