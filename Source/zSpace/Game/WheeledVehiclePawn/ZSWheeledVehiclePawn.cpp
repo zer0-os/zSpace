@@ -19,6 +19,16 @@
 
 AZSWheeledVehiclePawn::AZSWheeledVehiclePawn(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer.SetDefaultSubobjectClass<UZSVehicleMovementComponent>(AWheeledVehiclePawn::VehicleMovementComponentName))
 {
+
+	NetCullDistanceSquared = 999000000;
+	NetUpdateFrequency = 200;
+	MinNetUpdateFrequency = 50;
+	NetPriority = 3;
+	FRepMovement L_RepMovement = GetReplicatedMovement();
+	L_RepMovement.VelocityQuantizationLevel = EVectorQuantization::RoundTwoDecimals;
+	L_RepMovement.RotationQuantizationLevel = ERotatorQuantization::ShortComponents;
+	SetReplicatedMovement(L_RepMovement);
+	
 	SpringArmComponent = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArmComponent"));
 	checkf(nullptr != SpringArmComponent, TEXT("The SpringArmComponent is nullptr."));
 	SpringArmComponent->SetRelativeLocation(FVector(0.0f, 0.0f, 34.0f));
@@ -291,11 +301,7 @@ void AZSWheeledVehiclePawn::LeaveVehicle_Implementation()
 	}
 	if(IsValid(ZSCharacterWithAbilities))
 	{
-		AController * PC = GetController();
-		if(IsValid(PC))
-		{
-			PC->Possess(ZSCharacterWithAbilities);
-		}
+		ZSCharacterWithAbilities->DetachFromVehicle(this);	
 	}
 }
 
