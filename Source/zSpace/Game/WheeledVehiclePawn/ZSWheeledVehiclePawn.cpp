@@ -299,6 +299,12 @@ void AZSWheeledVehiclePawn::LeaveVehicle_Implementation()
 	{
 		LeaveVehicle();	
 	}
+	UZSVehicleMovementComponent * L_VehicleMovementComponent = GetZSVehicleMovementComponent();
+	if(L_VehicleMovementComponent)
+	{
+		L_VehicleMovementComponent->StopMovementImmediately();	
+	}
+	
 	if(IsValid(ZSCharacterWithAbilities))
 	{
 		ZSCharacterWithAbilities->DetachFromVehicle(this);	
