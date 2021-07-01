@@ -955,14 +955,18 @@ void AZSCharacterWithAbilities::DetachFromVehicle(AZSWheeledVehiclePawn* NewVehi
 				APlayerController * PC = UGameplayStatics::GetPlayerController(this, 0);
 				if(PC)
 				{
-					PC->Possess(this);
-					DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+						
+					const EDetachmentRule LocationRule = EDetachmentRule::KeepRelative;
+					const EDetachmentRule RotationRule = EDetachmentRule::KeepRelative;
+					const EDetachmentRule ScaleRule = EDetachmentRule::KeepRelative;
+					DetachFromActor(FDetachmentTransformRules(LocationRule, RotationRule, ScaleRule, true));
+					SetActorRotation(FRotator(0, 0, 0), ETeleportType::ResetPhysics);
+					SetActorLocation(CharacterLocation);
 					SetActorEnableCollision(true);
 					SetActorHiddenInGame(false);
+					PC->Possess(this);
 					Client_DetachFromVehicle();
-					SetActorLocation(CharacterLocation);
 					const FVector VehicleForwardVector = GetActorForwardVector();
-					SetActorRotation(FRotator(0, NewVehicle->GetActorRotation().Yaw, 0), ETeleportType::TeleportPhysics);
 				}
 			}
 		}
@@ -972,8 +976,8 @@ void AZSCharacterWithAbilities::DetachFromVehicle(AZSWheeledVehiclePawn* NewVehi
 void AZSCharacterWithAbilities::Client_DetachFromVehicle_Implementation()
 {
 	//DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
-	SetActorEnableCollision(true);
 	SetActorHiddenInGame(false);
+	SetActorEnableCollision(true);
 }
 
 FVector AZSCharacterWithAbilities::GetPossibleLeaveCarLocation(AZSWheeledVehiclePawn* NewVehicle, bool & NewStatus)
