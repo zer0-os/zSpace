@@ -15,6 +15,8 @@
 #include "Kismet/GameplayStatics.h"
 #include "MovementComponent/ZSVehicleMovementComponent.h"
 #include "VehicleWIdgetsDataAsset/VehicleWIdgetsDataAsset.h"
+#include "zSpace/Game/ZSpaceGameInstance.h"
+#include "zSpace/Game/ZSCameraComponent/ZSCameraComponent.h"
 #include "zSpace/ZSCharacterWithAbilities/ZSCharacterWithAbilities.h"
 
 AZSWheeledVehiclePawn::AZSWheeledVehiclePawn(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer.SetDefaultSubobjectClass<UZSVehicleMovementComponent>(AWheeledVehiclePawn::VehicleMovementComponentName))
@@ -41,13 +43,21 @@ AZSWheeledVehiclePawn::AZSWheeledVehiclePawn(const FObjectInitializer& ObjectIni
 	SpringArmComponent->bInheritYaw = true;
 	SpringArmComponent->bInheritRoll = true;
 
-	CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraComponent"));
-	checkf(nullptr != CameraComponent, TEXT("The CameraComponent is nullptr."));
-	CameraComponent->SetupAttachment(SpringArmComponent, USpringArmComponent::SocketName);
-	CameraComponent->SetRelativeLocation(FVector(-125.0, 0.0f, 0.0f));
-	CameraComponent->SetRelativeRotation(FRotator(10.0f, 0.0f, 0.0f));
-	CameraComponent->bUsePawnControlRotation = false;
-	CameraComponent->FieldOfView = 90.f;
+	CameraComponentDefault = CreateDefaultSubobject<UZSCameraComponent>(TEXT("CameraComponentDefault"));
+	checkf(nullptr != CameraComponentDefault, TEXT("The CameraComponentDefault is nullptr."));
+	CameraComponentDefault->SetupAttachment(SpringArmComponent, USpringArmComponent::SocketName);
+	CameraComponentDefault->SetRelativeLocation(FVector(-125.0, 0.0f, 0.0f));
+	CameraComponentDefault->SetRelativeRotation(FRotator(10.0f, 0.0f, 0.0f));
+	CameraComponentDefault->bUsePawnControlRotation = false;
+	CameraComponentDefault->FieldOfView = 90.f;
+	CameraComponentDefault->SetCameraPositionType(ECameraPositionType::DefaultCamera);
+
+	CameraComponentInSide = CreateDefaultSubobject<UZSCameraComponent>(TEXT("CameraComponentInSide"));
+	checkf(nullptr != CameraComponentInSide, TEXT("The CameraComponentInSide is nullptr."));
+	CameraComponentInSide->SetupAttachment(GetMesh());
+	CameraComponentInSide->FieldOfView = 90.f;
+	CameraComponentInSide->SetCameraPositionType(ECameraPositionType::CameraInSide);
+	
 
 	EngineSoundComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("EngineSound"));
 	//EngineSoundComponent->SetSound(SoundCue.Object); // TODO need add Engine Sound dynamic
@@ -207,6 +217,10 @@ void AZSWheeledVehiclePawn::SetupPlayerInputComponent(UInputComponent* PlayerInp
 		PlayerInputComponent->BindAxis(TEXT("LookRight"),this, &AZSWheeledVehiclePawn::LookRight);
 		PlayerInputComponent->BindAction(TEXT("LeaveVehicle"), EInputEvent::IE_Pressed, this, &AZSWheeledVehiclePawn::LeaveVehicle);
 		
+		PlayerInputComponent->BindAction(TEXT("VehicleNextCamera"), EInputEvent::IE_Pressed, this, &AZSWheeledVehiclePawn::VehicleNextCamera);
+		PlayerInputComponent->BindAction(TEXT("VehicleBackCamera"), EInputEvent::IE_Pressed, this, &AZSWheeledVehiclePawn::VehicleBackCamera);
+		
+		
 	}
 }
 
@@ -293,6 +307,47 @@ void AZSWheeledVehiclePawn::LookRight(float NewValue)
 	AddControllerYawInput(NewValue);
 }
 
+void AZSWheeledVehiclePawn::SetupDefaultCamera(ECameraPositionType NewCameraPositionType)
+{
+	TArray<UZSCameraComponent *> CameraComponents ;
+	GetComponents<UZSCameraComponent>(CameraComponents);
+	for(UZSCameraComponent * IterCameraComponent : CameraComponents)
+	{
+		if(IterCameraComponent)
+		{
+			const ECameraPositionType L_CamPostType = IterCameraComponent->GetCameraPositionType();
+			if(L_CamPostType == NewCameraPositionType)
+			{
+				SelectedCameraPositionType = NewCameraPositionType;
+				IterCameraComponent->SetActive(true);
+			}
+			else
+			{
+				IterCameraComponent->SetActive(false);
+			}
+		}
+	}
+}
+
+bool AZSWheeledVehiclePawn::IsExistCamera(ECameraPositionType NewCameraPositionType)
+{
+	TArray<UZSCameraComponent *> CameraComponents ;
+	GetComponents<UZSCameraComponent>(CameraComponents);
+	for(UZSCameraComponent * IterCameraComponent : CameraComponents)
+	{
+		if(IterCameraComponent)
+		{
+			const ECameraPositionType L_CamPostType = IterCameraComponent->GetCameraPositionType();
+			if(L_CamPostType == NewCameraPositionType)
+			{
+				return true;		
+			}
+		}
+	}
+	return false;
+}
+
+
 void AZSWheeledVehiclePawn::LeaveVehicle_Implementation()
 {
 	if(ROLE_Authority > GetLocalRole())
@@ -316,4 +371,52 @@ bool AZSWheeledVehiclePawn::LeaveVehicle_Validate()
 	return true;
 }
 
+void AZSWheeledVehiclePawn::VehicleNextCamera()
+{
+	const int8 L_CountMax = (static_cast<int8>(ECameraPositionType::CPT_MAX)) - 1;
+	for(int8 I = 0; I <= L_CountMax; I++ )
+	{
+		uint8 L_NextCameraPositionType = static_cast<uint8>(SelectedCameraPositionType);
+		const uint8 L_Max = static_cast<uint8>(ECameraPositionType::CPT_MAX);
+		L_NextCameraPositionType++;
+		if(L_NextCameraPositionType >= L_Max)
+		{
+			SelectedCameraPositionType = static_cast<ECameraPositionType>(0);
+		}
+		else
+		{
+			SelectedCameraPositionType = static_cast<ECameraPositionType>(L_NextCameraPositionType);
+		}
+		const bool bIsExistCamera = IsExistCamera(SelectedCameraPositionType);
+		if(bIsExistCamera)
+		{
+			break;
+		}
+	}
+	SetupDefaultCamera(SelectedCameraPositionType);
+}
+
+void AZSWheeledVehiclePawn::VehicleBackCamera()
+{
+	const int8 L_Max = (static_cast<int8>(ECameraPositionType::CPT_MAX)) - 1;
+	for(int8 I = 0; I <= L_Max; I++ )
+	{
+		int8 L_BackCameraPositionType = static_cast<int8>(SelectedCameraPositionType);
+		L_BackCameraPositionType--;
+		if(L_BackCameraPositionType <= 0)
+		{
+			SelectedCameraPositionType = static_cast<ECameraPositionType>(L_Max);
+		}
+		else
+		{
+			SelectedCameraPositionType = static_cast<ECameraPositionType>(L_BackCameraPositionType);
+		}
+		const bool bIsExistCamera = IsExistCamera(SelectedCameraPositionType);
+		if(bIsExistCamera)
+		{
+			break;
+		}
+	}
+	SetupDefaultCamera(SelectedCameraPositionType);
+}
 

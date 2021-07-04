@@ -6,8 +6,8 @@
 #include "OWSCharacterWithAbilities.h"
 #include "AnimInstances/ZSAnimationTypes.h"
 #include "AnimInstances/ZSAnimInstance.h"
-
 #include "ZSCharacterWithAbilities.generated.h"
+
 
 /**
  * 
@@ -48,7 +48,7 @@ private:
 	class USpringArmComponent * SpringArmComponent = nullptr; 
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, meta = (AllowPrivateAccess=true))
-	class UCameraComponent * CameraComponent =  nullptr;
+	class UCameraComponent * CameraComponentDefault =  nullptr;
 	
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, meta = (AllowPrivateAccess=true))
 	class UCameraComponent * CameraComponentVR =  nullptr;
