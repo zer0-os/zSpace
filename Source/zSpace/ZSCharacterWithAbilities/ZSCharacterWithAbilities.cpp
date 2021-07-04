@@ -39,16 +39,16 @@ AZSCharacterWithAbilities::AZSCharacterWithAbilities(const FObjectInitializer& N
 	SpringArmComponent->TargetArmLength = 300;
 	SpringArmComponent->SetRelativeLocation(FVector(0.0,70,68));
 
-	CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraComponent"));
-	checkf(nullptr != CameraComponent, TEXT("The CameraComponent is nullptr."));
-	CameraComponent->SetupAttachment(SpringArmComponent, USpringArmComponent::SocketName);
-	
+	CameraComponentDefault = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraComponent"));
+	checkf(nullptr != CameraComponentDefault, TEXT("The CameraComponent is nullptr."));
+	CameraComponentDefault->SetupAttachment(SpringArmComponent, USpringArmComponent::SocketName);
+
 	SceneComponentVR = CreateDefaultSubobject<USceneComponent>(TEXT("SceneComponentVR"));
 	checkf(nullptr != SceneComponentVR, TEXT("The SceneComponentVR is nullptr."));
 	SceneComponentVR->SetupAttachment(RootComponent);
 	
 	CameraComponentVR = CreateDefaultSubobject<UCameraComponent>(TEXT("VRCameraComponent"));
-	checkf(nullptr != CameraComponent, TEXT("The VRCameraComponent is nullptr."));
+	checkf(nullptr != CameraComponentDefault, TEXT("The VRCameraComponent is nullptr."));
 	CameraComponentVR->SetupAttachment(RootComponent);
 
 	DetectSurfaceTypeComponent = CreateDefaultSubobject<UDetectSurfaceTypeComponent>(TEXT("DetectSurfaceTypeComponent"));
@@ -135,7 +135,7 @@ void AZSCharacterWithAbilities::SetupOculusSettings()
 		checkf(nullptr != CharacterSkeletalMeshComponent, TEXT("The CharacterSkeletalmeshComponent is nullptr."));
 		//CharacterSkeletalMeshComponent->Deactivate();
 		CharacterSkeletalMeshComponent->DestroyComponent();
-		CameraComponent->Deactivate();
+		CameraComponentDefault->Deactivate();
 		CameraComponentVR->Activate();
 	} else if(EOculusDeviceType::OculusUnknown == L_OculusDeviceType)
 	{

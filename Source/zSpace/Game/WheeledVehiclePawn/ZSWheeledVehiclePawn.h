@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "WheeledVehiclePawn.h"
+#include "zSpace/Game/ZSCameraComponent/ZSCameraComponent.h"
+
 #include "ZSWheeledVehiclePawn.generated.h"
 
 /**
@@ -20,7 +22,10 @@ public:
 	class USpringArmComponent *  SpringArmComponent = nullptr;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess=true))
-	class UCameraComponent * CameraComponent = nullptr;
+	class UZSCameraComponent * CameraComponentDefault = nullptr;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess=true))
+	class UZSCameraComponent * CameraComponentInSide = nullptr;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess=true))
 	class UAudioComponent * EngineSoundComponent = nullptr; 
@@ -57,6 +62,8 @@ private:
 	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess=true))
 	class UUserWidget * VehicleControlWidget = nullptr;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess=true))
+	ECameraPositionType SelectedCameraPositionType = ECameraPositionType::DefaultCamera;
 		
 protected:
 	virtual void BeginPlay() override;
@@ -101,5 +108,19 @@ public:
 
 	UFUNCTION(Server, Reliable, WithValidation)
 	void LeaveVehicle();
+
+
+	UFUNCTION(BlueprintCallable)
+	void SetupDefaultCamera(ECameraPositionType NewCameraPositionType);
+	
+	UFUNCTION(BlueprintCallable)
+	bool IsExistCamera(ECameraPositionType NewCameraPositionType);
+
+	UFUNCTION(BlueprintCallable)
+	void VehicleNextCamera();
+	
+	UFUNCTION(BlueprintCallable)
+	void VehicleBackCamera(); 
+	
 };
 
