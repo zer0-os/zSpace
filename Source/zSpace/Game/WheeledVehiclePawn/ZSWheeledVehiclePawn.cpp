@@ -12,6 +12,7 @@
 #include "Components/BoxComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "GameplayAbility/AttributeSet/ZSVehicleAttributeSet.h"
 #include "Kismet/GameplayStatics.h"
 #include "MovementComponent/ZSVehicleMovementComponent.h"
 #include "VehicleWIdgetsDataAsset/VehicleWIdgetsDataAsset.h"
@@ -21,6 +22,11 @@
 
 AZSWheeledVehiclePawn::AZSWheeledVehiclePawn(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer.SetDefaultSubobjectClass<UZSVehicleMovementComponent>(AWheeledVehiclePawn::VehicleMovementComponentName))
 {
+
+	AbilitySystemComponent = CreateDefaultSubobject<UAbilitySystemComponent>(TEXT("AbilitySystemComponent"));
+	checkf(nullptr != AbilitySystemComponent, TEXT("The AbilitySystemComponent is nullptr."));
+	AbilitySystemComponent->SetIsReplicated(true);
+	AbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Mixed);
 
 	NetCullDistanceSquared = 999000000;
 	NetUpdateFrequency = 200;
@@ -191,6 +197,7 @@ void AZSWheeledVehiclePawn::BeginPlay()
 	Super::BeginPlay();
 	// Start an engine sound playing
 	EngineSoundComponent->Play(); // TODO Need to set Engine Sound.
+	InitAttributes();
 }
 
 void AZSWheeledVehiclePawn::Tick(float DeltaSeconds)
@@ -250,6 +257,11 @@ void AZSWheeledVehiclePawn::ComponentEndOverlapVehicleZoneBoxComponent(UPrimitiv
 			HideVehicleControlWidget();
 		}
 	}
+}
+
+UAbilitySystemComponent* AZSWheeledVehiclePawn::GetAbilitySystemComponent() const
+{
+	return AbilitySystemComponent;
 }
 
 void AZSWheeledVehiclePawn::MoveForward(float NewValue)
@@ -418,5 +430,53 @@ void AZSWheeledVehiclePawn::VehicleBackCamera()
 		}
 	}
 	SetupDefaultCamera(SelectedCameraPositionType);
+}
+
+void AZSWheeledVehiclePawn::InitAttributes()
+{
+	if(IsValid(AbilitySystemComponent))
+	{
+		AttributeSetVehicle = AbilitySystemComponent->GetSet<UZSVehicleAttributeSet>();
+		checkf(nullptr != AttributeSetVehicle, TEXT("The AttributeSetVehicle is nullptr."));
+		AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(AttributeSetVehicle->GetHealthBodyAttribute()).AddUObject(this, &AZSWheeledVehiclePawn::OnHealthBodyChangedNative);
+		AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(AttributeSetVehicle->GetHealthEngineAttribute()).AddUObject(this, &AZSWheeledVehiclePawn::OnHealthEngineChangedNative);
+		AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(AttributeSetVehicle->GetGasTankAttribute()).AddUObject(this, &AZSWheeledVehiclePawn::OnGasTankChangedNative);
+	}
+}
+
+void AZSWheeledVehiclePawn::GetHealthBody(float& HealthBody, float& MaxHealth)
+{
+	checkf(nullptr != AttributeSetVehicle, TEXT("The VehicleAttributeSet is nullptr."));
+	HealthBody = AttributeSetVehicle->GetHealthBody();
+	MaxHealth = AttributeSetVehicle->GetMaxHealthBody();
+}
+
+void AZSWheeledVehiclePawn::GetHealthEngine(float& HealthEngine, float& MaxHealthEngine)
+{
+	checkf(nullptr != AttributeSetVehicle, TEXT("The VehicleAttributeSet is nullptr."));
+	HealthEngine = AttributeSetVehicle->GetHealthEngine();
+	MaxHealthEngine = AttributeSetVehicle->GetMaxHealthEngine();
+}
+
+void AZSWheeledVehiclePawn::GetGasTank(float& GasTank, float & MaxGasTank)
+{
+	checkf(nullptr != AttributeSetVehicle, TEXT("The VehicleAttributeSet is nullptr."));
+	GasTank = AttributeSetVehicle->GetGasTank();
+	MaxGasTank = AttributeSetVehicle->GetMaxGasTank();
+}
+
+void AZSWheeledVehiclePawn::OnHealthBodyChangedNative(const FOnAttributeChangeData& NewData)
+{
+	OnHealthBodyChanged(NewData.OldValue, NewData.NewValue);
+}
+
+void AZSWheeledVehiclePawn::OnHealthEngineChangedNative(const FOnAttributeChangeData& NewData)
+{
+	OnHealthEngineChanged(NewData.OldValue, NewData.NewValue);
+}
+
+void AZSWheeledVehiclePawn::OnGasTankChangedNative(const FOnAttributeChangeData& NewData)
+{
+	OnGasTankChanged(NewData.OldValue, NewData.NewValue);
 }
 

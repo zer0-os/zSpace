@@ -3,20 +3,28 @@
 #pragma once
 
 #include "CoreMinimal.h"
+
+#include "AbilitySystemInterface.h"
 #include "WheeledVehiclePawn.h"
 #include "zSpace/Game/ZSCameraComponent/ZSCameraComponent.h"
-
+#include "GameplayEffectTypes.h"
 #include "ZSWheeledVehiclePawn.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class ZSPACE_API AZSWheeledVehiclePawn : public AWheeledVehiclePawn
+class ZSPACE_API AZSWheeledVehiclePawn : public AWheeledVehiclePawn, public IAbilitySystemInterface
 {
 	GENERATED_BODY()
 
 public:
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Abilities", meta = (AllowPrivateAccess=true))	
+	class UAbilitySystemComponent * AbilitySystemComponent = nullptr;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category="CharacterBase")
+	const class UZSVehicleAttributeSet * AttributeSetVehicle = nullptr;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess=true))
 	class USpringArmComponent *  SpringArmComponent = nullptr;
@@ -85,6 +93,8 @@ public:
 	
 	UFUNCTION()
 	void  ComponentEndOverlapVehicleZoneBoxComponent(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+	
+	virtual UAbilitySystemComponent * GetAbilitySystemComponent() const override;
 
 public:
 
@@ -120,7 +130,38 @@ public:
 	void VehicleNextCamera();
 	
 	UFUNCTION(BlueprintCallable)
-	void VehicleBackCamera(); 
+	void VehicleBackCamera();
+
+	void InitAttributes();
+
+
+	// Attributes for HealthBody
+	UFUNCTION(BlueprintPure, Category="VehicleBase")
+	void GetHealthBody(float & HealthBody, float & MaxHealth);
+	
+	// Attributes for HealthBody
+	UFUNCTION(BlueprintPure, Category="VehicleBase")
+	void GetHealthEngine(float &HealthEngine, float & MaxHealthEngine );
+	
+	// Attributes for Gas Tank
+	UFUNCTION(BlueprintPure, Category="VehicleBase")
+	void GetGasTank(float & GasTank, float & MaxGasTank);
+
+	UFUNCTION(BlueprintImplementableEvent, Category="VehicleBase")
+	void OnHealthBodyChanged(float  OldValue, float  NewValue);
+	
+	UFUNCTION(BlueprintImplementableEvent, Category="VehicleBase")
+	void OnHealthEngineChanged(float OldValue, float NewValue );
+	
+	UFUNCTION(BlueprintImplementableEvent, Category="VehicleBase")
+	void OnGasTankChanged(float  OldValue, float NewValue);
+	
+	void OnHealthBodyChangedNative(const FOnAttributeChangeData & NewData);
+	
+	void OnHealthEngineChangedNative(const FOnAttributeChangeData & NewData );
+	
+	void OnGasTankChangedNative(const FOnAttributeChangeData & NewData);
+	
 	
 };
 

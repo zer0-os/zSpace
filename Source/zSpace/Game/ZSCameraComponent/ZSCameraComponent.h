@@ -9,7 +9,8 @@
 UENUM(BlueprintType, Blueprintable)
 enum class ECameraPositionType : uint8
 {
-	 DefaultCamera UMETA(DisplayName = "Default Camera")
+	  CPT_None UMETA(Hidden)
+	, DefaultCamera UMETA(DisplayName = "Default Camera")
 	,CameraInSide UMETA(DisplayName = "Camera in side")
 	,CameraVRMode UMETA(DisplayName = "Camera VR Mode")
 	,CPT_MAX      UMETA(Hidden)
