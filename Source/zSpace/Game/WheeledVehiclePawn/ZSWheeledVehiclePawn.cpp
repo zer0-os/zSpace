@@ -137,6 +137,7 @@ AZSWheeledVehiclePawn::AZSWheeledVehiclePawn(const FObjectInitializer& ObjectIni
 	VehicleZoneBoxComponent->SetRelativeLocation(FVector(0,0,40));
 	VehicleZoneBoxComponent->OnComponentBeginOverlap.AddUniqueDynamic(this, &AZSWheeledVehiclePawn::ComponentBeginOverlapVehicleZoneBoxComponent);
 	VehicleZoneBoxComponent->OnComponentEndOverlap.AddUniqueDynamic(this, &AZSWheeledVehiclePawn::ComponentEndOverlapVehicleZoneBoxComponent);
+	SetAutonomousProxy(true);
 }
 
 void AZSWheeledVehiclePawn::SetZsCharacterWithAbilities(AZSCharacterWithAbilities* NewZSCharacterWithAbilities)
@@ -478,5 +479,17 @@ void AZSWheeledVehiclePawn::OnHealthEngineChangedNative(const FOnAttributeChange
 void AZSWheeledVehiclePawn::OnGasTankChangedNative(const FOnAttributeChangeData& NewData)
 {
 	OnGasTankChanged(NewData.OldValue, NewData.NewValue);
+}
+
+void AZSWheeledVehiclePawn::InitializeAbility(TSubclassOf<UGameplayAbility> NewAbilityToGet, int32 AbilityLevel)
+{
+	if(IsValid(AbilitySystemComponent))
+	{
+		if(HasAuthority() && IsValid(NewAbilityToGet))
+		{
+			AbilitySystemComponent->GiveAbility(FGameplayAbilitySpec(NewAbilityToGet, AbilityLevel, 0));
+		}
+		AbilitySystemComponent->InitAbilityActorInfo(this, this);
+	}
 }
 

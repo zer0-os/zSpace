@@ -161,7 +161,11 @@ public:
 	void OnHealthEngineChangedNative(const FOnAttributeChangeData & NewData );
 	
 	void OnGasTankChangedNative(const FOnAttributeChangeData & NewData);
+
+public:
 	
+	UFUNCTION(BlueprintCallable)
+	void InitializeAbility(TSubclassOf<class UGameplayAbility> NewAbilityToGet, int32 AbilityLevel);
 	
 };
 
