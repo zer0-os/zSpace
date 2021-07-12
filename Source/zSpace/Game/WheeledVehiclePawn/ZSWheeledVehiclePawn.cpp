@@ -3,6 +3,7 @@
 
 #include "zSpace/Game/WheeledVehiclePawn/ZSWheeledVehiclePawn.h"
 
+#include "AbilitySystemBlueprintLibrary.h"
 #include "ChaosWheeledVehicleMovementComponent.h"
 #include "Blueprint/UserWidget.h"
 #include "Camera/CameraComponent.h"
@@ -19,6 +20,8 @@
 #include "zSpace/Game/ZSpaceGameInstance.h"
 #include "zSpace/Game/ZSCameraComponent/ZSCameraComponent.h"
 #include "zSpace/ZSCharacterWithAbilities/ZSCharacterWithAbilities.h"
+
+
 
 AZSWheeledVehiclePawn::AZSWheeledVehiclePawn(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer.SetDefaultSubobjectClass<UZSVehicleMovementComponent>(AWheeledVehiclePawn::VehicleMovementComponentName))
 {
@@ -298,6 +301,8 @@ void AZSWheeledVehiclePawn::HandbrakePressed()
 	if(L_VehicleMovementComponent)
 	{
 		L_VehicleMovementComponent->SetHandbrakeInput(true);
+		const FGameplayTag EventTag = FGameplayTag::RequestGameplayTag(FName("Vehicle.StopLight"));
+		UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(this, EventTag, FGameplayEventData());
 	}
 }
 
@@ -307,6 +312,8 @@ void AZSWheeledVehiclePawn::HandbrakeReleased()
 	if(L_VehicleMovementComponent)
 	{
 		L_VehicleMovementComponent->SetHandbrakeInput(false);
+		const FGameplayTag EventTag = FGameplayTag::RequestGameplayTag(FName("Vehicle.NoStopLight"));
+		UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(this, EventTag, FGameplayEventData());
 	}
 }
 
@@ -492,4 +499,10 @@ void AZSWheeledVehiclePawn::InitializeAbility(TSubclassOf<UGameplayAbility> NewA
 		AbilitySystemComponent->InitAbilityActorInfo(this, this);
 	}
 }
+
+void AZSWheeledVehiclePawn::EnableRearStopLight_Implementation()
+{
+	
+}
+
 

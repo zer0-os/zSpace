@@ -162,10 +162,14 @@ public:
 	
 	void OnGasTankChangedNative(const FOnAttributeChangeData & NewData);
 
+
 public:
 	
 	UFUNCTION(BlueprintCallable)
 	void InitializeAbility(TSubclassOf<class UGameplayAbility> NewAbilityToGet, int32 AbilityLevel);
+
+	UFUNCTION(NetMulticast, Reliable)
+	void EnableRearStopLight();
 	
 };
 

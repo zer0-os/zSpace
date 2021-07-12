@@ -19,6 +19,7 @@ public class zSpace : ModuleRules
             , "Json"
             , "JsonUtilities"
 			, "GameplayAbilities"
+			, "GameplayTasks"
 			, "UniversalVoiceChatPro"
 			, "PhysicsCore"
             , "MediaAssets"
