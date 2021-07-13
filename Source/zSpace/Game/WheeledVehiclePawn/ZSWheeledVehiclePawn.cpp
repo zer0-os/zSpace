@@ -21,7 +21,7 @@
 #include "zSpace/Game/ZSCameraComponent/ZSCameraComponent.h"
 #include "zSpace/ZSCharacterWithAbilities/ZSCharacterWithAbilities.h"
 
-
+FName AZSWheeledVehiclePawn::VehicleStopLightParamName = "EmissiveColorStopLights";
 
 AZSWheeledVehiclePawn::AZSWheeledVehiclePawn(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer.SetDefaultSubobjectClass<UZSVehicleMovementComponent>(AWheeledVehiclePawn::VehicleMovementComponentName))
 {
@@ -301,9 +301,19 @@ void AZSWheeledVehiclePawn::HandbrakePressed()
 	if(L_VehicleMovementComponent)
 	{
 		L_VehicleMovementComponent->SetHandbrakeInput(true);
-		const FGameplayTag EventTag = FGameplayTag::RequestGameplayTag(FName("Vehicle.StopLight"));
-		UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(this, EventTag, FGameplayEventData());
+		Server_HandbrakePressed();
 	}
+}
+
+void AZSWheeledVehiclePawn::Server_HandbrakePressed_Implementation()
+{
+	const FGameplayTag EventTag = FGameplayTag::RequestGameplayTag(FName("Vehicle.StopLight"));
+	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(this, EventTag, FGameplayEventData());
+}
+
+bool AZSWheeledVehiclePawn::Server_HandbrakePressed_Validate()
+{
+	return true;
 }
 
 void AZSWheeledVehiclePawn::HandbrakeReleased()
@@ -312,9 +322,19 @@ void AZSWheeledVehiclePawn::HandbrakeReleased()
 	if(L_VehicleMovementComponent)
 	{
 		L_VehicleMovementComponent->SetHandbrakeInput(false);
-		const FGameplayTag EventTag = FGameplayTag::RequestGameplayTag(FName("Vehicle.NoStopLight"));
-		UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(this, EventTag, FGameplayEventData());
+		Server_HandbrakeReleased();
 	}
+}
+
+void AZSWheeledVehiclePawn::Server_HandbrakeReleased_Implementation()
+{
+	const FGameplayTag EventTag = FGameplayTag::RequestGameplayTag(FName("Vehicle.NoStopLight"));
+	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(this, EventTag, FGameplayEventData());
+}
+
+bool AZSWheeledVehiclePawn::Server_HandbrakeReleased_Validate()
+{
+	return true;
 }
 
 void AZSWheeledVehiclePawn::LookUp(float NewValue)
@@ -449,6 +469,7 @@ void AZSWheeledVehiclePawn::InitAttributes()
 		AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(AttributeSetVehicle->GetHealthBodyAttribute()).AddUObject(this, &AZSWheeledVehiclePawn::OnHealthBodyChangedNative);
 		AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(AttributeSetVehicle->GetHealthEngineAttribute()).AddUObject(this, &AZSWheeledVehiclePawn::OnHealthEngineChangedNative);
 		AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(AttributeSetVehicle->GetGasTankAttribute()).AddUObject(this, &AZSWheeledVehiclePawn::OnGasTankChangedNative);
+		AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(AttributeSetVehicle->GetStopRearLightAttribute()).AddUObject(this, &AZSWheeledVehiclePawn::OnStopRearLightChangedNative);
 	}
 }
 
@@ -486,6 +507,43 @@ void AZSWheeledVehiclePawn::OnHealthEngineChangedNative(const FOnAttributeChange
 void AZSWheeledVehiclePawn::OnGasTankChangedNative(const FOnAttributeChangeData& NewData)
 {
 	OnGasTankChanged(NewData.OldValue, NewData.NewValue);
+}
+
+void AZSWheeledVehiclePawn::OnStopRearLightChangedNative(const FOnAttributeChangeData& NewData)
+{
+	OnStopRearLightChanged(NewData.OldValue, NewData.NewValue);
+	StopRearLight(NewData);
+}
+
+void AZSWheeledVehiclePawn::StopRearLight(const FOnAttributeChangeData& NewData)
+{
+	UE_LOG(LogTemp, Log, TEXT("<----> ******** Val  ******************"));
+	if(IsValid(GetMesh()))
+	{
+		TArray<USceneComponent *> MeshChildComponent;
+		GetMesh()->GetChildrenComponents(true, MeshChildComponent);
+		MeshChildComponent.Add(GetMesh());
+		for(USceneComponent * IterSceneComponent : MeshChildComponent)
+		{
+			UPrimitiveComponent * Iter = Cast<UPrimitiveComponent>(IterSceneComponent);
+			if(IsValid(Iter) )
+			{
+				const int32 Num = Iter->GetNumMaterials();
+				for(int32 I = 0; I < Num; I++)
+				{
+					UMaterialInstanceDynamic * MatDyn = Cast<UMaterialInstanceDynamic>(Iter->GetMaterial(I));
+					if(nullptr == MatDyn)
+					{
+						MatDyn = Iter->CreateAndSetMaterialInstanceDynamic(I);
+					}
+					if(MatDyn)
+					{
+						MatDyn->SetScalarParameterValue(VehicleStopLightParamName, NewData.NewValue);
+					}
+				}
+			}
+		}
+	}
 }
 
 void AZSWheeledVehiclePawn::InitializeAbility(TSubclassOf<UGameplayAbility> NewAbilityToGet, int32 AbilityLevel)

@@ -72,6 +72,8 @@ private:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess=true))
 	ECameraPositionType SelectedCameraPositionType = ECameraPositionType::DefaultCamera;
+
+	static FName VehicleStopLightParamName;
 		
 protected:
 	virtual void BeginPlay() override;
@@ -106,9 +108,15 @@ public:
 
 	UFUNCTION()
 	void HandbrakePressed();
+
+	UFUNCTION(Server, Reliable, WithValidation)
+	void Server_HandbrakePressed();
 	
 	UFUNCTION()
 	void HandbrakeReleased();
+
+	UFUNCTION(Server, Reliable, WithValidation)
+	void Server_HandbrakeReleased();
 
 	UFUNCTION()
 	void LookUp(float NewValue);
@@ -162,6 +170,12 @@ public:
 	
 	void OnGasTankChangedNative(const FOnAttributeChangeData & NewData);
 
+	void OnStopRearLightChangedNative(const FOnAttributeChangeData & NewData);
+	
+	UFUNCTION(BlueprintImplementableEvent, Category="VehicleBase")
+	void OnStopRearLightChanged(float  OldValue, float NewValue);
+	
+	void StopRearLight(const FOnAttributeChangeData& NewData);
 
 public:
 	
