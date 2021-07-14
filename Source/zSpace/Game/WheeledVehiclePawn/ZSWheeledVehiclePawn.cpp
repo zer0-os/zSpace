@@ -3,6 +3,7 @@
 
 #include "zSpace/Game/WheeledVehiclePawn/ZSWheeledVehiclePawn.h"
 
+#include "AbilitySystemBlueprintLibrary.h"
 #include "ChaosWheeledVehicleMovementComponent.h"
 #include "Blueprint/UserWidget.h"
 #include "Camera/CameraComponent.h"
@@ -12,15 +13,45 @@
 #include "Components/BoxComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "GameplayAbility/AttributeSet/ZSVehicleAttributeSet.h"
 #include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "MovementComponent/ZSVehicleMovementComponent.h"
 #include "VehicleWIdgetsDataAsset/VehicleWIdgetsDataAsset.h"
 #include "zSpace/Game/ZSpaceGameInstance.h"
 #include "zSpace/Game/ZSCameraComponent/ZSCameraComponent.h"
 #include "zSpace/ZSCharacterWithAbilities/ZSCharacterWithAbilities.h"
 
+FName AZSWheeledVehiclePawn::VehicleStopLightParamName = "EmissiveColorStopLights";
+
+FName AZSWheeledVehiclePawn::VehicleRearLightParamName = "EmissiveColorRearLights";
+
+void AZSWheeledVehiclePawn::Server_SetForwardInputValue_Implementation(const float& NewForwardInput)
+{
+	ForwardInput = NewForwardInput;	
+}
+
+bool AZSWheeledVehiclePawn::Server_SetForwardInputValue_Validate(const float& NewForwardInput)
+{
+	return !(NewForwardInput > 1 || NewForwardInput < -1);
+}
+
+void AZSWheeledVehiclePawn::SendForwardInputToServer(const float& NewForwardInput)
+{
+	if(NewForwardInput != ForwardInput)
+	{
+		ForwardInput = NewForwardInput;
+		Server_SetForwardInputValue(NewForwardInput);
+	}
+}
+
 AZSWheeledVehiclePawn::AZSWheeledVehiclePawn(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer.SetDefaultSubobjectClass<UZSVehicleMovementComponent>(AWheeledVehiclePawn::VehicleMovementComponentName))
 {
+
+	AbilitySystemComponent = CreateDefaultSubobject<UAbilitySystemComponent>(TEXT("AbilitySystemComponent"));
+	checkf(nullptr != AbilitySystemComponent, TEXT("The AbilitySystemComponent is nullptr."));
+	AbilitySystemComponent->SetIsReplicated(true);
+	AbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Mixed);
 
 	NetCullDistanceSquared = 999000000;
 	NetUpdateFrequency = 200;
@@ -131,6 +162,7 @@ AZSWheeledVehiclePawn::AZSWheeledVehiclePawn(const FObjectInitializer& ObjectIni
 	VehicleZoneBoxComponent->SetRelativeLocation(FVector(0,0,40));
 	VehicleZoneBoxComponent->OnComponentBeginOverlap.AddUniqueDynamic(this, &AZSWheeledVehiclePawn::ComponentBeginOverlapVehicleZoneBoxComponent);
 	VehicleZoneBoxComponent->OnComponentEndOverlap.AddUniqueDynamic(this, &AZSWheeledVehiclePawn::ComponentEndOverlapVehicleZoneBoxComponent);
+	SetAutonomousProxy(true);
 }
 
 void AZSWheeledVehiclePawn::SetZsCharacterWithAbilities(AZSCharacterWithAbilities* NewZSCharacterWithAbilities)
@@ -191,11 +223,18 @@ void AZSWheeledVehiclePawn::BeginPlay()
 	Super::BeginPlay();
 	// Start an engine sound playing
 	EngineSoundComponent->Play(); // TODO Need to set Engine Sound.
+	InitAttributes();
+	SetActorTickEnabled(false);
 }
 
 void AZSWheeledVehiclePawn::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
+	if(ROLE_Authority == GetLocalRole())
+	{
+		CheckVehicleStop();
+	}
+	
 }
 
 UZSVehicleMovementComponent * AZSWheeledVehiclePawn::GetZSVehicleMovementComponent() const
@@ -252,8 +291,14 @@ void AZSWheeledVehiclePawn::ComponentEndOverlapVehicleZoneBoxComponent(UPrimitiv
 	}
 }
 
+UAbilitySystemComponent* AZSWheeledVehiclePawn::GetAbilitySystemComponent() const
+{
+	return AbilitySystemComponent;
+}
+
 void AZSWheeledVehiclePawn::MoveForward(float NewValue)
 {
+	SendForwardInputToServer(NewValue);
 	UZSVehicleMovementComponent * L_VehicleMovementComponent = GetZSVehicleMovementComponent();
 	if(L_VehicleMovementComponent)
 	{
@@ -285,7 +330,19 @@ void AZSWheeledVehiclePawn::HandbrakePressed()
 	if(L_VehicleMovementComponent)
 	{
 		L_VehicleMovementComponent->SetHandbrakeInput(true);
+		Server_HandbrakePressed();
 	}
+}
+
+void AZSWheeledVehiclePawn::Server_HandbrakePressed_Implementation()
+{
+	const FGameplayTag EventTag = FGameplayTag::RequestGameplayTag(FName("Vehicle.StopLight"));
+	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(this, EventTag, FGameplayEventData());
+}
+
+bool AZSWheeledVehiclePawn::Server_HandbrakePressed_Validate()
+{
+	return true;
 }
 
 void AZSWheeledVehiclePawn::HandbrakeReleased()
@@ -294,7 +351,19 @@ void AZSWheeledVehiclePawn::HandbrakeReleased()
 	if(L_VehicleMovementComponent)
 	{
 		L_VehicleMovementComponent->SetHandbrakeInput(false);
+		Server_HandbrakeReleased();
 	}
+}
+
+void AZSWheeledVehiclePawn::Server_HandbrakeReleased_Implementation()
+{
+	const FGameplayTag EventTag = FGameplayTag::RequestGameplayTag(FName("Vehicle.NoStopLight"));
+	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(this, EventTag, FGameplayEventData());
+}
+
+bool AZSWheeledVehiclePawn::Server_HandbrakeReleased_Validate()
+{
+	return true;
 }
 
 void AZSWheeledVehiclePawn::LookUp(float NewValue)
@@ -419,4 +488,200 @@ void AZSWheeledVehiclePawn::VehicleBackCamera()
 	}
 	SetupDefaultCamera(SelectedCameraPositionType);
 }
+
+void AZSWheeledVehiclePawn::InitAttributes()
+{
+	if(IsValid(AbilitySystemComponent))
+	{
+		AttributeSetVehicle = AbilitySystemComponent->GetSet<UZSVehicleAttributeSet>();
+		checkf(nullptr != AttributeSetVehicle, TEXT("The AttributeSetVehicle is nullptr."));
+		AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(AttributeSetVehicle->GetHealthBodyAttribute()).AddUObject(this, &AZSWheeledVehiclePawn::OnHealthBodyChangedNative);
+		AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(AttributeSetVehicle->GetHealthEngineAttribute()).AddUObject(this, &AZSWheeledVehiclePawn::OnHealthEngineChangedNative);
+		AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(AttributeSetVehicle->GetGasTankAttribute()).AddUObject(this, &AZSWheeledVehiclePawn::OnGasTankChangedNative);
+		AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(AttributeSetVehicle->GetStopRearLightAttribute()).AddUObject(this, &AZSWheeledVehiclePawn::OnStopRearLightChangedNative);
+		AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(AttributeSetVehicle->GetRearLightAttribute()).AddUObject(this, &AZSWheeledVehiclePawn::OnRearLightChangedNative);
+	}
+}
+
+void AZSWheeledVehiclePawn::GetHealthBody(float& HealthBody, float& MaxHealth)
+{
+	checkf(nullptr != AttributeSetVehicle, TEXT("The VehicleAttributeSet is nullptr."));
+	HealthBody = AttributeSetVehicle->GetHealthBody();
+	MaxHealth = AttributeSetVehicle->GetMaxHealthBody();
+}
+
+void AZSWheeledVehiclePawn::GetHealthEngine(float& HealthEngine, float& MaxHealthEngine)
+{
+	checkf(nullptr != AttributeSetVehicle, TEXT("The VehicleAttributeSet is nullptr."));
+	HealthEngine = AttributeSetVehicle->GetHealthEngine();
+	MaxHealthEngine = AttributeSetVehicle->GetMaxHealthEngine();
+}
+
+void AZSWheeledVehiclePawn::GetGasTank(float& GasTank, float & MaxGasTank)
+{
+	checkf(nullptr != AttributeSetVehicle, TEXT("The VehicleAttributeSet is nullptr."));
+	GasTank = AttributeSetVehicle->GetGasTank();
+	MaxGasTank = AttributeSetVehicle->GetMaxGasTank();
+}
+
+void AZSWheeledVehiclePawn::OnHealthBodyChangedNative(const FOnAttributeChangeData& NewData)
+{
+	OnHealthBodyChanged(NewData.OldValue, NewData.NewValue);
+}
+
+void AZSWheeledVehiclePawn::OnHealthEngineChangedNative(const FOnAttributeChangeData& NewData)
+{
+	OnHealthEngineChanged(NewData.OldValue, NewData.NewValue);
+}
+
+void AZSWheeledVehiclePawn::OnGasTankChangedNative(const FOnAttributeChangeData& NewData)
+{
+	OnGasTankChanged(NewData.OldValue, NewData.NewValue);
+}
+
+void AZSWheeledVehiclePawn::OnStopRearLightChangedNative(const FOnAttributeChangeData& NewData)
+{
+	OnStopRearLightChanged(NewData.OldValue, NewData.NewValue);
+	StopRearLight(NewData);
+}
+
+void AZSWheeledVehiclePawn::OnRearLightChangedNative(const FOnAttributeChangeData& NewData)
+{
+	OnRearLightChanged(NewData.OldValue, NewData.NewValue);
+	RearLight(NewData);
+}
+
+void AZSWheeledVehiclePawn::StopRearLight(const FOnAttributeChangeData& NewData)
+{
+	if(IsValid(GetMesh()))
+	{
+		TArray<USceneComponent *> MeshChildComponent;
+		GetMesh()->GetChildrenComponents(true, MeshChildComponent);
+		MeshChildComponent.Add(GetMesh());
+		for(USceneComponent * IterSceneComponent : MeshChildComponent)
+		{
+			UPrimitiveComponent * Iter = Cast<UPrimitiveComponent>(IterSceneComponent);
+			if(IsValid(Iter) )
+			{
+				const int32 Num = Iter->GetNumMaterials();
+				for(int32 I = 0; I < Num; I++)
+				{
+					UMaterialInstanceDynamic * MatDyn = Cast<UMaterialInstanceDynamic>(Iter->GetMaterial(I));
+					if(nullptr == MatDyn)
+					{
+						MatDyn = Iter->CreateAndSetMaterialInstanceDynamic(I);
+					}
+					if(MatDyn)
+					{
+						MatDyn->SetScalarParameterValue(VehicleStopLightParamName, NewData.NewValue);
+					}
+				}
+			}
+		}
+	}
+}
+
+void AZSWheeledVehiclePawn::RearLight(const FOnAttributeChangeData& NewData)
+{
+	if(IsValid(GetMesh()))
+	{
+		TArray<USceneComponent *> MeshChildComponent;
+		GetMesh()->GetChildrenComponents(true, MeshChildComponent);
+		MeshChildComponent.Add(GetMesh());
+		for(USceneComponent * IterSceneComponent : MeshChildComponent)
+		{
+			UPrimitiveComponent * Iter = Cast<UPrimitiveComponent>(IterSceneComponent);
+			if(IsValid(Iter) )
+			{
+				const int32 Num = Iter->GetNumMaterials();
+				for(int32 I = 0; I < Num; I++)
+				{
+					UMaterialInstanceDynamic * MatDyn = Cast<UMaterialInstanceDynamic>(Iter->GetMaterial(I));
+					if(nullptr == MatDyn)
+					{
+						MatDyn = Iter->CreateAndSetMaterialInstanceDynamic(I);
+					}
+					if(MatDyn)
+					{
+						MatDyn->SetScalarParameterValue(VehicleRearLightParamName, NewData.NewValue);
+					}
+				}
+			}
+		}
+	}
+}
+
+void AZSWheeledVehiclePawn::InitializeAbility(TSubclassOf<UGameplayAbility> NewAbilityToGet, int32 AbilityLevel)
+{
+	if(IsValid(AbilitySystemComponent))
+	{
+		if(HasAuthority() && IsValid(NewAbilityToGet))
+		{
+			AbilitySystemComponent->GiveAbility(FGameplayAbilitySpec(NewAbilityToGet, AbilityLevel, 0));
+		}
+		AbilitySystemComponent->InitAbilityActorInfo(this, this);
+	}
+}
+
+void AZSWheeledVehiclePawn::CheckVehicleStop()
+{
+	if(ROLE_Authority == GetLocalRole())
+	{
+		static bool IsEnableStopRearLight = false;
+		static bool IsEnableRearLight = false;
+		const FVector Velocity = GetVelocity();
+		const FVector Forward = GetActorForwardVector();
+		const float Dot = UKismetMathLibrary::Dot_VectorVector(Forward, Velocity);
+		if((Dot > 0 && ForwardInput == -1) || (Dot < 0 && ForwardInput == 1)   )
+		{
+			if( false == IsEnableStopRearLight)
+			{
+				const FGameplayTag EventTag = FGameplayTag::RequestGameplayTag(FName("Vehicle.StopLight"));
+				UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(this, EventTag, FGameplayEventData());
+				IsEnableStopRearLight = true;
+			}
+		}
+		else 
+		{   if(IsEnableStopRearLight)
+			{
+				const FGameplayTag EventTag = FGameplayTag::RequestGameplayTag(FName("Vehicle.NoStopLight"));
+				UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(this, EventTag, FGameplayEventData());
+				IsEnableStopRearLight = false;
+			}
+		}
+		if(Dot < 0 && ForwardInput == -1)
+		{
+			if(false == IsEnableRearLight)
+			{
+				const FGameplayTag EventTag = FGameplayTag::RequestGameplayTag(FName("Vehicle.RearLight"));
+				UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(this, EventTag, FGameplayEventData());
+				IsEnableRearLight = true;
+			}
+		}
+		else
+		{
+			if(IsEnableRearLight)
+			{
+				const FGameplayTag EventTag = FGameplayTag::RequestGameplayTag(FName("Vehicle.NoRearLight"));
+				UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(this, EventTag, FGameplayEventData());
+				IsEnableRearLight = false;
+			}
+		}
+		//UE_LOG(LogTemp, Log, TEXT("Dot **************** %f, Input = %f ************** "), Dot, ForwardInput);
+	}
+}
+
+void AZSWheeledVehiclePawn::UnPossessed()
+{
+	Super::UnPossessed();
+	SetActorTickEnabled(false);
+}
+
+void AZSWheeledVehiclePawn::PossessedBy(AController* NewController)
+{
+	Super::PossessedBy(NewController);
+	SetActorTickEnabled(true);
+}
+
+
 

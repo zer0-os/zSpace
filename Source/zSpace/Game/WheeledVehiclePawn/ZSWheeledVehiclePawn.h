@@ -3,20 +3,28 @@
 #pragma once
 
 #include "CoreMinimal.h"
+
+#include "AbilitySystemInterface.h"
 #include "WheeledVehiclePawn.h"
 #include "zSpace/Game/ZSCameraComponent/ZSCameraComponent.h"
-
+#include "GameplayEffectTypes.h"
 #include "ZSWheeledVehiclePawn.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class ZSPACE_API AZSWheeledVehiclePawn : public AWheeledVehiclePawn
+class ZSPACE_API AZSWheeledVehiclePawn : public AWheeledVehiclePawn, public IAbilitySystemInterface
 {
 	GENERATED_BODY()
 
 public:
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Abilities", meta = (AllowPrivateAccess=true))	
+	class UAbilitySystemComponent * AbilitySystemComponent = nullptr;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category="CharacterBase")
+	const class UZSVehicleAttributeSet * AttributeSetVehicle = nullptr;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess=true))
 	class USpringArmComponent *  SpringArmComponent = nullptr;
@@ -38,6 +46,15 @@ public:
 
 	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess=true))
 	class AZSCharacterWithAbilities * 	ZSCharacterWithAbilities = nullptr;
+
+	// -1..0..1
+	UPROPERTY(Transient, BlueprintReadOnly, meta = (AllowPrivateAccess=true)) 
+	float ForwardInput;
+
+	UFUNCTION(Server, Reliable, WithValidation)
+	void Server_SetForwardInputValue(const float & NewForwardInput);
+
+	void SendForwardInputToServer(const float & NewForwardInput );
 	
 	AZSWheeledVehiclePawn(const FObjectInitializer& ObjectInitializer);
 
@@ -64,6 +81,10 @@ private:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess=true))
 	ECameraPositionType SelectedCameraPositionType = ECameraPositionType::DefaultCamera;
+
+	static FName VehicleStopLightParamName;
+	
+	static FName VehicleRearLightParamName;
 		
 protected:
 	virtual void BeginPlay() override;
@@ -85,6 +106,8 @@ public:
 	
 	UFUNCTION()
 	void  ComponentEndOverlapVehicleZoneBoxComponent(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+	
+	virtual UAbilitySystemComponent * GetAbilitySystemComponent() const override;
 
 public:
 
@@ -96,9 +119,15 @@ public:
 
 	UFUNCTION()
 	void HandbrakePressed();
+
+	UFUNCTION(Server, Reliable, WithValidation)
+	void Server_HandbrakePressed();
 	
 	UFUNCTION()
 	void HandbrakeReleased();
+
+	UFUNCTION(Server, Reliable, WithValidation)
+	void Server_HandbrakeReleased();
 
 	UFUNCTION()
 	void LookUp(float NewValue);
@@ -120,7 +149,61 @@ public:
 	void VehicleNextCamera();
 	
 	UFUNCTION(BlueprintCallable)
-	void VehicleBackCamera(); 
+	void VehicleBackCamera();
+
+	void InitAttributes();
+
+
+	// Attributes for HealthBody
+	UFUNCTION(BlueprintPure, Category="VehicleBase")
+	void GetHealthBody(float & HealthBody, float & MaxHealth);
 	
+	// Attributes for HealthBody
+	UFUNCTION(BlueprintPure, Category="VehicleBase")
+	void GetHealthEngine(float &HealthEngine, float & MaxHealthEngine );
+	
+	// Attributes for Gas Tank
+	UFUNCTION(BlueprintPure, Category="VehicleBase")
+	void GetGasTank(float & GasTank, float & MaxGasTank);
+
+	UFUNCTION(BlueprintImplementableEvent, Category="VehicleBase")
+	void OnHealthBodyChanged(float  OldValue, float  NewValue);
+	
+	UFUNCTION(BlueprintImplementableEvent, Category="VehicleBase")
+	void OnHealthEngineChanged(float OldValue, float NewValue );
+	
+	UFUNCTION(BlueprintImplementableEvent, Category="VehicleBase")
+	void OnGasTankChanged(float  OldValue, float NewValue);
+	
+	void OnHealthBodyChangedNative(const FOnAttributeChangeData & NewData);
+	
+	void OnHealthEngineChangedNative(const FOnAttributeChangeData & NewData );
+	
+	void OnGasTankChangedNative(const FOnAttributeChangeData & NewData);
+
+	void OnStopRearLightChangedNative(const FOnAttributeChangeData & NewData);
+	
+	UFUNCTION(BlueprintImplementableEvent, Category="VehicleBase")
+	void OnStopRearLightChanged(float  OldValue, float NewValue);
+	
+	void OnRearLightChangedNative(const FOnAttributeChangeData & NewData);
+	
+	UFUNCTION(BlueprintImplementableEvent, Category="VehicleBase")
+	void OnRearLightChanged(float  OldValue, float NewValue);
+	
+	void StopRearLight(const FOnAttributeChangeData& NewData);
+	
+	void RearLight(const FOnAttributeChangeData& NewData);
+
+public:
+	
+	UFUNCTION(BlueprintCallable)
+	void InitializeAbility(TSubclassOf<class UGameplayAbility> NewAbilityToGet, int32 AbilityLevel);
+
+	void CheckVehicleStop();
+
+	virtual void UnPossessed() override;
+	
+	virtual void PossessedBy(AController* NewController) override;
 };
 
