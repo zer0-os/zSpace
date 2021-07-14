@@ -46,6 +46,15 @@ public:
 
 	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess=true))
 	class AZSCharacterWithAbilities * 	ZSCharacterWithAbilities = nullptr;
+
+	// -1..0..1
+	UPROPERTY(Transient, BlueprintReadOnly, meta = (AllowPrivateAccess=true)) 
+	float ForwardInput;
+
+	UFUNCTION(Server, Reliable, WithValidation)
+	void Server_SetForwardInputValue(const float & NewForwardInput);
+
+	void SendForwardInputToServer(const float & NewForwardInput );
 	
 	AZSWheeledVehiclePawn(const FObjectInitializer& ObjectInitializer);
 
@@ -74,6 +83,8 @@ private:
 	ECameraPositionType SelectedCameraPositionType = ECameraPositionType::DefaultCamera;
 
 	static FName VehicleStopLightParamName;
+	
+	static FName VehicleRearLightParamName;
 		
 protected:
 	virtual void BeginPlay() override;
@@ -175,15 +186,24 @@ public:
 	UFUNCTION(BlueprintImplementableEvent, Category="VehicleBase")
 	void OnStopRearLightChanged(float  OldValue, float NewValue);
 	
+	void OnRearLightChangedNative(const FOnAttributeChangeData & NewData);
+	
+	UFUNCTION(BlueprintImplementableEvent, Category="VehicleBase")
+	void OnRearLightChanged(float  OldValue, float NewValue);
+	
 	void StopRearLight(const FOnAttributeChangeData& NewData);
+	
+	void RearLight(const FOnAttributeChangeData& NewData);
 
 public:
 	
 	UFUNCTION(BlueprintCallable)
 	void InitializeAbility(TSubclassOf<class UGameplayAbility> NewAbilityToGet, int32 AbilityLevel);
 
-	UFUNCTION(NetMulticast, Reliable)
-	void EnableRearStopLight();
+	void CheckVehicleStop();
+
+	virtual void UnPossessed() override;
 	
+	virtual void PossessedBy(AController* NewController) override;
 };
 

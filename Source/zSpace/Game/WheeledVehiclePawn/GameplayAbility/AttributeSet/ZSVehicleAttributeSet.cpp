@@ -52,6 +52,16 @@ void UZSVehicleAttributeSet::OnRep_MaxStopRearLight(const FGameplayAttributeData
 }
 
 
+void UZSVehicleAttributeSet::OnRep_RearLight(const FGameplayAttributeData& OldRearLight)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UZSVehicleAttributeSet, RearLight, OldRearLight);
+}
+
+void UZSVehicleAttributeSet::OnRep_MaxRearLight(const FGameplayAttributeData& OldMaxRearLight)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UZSVehicleAttributeSet, MaxRearLight, OldMaxRearLight);
+}
+
 void UZSVehicleAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallbackData& NewData)
 {
 	Super::PostGameplayEffectExecute(NewData);
@@ -68,6 +78,14 @@ void UZSVehicleAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModC
 	{
 		SetMaxGasTank(FMath::Clamp<float>(GetGasTank(), 0.0, GetMaxGasTank()));
 	}
+	if(NewData.EvaluatedData.Attribute == GetStopRearLightAttribute())
+	{
+		SetMaxStopRearLight(FMath::Clamp<float>(GetStopRearLight(), 0.0, GetMaxStopRearLight()));
+	}
+	if(NewData.EvaluatedData.Attribute == GetRearLightAttribute())
+	{
+		SetMaxStopRearLight(FMath::Clamp<float>(GetRearLight(), 0.0, GetMaxRearLight()));
+	}
 }
 
 void UZSVehicleAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -81,4 +99,6 @@ void UZSVehicleAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty
 	DOREPLIFETIME_CONDITION_NOTIFY(UZSVehicleAttributeSet, MaxGasTank, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UZSVehicleAttributeSet, StopRearLight, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UZSVehicleAttributeSet, MaxStopRearLight, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UZSVehicleAttributeSet, RearLight, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UZSVehicleAttributeSet, MaxRearLight, COND_None, REPNOTIFY_Always);
 }
