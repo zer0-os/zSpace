@@ -21,29 +21,14 @@
 #include "zSpace/Game/ZSpaceGameInstance.h"
 #include "zSpace/Game/ZSCameraComponent/ZSCameraComponent.h"
 #include "zSpace/ZSCharacterWithAbilities/ZSCharacterWithAbilities.h"
+#include "Components/SpotLightComponent.h"
 
 FName AZSWheeledVehiclePawn::VehicleStopLightParamName = "EmissiveColorStopLights";
 
 FName AZSWheeledVehiclePawn::VehicleRearLightParamName = "EmissiveColorRearLights";
 
-void AZSWheeledVehiclePawn::Server_SetForwardInputValue_Implementation(const float& NewForwardInput)
-{
-	ForwardInput = NewForwardInput;	
-}
+FName AZSWheeledVehiclePawn::VehicleFrontAndRearLightsParamName = "EmissiveColorFrontAndRearLights";
 
-bool AZSWheeledVehiclePawn::Server_SetForwardInputValue_Validate(const float& NewForwardInput)
-{
-	return !(NewForwardInput > 1 || NewForwardInput < -1);
-}
-
-void AZSWheeledVehiclePawn::SendForwardInputToServer(const float& NewForwardInput)
-{
-	if(NewForwardInput != ForwardInput)
-	{
-		ForwardInput = NewForwardInput;
-		Server_SetForwardInputValue(NewForwardInput);
-	}
-}
 
 AZSWheeledVehiclePawn::AZSWheeledVehiclePawn(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer.SetDefaultSubobjectClass<UZSVehicleMovementComponent>(AWheeledVehiclePawn::VehicleMovementComponentName))
 {
@@ -162,7 +147,35 @@ AZSWheeledVehiclePawn::AZSWheeledVehiclePawn(const FObjectInitializer& ObjectIni
 	VehicleZoneBoxComponent->SetRelativeLocation(FVector(0,0,40));
 	VehicleZoneBoxComponent->OnComponentBeginOverlap.AddUniqueDynamic(this, &AZSWheeledVehiclePawn::ComponentBeginOverlapVehicleZoneBoxComponent);
 	VehicleZoneBoxComponent->OnComponentEndOverlap.AddUniqueDynamic(this, &AZSWheeledVehiclePawn::ComponentEndOverlapVehicleZoneBoxComponent);
+
+	SpotLightComponentFrontLeftLight = CreateDefaultSubobject<USpotLightComponent>(TEXT("SpotLightComponentFrontLeftLight"));
+	checkf(nullptr != SpotLightComponentFrontLeftLight, TEXT("The SpotLightComponentFrontLeftLight is nullptr."));
+	SpotLightComponentFrontLeftLight->SetupAttachment(RootComponent);
+
+	SpotLightComponentFrontRightLight = CreateDefaultSubobject<USpotLightComponent>(TEXT("SpotLightComponentFrontRightLight"));
+	checkf(nullptr != SpotLightComponentFrontRightLight, TEXT("The SpotLightComponentFrontRightLight is nullptr."));
+	SpotLightComponentFrontRightLight->SetupAttachment(RootComponent);
+	
 	SetAutonomousProxy(true);
+}
+
+void AZSWheeledVehiclePawn::Server_SetForwardInputValue_Implementation(const float& NewForwardInput)
+{
+	ForwardInput = NewForwardInput;	
+}
+
+bool AZSWheeledVehiclePawn::Server_SetForwardInputValue_Validate(const float& NewForwardInput)
+{
+	return !(NewForwardInput > 1 || NewForwardInput < -1);
+}
+
+void AZSWheeledVehiclePawn::SendForwardInputToServer(const float& NewForwardInput)
+{
+	if(NewForwardInput != ForwardInput)
+	{
+		ForwardInput = NewForwardInput;
+		Server_SetForwardInputValue(NewForwardInput);
+	}
 }
 
 void AZSWheeledVehiclePawn::SetZsCharacterWithAbilities(AZSCharacterWithAbilities* NewZSCharacterWithAbilities)
@@ -225,6 +238,7 @@ void AZSWheeledVehiclePawn::BeginPlay()
 	EngineSoundComponent->Play(); // TODO Need to set Engine Sound.
 	InitAttributes();
 	SetActorTickEnabled(false);
+	OnFrontLights(false);
 }
 
 void AZSWheeledVehiclePawn::Tick(float DeltaSeconds)
@@ -255,6 +269,7 @@ void AZSWheeledVehiclePawn::SetupPlayerInputComponent(UInputComponent* PlayerInp
 		PlayerInputComponent->BindAxis(TEXT("VehicleLookUp"),this, &AZSWheeledVehiclePawn::LookUp);
 		PlayerInputComponent->BindAxis(TEXT("LookRight"),this, &AZSWheeledVehiclePawn::LookRight);
 		PlayerInputComponent->BindAction(TEXT("LeaveVehicle"), EInputEvent::IE_Pressed, this, &AZSWheeledVehiclePawn::LeaveVehicle);
+		PlayerInputComponent->BindAction(TEXT("EnableFrontLight"), EInputEvent::IE_Pressed, this, &AZSWheeledVehiclePawn::EnableFrontLight);
 		
 		PlayerInputComponent->BindAction(TEXT("VehicleNextCamera"), EInputEvent::IE_Pressed, this, &AZSWheeledVehiclePawn::VehicleNextCamera);
 		PlayerInputComponent->BindAction(TEXT("VehicleBackCamera"), EInputEvent::IE_Pressed, this, &AZSWheeledVehiclePawn::VehicleBackCamera);
@@ -500,6 +515,7 @@ void AZSWheeledVehiclePawn::InitAttributes()
 		AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(AttributeSetVehicle->GetGasTankAttribute()).AddUObject(this, &AZSWheeledVehiclePawn::OnGasTankChangedNative);
 		AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(AttributeSetVehicle->GetStopRearLightAttribute()).AddUObject(this, &AZSWheeledVehiclePawn::OnStopRearLightChangedNative);
 		AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(AttributeSetVehicle->GetRearLightAttribute()).AddUObject(this, &AZSWheeledVehiclePawn::OnRearLightChangedNative);
+		AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(AttributeSetVehicle->GetFrontAndRearLightAttribute()).AddUObject(this, &AZSWheeledVehiclePawn::OnFrontAndRearLightChangedNative);
 	}
 }
 
@@ -549,6 +565,14 @@ void AZSWheeledVehiclePawn::OnRearLightChangedNative(const FOnAttributeChangeDat
 {
 	OnRearLightChanged(NewData.OldValue, NewData.NewValue);
 	RearLight(NewData);
+}
+
+void AZSWheeledVehiclePawn::OnFrontAndRearLightChangedNative(const FOnAttributeChangeData& NewData)
+{
+	OnFrontAndRearLightChanged(NewData.OldValue, NewData.NewValue);
+	FrontRearLights(NewData);
+	const bool bIsEnable = NewData.NewValue != 0 ? true : false;
+	OnFrontLights(bIsEnable);
 }
 
 void AZSWheeledVehiclePawn::StopRearLight(const FOnAttributeChangeData& NewData)
@@ -610,6 +634,37 @@ void AZSWheeledVehiclePawn::RearLight(const FOnAttributeChangeData& NewData)
 		}
 	}
 }
+
+void AZSWheeledVehiclePawn::FrontRearLights(const FOnAttributeChangeData& NewData)
+{
+	if(IsValid(GetMesh()))
+	{
+		TArray<USceneComponent *> MeshChildComponent;
+		GetMesh()->GetChildrenComponents(true, MeshChildComponent);
+		MeshChildComponent.Add(GetMesh());
+		for(USceneComponent * IterSceneComponent : MeshChildComponent)
+		{
+			UPrimitiveComponent * Iter = Cast<UPrimitiveComponent>(IterSceneComponent);
+			if(IsValid(Iter) )
+			{
+				const int32 Num = Iter->GetNumMaterials();
+				for(int32 I = 0; I < Num; I++)
+				{
+					UMaterialInstanceDynamic * MatDyn = Cast<UMaterialInstanceDynamic>(Iter->GetMaterial(I));
+					if(nullptr == MatDyn)
+					{
+						MatDyn = Iter->CreateAndSetMaterialInstanceDynamic(I);
+					}
+					if(MatDyn)
+					{
+						MatDyn->SetScalarParameterValue(VehicleFrontAndRearLightsParamName, NewData.NewValue);
+					}
+				}
+			}
+		}
+	}
+}
+
 
 void AZSWheeledVehiclePawn::InitializeAbility(TSubclassOf<UGameplayAbility> NewAbilityToGet, int32 AbilityLevel)
 {
@@ -683,5 +738,55 @@ void AZSWheeledVehiclePawn::PossessedBy(AController* NewController)
 	SetActorTickEnabled(true);
 }
 
+
+
+void AZSWheeledVehiclePawn::OnFrontLights(const bool & IsEnableLights)
+{
+	if(ROLE_Authority != GetLocalRole())
+	{
+		checkf(nullptr != SpotLightComponentFrontLeftLight,  TEXT("The SpotLightComponentFrontLeftLight is nullptr."));
+		checkf(nullptr != SpotLightComponentFrontRightLight, TEXT("The SpotLightComponentFrontRightLight is nullptr."));
+		if(IsValid(SpotLightComponentFrontLeftLight))
+		{
+			SpotLightComponentFrontLeftLight->SetVisibility(IsEnableLights);
+		}
+		if(IsValid(SpotLightComponentFrontRightLight))
+		{
+			SpotLightComponentFrontRightLight->SetVisibility(IsEnableLights);	
+		}
+	}
+}
+
+
+void AZSWheeledVehiclePawn::EnableFrontLight()
+{
+	//UE_LOG(LogTemp, Log, TEXT("******************** The EnableFrontLight *******************"));
+	Server_EnableFrontLight();
+	
+}
+
+void AZSWheeledVehiclePawn::Server_EnableFrontLight_Implementation()
+{
+	static bool bIsEnable = false;
+	if(!bIsEnable)
+	{
+		const FGameplayTag EventTag = FGameplayTag::RequestGameplayTag(FName("Vehicle.EnableFrontAndRearLight"));
+		UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(this, EventTag, FGameplayEventData());
+		//UE_LOG(LogTemp, Log, TEXT("************* Enable front and Rear Light Server ******************************"));
+		bIsEnable = true;
+	}
+	else
+	{
+		const FGameplayTag EventTag = FGameplayTag::RequestGameplayTag(FName("Vehicle.DisableFrontAndRearLight"));
+		UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(this, EventTag, FGameplayEventData());
+		//UE_LOG(LogTemp, Log, TEXT("************* Disable front And Rear Light Server ******************************"));
+		bIsEnable = false;
+	}
+}
+
+bool AZSWheeledVehiclePawn::Server_EnableFrontLight_Validate()
+{
+	return true;
+}
 
 

@@ -51,6 +51,12 @@ public:
 	UPROPERTY(Transient, BlueprintReadOnly, meta = (AllowPrivateAccess=true)) 
 	float ForwardInput;
 
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess=true))
+	class USpotLightComponent * SpotLightComponentFrontLeftLight = nullptr;
+	
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess=true))
+	class USpotLightComponent * SpotLightComponentFrontRightLight = nullptr;
+
 	UFUNCTION(Server, Reliable, WithValidation)
 	void Server_SetForwardInputValue(const float & NewForwardInput);
 
@@ -85,6 +91,8 @@ private:
 	static FName VehicleStopLightParamName;
 	
 	static FName VehicleRearLightParamName;
+
+	static FName VehicleFrontAndRearLightsParamName;
 		
 protected:
 	virtual void BeginPlay() override;
@@ -190,10 +198,22 @@ public:
 	
 	UFUNCTION(BlueprintImplementableEvent, Category="VehicleBase")
 	void OnRearLightChanged(float  OldValue, float NewValue);
+
+	void OnFrontAndRearLightChangedNative(const FOnAttributeChangeData & NewData);
+	
+	UFUNCTION(BlueprintImplementableEvent, Category="VehicleBase")
+	void OnFrontAndRearLightChanged(float  OldValue, float NewValue);
 	
 	void StopRearLight(const FOnAttributeChangeData& NewData);
 	
 	void RearLight(const FOnAttributeChangeData& NewData);
+
+	void FrontRearLights(const FOnAttributeChangeData& NewData);	
+
+	void EnableFrontLight();
+
+	UFUNCTION(Server, Reliable, WithValidation)	
+	void Server_EnableFrontLight();
 
 public:
 	
@@ -205,5 +225,7 @@ public:
 	virtual void UnPossessed() override;
 	
 	virtual void PossessedBy(AController* NewController) override;
+
+	void OnFrontLights(const  bool & IsEnableLights);
 };
 
