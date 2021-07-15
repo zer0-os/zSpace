@@ -99,6 +99,19 @@ public:
 	UFUNCTION()
 	void OnRep_MaxRearLight(const FGameplayAttributeData & OldMaxRearLight);
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, ReplicatedUsing=OnRep_FrontAndRearLight, Category="BaseAttributes")
+	FGameplayAttributeData FrontAndRearLight;
+	ATTRIBUTE_ACCESSORS(UZSVehicleAttributeSet, FrontAndRearLight);
+	
+	UFUNCTION()
+	void OnRep_FrontAndRearLight(const FGameplayAttributeData & OldFrontAndRearLight);
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, ReplicatedUsing=OnRep_MaxFrontAndRearLight, Category="BaseAttributes")
+	FGameplayAttributeData MaxFrontAndRearLight;
+	ATTRIBUTE_ACCESSORS(UZSVehicleAttributeSet, MaxFrontAndRearLight);
+	
+	UFUNCTION()
+	void OnRep_MaxFrontAndRearLight(const FGameplayAttributeData & OldMaxFrontAndRearLight);
 		
 
 	virtual void PostGameplayEffectExecute(const FGameplayEffectModCallbackData& NewData) override;
