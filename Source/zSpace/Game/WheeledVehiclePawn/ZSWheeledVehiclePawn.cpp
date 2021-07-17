@@ -336,8 +336,34 @@ void AZSWheeledVehiclePawn::MoveRight(float NewValue)
 	if(L_VehicleMovementComponent)
 	{
 		L_VehicleMovementComponent->SetSteeringInput(NewValue);
+		SendMoveRightValue(NewValue);
 	}
 }
+
+void AZSWheeledVehiclePawn::SendMoveRightValue(float NewValue)
+{
+	if(SteeringInput != NewValue)
+	{
+		SteeringInput = NewValue;
+		Server_SendMoveRightValue(NewValue);
+	}
+}
+
+void AZSWheeledVehiclePawn::Server_SendMoveRightValue_Implementation(const float & NewValue)
+{
+	SteeringInput = NewValue;
+	USteeringWheelStaticMeshComponent * SteeringWheelStaticMeshComponent = GetSteeringWheelStaticMeshComponent();
+	if(IsValid(SteeringWheelStaticMeshComponent))
+	{
+		SteeringWheelStaticMeshComponent->SetTarget(NewValue);
+	}
+}
+
+bool AZSWheeledVehiclePawn::Server_SendMoveRightValue_Validate(const float & NewValue)
+{
+	return !(NewValue > 1 && NewValue < -1);
+}
+
 
 void AZSWheeledVehiclePawn::HandbrakePressed()
 {
@@ -758,6 +784,7 @@ void AZSWheeledVehiclePawn::OnFrontLights(const bool & IsEnableLights)
 }
 
 
+
 void AZSWheeledVehiclePawn::EnableFrontLight()
 {
 	//UE_LOG(LogTemp, Log, TEXT("******************** The EnableFrontLight *******************"));
@@ -790,3 +817,8 @@ bool AZSWheeledVehiclePawn::Server_EnableFrontLight_Validate()
 }
 
 
+USteeringWheelStaticMeshComponent * AZSWheeledVehiclePawn::GetSteeringWheelStaticMeshComponent()
+{
+	USteeringWheelStaticMeshComponent * SteeringWheelStaticMeshComponent = Cast<USteeringWheelStaticMeshComponent>(GetComponentByClass(USteeringWheelStaticMeshComponent::StaticClass()));
+	return SteeringWheelStaticMeshComponent; 
+}
