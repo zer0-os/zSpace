@@ -6,8 +6,8 @@
 #include "OWSCharacterWithAbilities.h"
 #include "AnimInstances/ZSAnimationTypes.h"
 #include "AnimInstances/ZSAnimInstance.h"
-
 #include "ZSCharacterWithAbilities.generated.h"
+
 
 /**
  * 
@@ -48,7 +48,7 @@ private:
 	class USpringArmComponent * SpringArmComponent = nullptr; 
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, meta = (AllowPrivateAccess=true))
-	class UCameraComponent * CameraComponent =  nullptr;
+	class UCameraComponent * CameraComponentDefault =  nullptr;
 	
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, meta = (AllowPrivateAccess=true))
 	class UCameraComponent * CameraComponentVR =  nullptr;
@@ -273,6 +273,11 @@ private:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta=(AllowPrivateAccess=true))
 	class UBallisticLineComponent * BallisticLineComponentRight = nullptr;
+	
+private:
+
+	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess=true))
+	TEnumAsByte<ECollisionEnabled::Type> LastCollisionEnabled;
 		
 public:
 
@@ -290,6 +295,23 @@ public:
 	
 	UFUNCTION()
 	void HoveredWidgetChanged(class UWidgetComponent* NewWidgetComponent, class UWidgetComponent* NewPreviousWidgetComponent);
+
+	UFUNCTION(Server, Reliable, WithValidation)
+	void EnterVehicle();
+
+	UFUNCTION(BlueprintCallable)
+	void AttachToVehicle(class AZSWheeledVehiclePawn * NewVehicle);
+
+	UFUNCTION(Client, Reliable)
+	void Client_AttachToVehicle(class AZSWheeledVehiclePawn * NewVehicle);
+
+	UFUNCTION(BlueprintCallable)
+	void DetachFromVehicle(class AZSWheeledVehiclePawn * NewVehicle);
 	
+	UFUNCTION(Client, Reliable)
+	void Client_DetachFromVehicle();
+
+	UFUNCTION(BlueprintCallable)
+	FVector GetPossibleLeaveCarLocation(class AZSWheeledVehiclePawn * NewVehicle, bool & NewStatus);
 };
 

@@ -9,6 +9,8 @@ public class zSpaceServerTarget : TargetRules
     {
         Type = TargetType.Server;
         ExtraModuleNames.AddRange(new string[] { "zSpace" });
+        //bCompileChaos = true;
+        //bUseChaos = true;
         DefaultBuildSettings = BuildSettingsVersion.V2;
     }
 }
