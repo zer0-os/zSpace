@@ -20,7 +20,7 @@ void USteeringWheelStaticMeshComponent::CalculateRotation(float DeltaTime)
 	if(ROLE_Authority == GetOwnerRole())
 	{
 		Current = FMath::FInterpTo(Current, Target, DeltaTime, InterpSpeed);
-		UE_LOG(LogTemp, Log, TEXT("*************** Current = %f ***************"), Current);
+		//UE_LOG(LogTemp, Log, TEXT("*************** Current = %f ***************"), Current);
 		FRotator Rotator(0);
 		if(ESteeringWheelRotationAxis::Pitch == RotationAxisWheel)
 		{
