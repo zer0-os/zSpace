@@ -8,6 +8,8 @@
 #include "WheeledVehiclePawn.h"
 #include "zSpace/Game/ZSCameraComponent/ZSCameraComponent.h"
 #include "GameplayEffectTypes.h"
+#include "Accessories/SteeringWheelStaticMeshComponent/SteeringWheelStaticMeshComponent.h"
+
 #include "ZSWheeledVehiclePawn.generated.h"
 
 /**
@@ -50,6 +52,12 @@ public:
 	// -1..0..1
 	UPROPERTY(Transient, BlueprintReadOnly, meta = (AllowPrivateAccess=true)) 
 	float ForwardInput;
+	
+	// -1..0..1
+	UPROPERTY(Transient, BlueprintReadOnly, meta = (AllowPrivateAccess=true)) 
+	float SteeringInput;
+
+	
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess=true))
 	class USpotLightComponent * SpotLightComponentFrontLeftLight = nullptr;
@@ -125,6 +133,11 @@ public:
 	UFUNCTION()
 	void MoveRight(float NewValue);
 
+	void SendMoveRightValue(float NewValue);
+
+	UFUNCTION(Server, Reliable, WithValidation)
+	void Server_SendMoveRightValue(const float & NewValue);
+	
 	UFUNCTION()
 	void HandbrakePressed();
 
@@ -227,5 +240,9 @@ public:
 	virtual void PossessedBy(AController* NewController) override;
 
 	void OnFrontLights(const  bool & IsEnableLights);
+
+
+	class USteeringWheelStaticMeshComponent * GetSteeringWheelStaticMeshComponent();
+
 };
 
