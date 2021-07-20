@@ -255,3 +255,27 @@ void AZSGamePlayerController::CallOnNotifyGetAllUserCharacters(const TArray<FUse
 {
 	OnNotifyGetAllUserCharacters.Broadcast(NewUserCharacter);
 }
+
+void AZSGamePlayerController::OnPossess(APawn* aPawn)
+{
+	Super::OnPossess(aPawn);
+	OnPossesDelegate.Broadcast(aPawn);
+	Client_OnPosses(aPawn);
+}
+
+void AZSGamePlayerController::OnUnPossess()
+{
+	Super::OnUnPossess();
+	OnUnPossessDelegate.Broadcast();
+}
+
+
+
+void AZSGamePlayerController::Client_OnPosses_Implementation(APawn* NewPawn)
+{
+	OnPossesDelegate.Broadcast(NewPawn);
+}
+void AZSGamePlayerController::Client_OnUnPosses_Implementation()
+{
+	OnUnPossessDelegate.Broadcast();
+}

@@ -22,6 +22,7 @@
 #include "zSpace/Game/ZSCameraComponent/ZSCameraComponent.h"
 #include "zSpace/ZSCharacterWithAbilities/ZSCharacterWithAbilities.h"
 #include "Components/SpotLightComponent.h"
+#include "Components/WidgetComponent.h"
 
 FName AZSWheeledVehiclePawn::VehicleStopLightParamName = "EmissiveColorStopLights";
 
@@ -67,10 +68,22 @@ AZSWheeledVehiclePawn::AZSWheeledVehiclePawn(const FObjectInitializer& ObjectIni
 	CameraComponentDefault->bUsePawnControlRotation = false;
 	CameraComponentDefault->FieldOfView = 90.f;
 	CameraComponentDefault->SetCameraPositionType(ECameraPositionType::DefaultCamera);
+	
+	SpringArmComponentInSide = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArmComponentInSide"));
+	checkf(nullptr != SpringArmComponentInSide, TEXT("The SpringArmComponentInSide is nullptr."));
+	SpringArmComponentInSide->SetRelativeLocation(FVector(0.0f, 0.0f, 34.0f));
+	SpringArmComponentInSide->SetWorldRotation(FRotator(-20.0f, 0.0f, 0.0f));
+	SpringArmComponentInSide->SetupAttachment(RootComponent);
+	SpringArmComponentInSide->TargetArmLength = 0;
+	SpringArmComponentInSide->bEnableCameraLag = false;
+	SpringArmComponentInSide->bEnableCameraRotationLag = false;
+	SpringArmComponentInSide->bInheritPitch = true;
+	SpringArmComponentInSide->bInheritYaw = true;
+	SpringArmComponentInSide->bInheritRoll = true;
 
 	CameraComponentInSide = CreateDefaultSubobject<UZSCameraComponent>(TEXT("CameraComponentInSide"));
 	checkf(nullptr != CameraComponentInSide, TEXT("The CameraComponentInSide is nullptr."));
-	CameraComponentInSide->SetupAttachment(GetMesh());
+	CameraComponentInSide->SetupAttachment(SpringArmComponentInSide);
 	CameraComponentInSide->FieldOfView = 90.f;
 	CameraComponentInSide->SetCameraPositionType(ECameraPositionType::CameraInSide);
 	
@@ -155,6 +168,10 @@ AZSWheeledVehiclePawn::AZSWheeledVehiclePawn(const FObjectInitializer& ObjectIni
 	SpotLightComponentFrontRightLight = CreateDefaultSubobject<USpotLightComponent>(TEXT("SpotLightComponentFrontRightLight"));
 	checkf(nullptr != SpotLightComponentFrontRightLight, TEXT("The SpotLightComponentFrontRightLight is nullptr."));
 	SpotLightComponentFrontRightLight->SetupAttachment(RootComponent);
+	
+	Speedometer3D = CreateDefaultSubobject<UWidgetComponent>(TEXT("Speedometer3D"));
+	Speedometer3D->SetupAttachment(RootComponent);
+	Speedometer3D->SetVisibility(true);
 	
 	SetAutonomousProxy(true);
 }
@@ -611,6 +628,10 @@ void AZSWheeledVehiclePawn::StopRearLight(const FOnAttributeChangeData& NewData)
 		for(USceneComponent * IterSceneComponent : MeshChildComponent)
 		{
 			UPrimitiveComponent * Iter = Cast<UPrimitiveComponent>(IterSceneComponent);
+			if(SkipComponent(Iter))
+			{
+				continue;
+			}
 			if(IsValid(Iter) )
 			{
 				const int32 Num = Iter->GetNumMaterials();
@@ -641,6 +662,10 @@ void AZSWheeledVehiclePawn::RearLight(const FOnAttributeChangeData& NewData)
 		for(USceneComponent * IterSceneComponent : MeshChildComponent)
 		{
 			UPrimitiveComponent * Iter = Cast<UPrimitiveComponent>(IterSceneComponent);
+			if(SkipComponent(Iter))
+			{
+				continue;
+			}
 			if(IsValid(Iter) )
 			{
 				const int32 Num = Iter->GetNumMaterials();
@@ -671,6 +696,10 @@ void AZSWheeledVehiclePawn::FrontRearLights(const FOnAttributeChangeData& NewDat
 		for(USceneComponent * IterSceneComponent : MeshChildComponent)
 		{
 			UPrimitiveComponent * Iter = Cast<UPrimitiveComponent>(IterSceneComponent);
+			if(SkipComponent(Iter))
+			{
+				continue;
+			}
 			if(IsValid(Iter) )
 			{
 				const int32 Num = Iter->GetNumMaterials();
@@ -822,3 +851,21 @@ USteeringWheelStaticMeshComponent * AZSWheeledVehiclePawn::GetSteeringWheelStati
 	USteeringWheelStaticMeshComponent * SteeringWheelStaticMeshComponent = Cast<USteeringWheelStaticMeshComponent>(GetComponentByClass(USteeringWheelStaticMeshComponent::StaticClass()));
 	return SteeringWheelStaticMeshComponent; 
 }
+
+bool AZSWheeledVehiclePawn::SkipComponent(UPrimitiveComponent* NewComponent)
+{
+	if(Speedometer3D == NewComponent)
+	{
+		return true;
+	}
+	if(Cast<UStaticMeshComponent>(NewComponent) ) 
+	{
+		return false;		
+	}
+	if(Cast<USkeletalMeshComponent>(NewComponent))
+	{
+		return false;
+	}
+	return true;
+}
+

@@ -101,5 +101,29 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void CallOnNotifyGetAllUserCharacters(const TArray<struct FUserCharacter> & NewUserCharacter);
+
+protected:
+
 	
+	virtual void OnPossess(APawn* aPawn) override;
+	
+	virtual void OnUnPossess() override;
+	
+public:
+	
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPossesDelegate, class APawn *, NewPawn);
+
+	UPROPERTY(BlueprintAssignable)
+	FOnPossesDelegate OnPossesDelegate;
+	
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnUnPossessDelegate);
+
+	UPROPERTY(BlueprintAssignable)
+	FOnUnPossessDelegate OnUnPossessDelegate;
+
+	UFUNCTION(Client, Reliable)
+	void Client_OnPosses(class APawn * NewPawn);
+
+	UFUNCTION(Client, Reliable)
+	void Client_OnUnPosses();
 };

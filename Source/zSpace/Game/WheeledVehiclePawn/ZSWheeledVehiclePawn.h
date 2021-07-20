@@ -35,6 +35,9 @@ public:
 	class UZSCameraComponent * CameraComponentDefault = nullptr;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess=true))
+	class USpringArmComponent *  SpringArmComponentInSide = nullptr;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess=true))
 	class UZSCameraComponent * CameraComponentInSide = nullptr;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess=true))
@@ -48,6 +51,10 @@ public:
 
 	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess=true))
 	class AZSCharacterWithAbilities * 	ZSCharacterWithAbilities = nullptr;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = true))
+	class UWidgetComponent * Speedometer3D = nullptr;
+	
 
 	// -1..0..1
 	UPROPERTY(Transient, BlueprintReadOnly, meta = (AllowPrivateAccess=true)) 
@@ -241,8 +248,8 @@ public:
 
 	void OnFrontLights(const  bool & IsEnableLights);
 
-
 	class USteeringWheelStaticMeshComponent * GetSteeringWheelStaticMeshComponent();
 
+	bool SkipComponent(UPrimitiveComponent * NewComponent);
 };
 
