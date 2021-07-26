@@ -9,7 +9,6 @@
 #include "zSpace/Game/ZSCameraComponent/ZSCameraComponent.h"
 #include "GameplayEffectTypes.h"
 #include "Accessories/SteeringWheelStaticMeshComponent/SteeringWheelStaticMeshComponent.h"
-
 #include "ZSWheeledVehiclePawn.generated.h"
 
 /**
@@ -29,13 +28,13 @@ public:
 	const class UZSVehicleAttributeSet * AttributeSetVehicle = nullptr;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess=true))
-	class USpringArmComponent *  SpringArmComponent = nullptr;
+	class UZSSpringArmComponent *  SpringArmComponentDefault = nullptr;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess=true))
 	class UZSCameraComponent * CameraComponentDefault = nullptr;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess=true))
-	class USpringArmComponent *  SpringArmComponentInSide = nullptr;
+	class UZSSpringArmComponent *  SpringArmComponentInSide = nullptr;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess=true))
 	class UZSCameraComponent * CameraComponentInSide = nullptr;
@@ -251,5 +250,8 @@ public:
 	class USteeringWheelStaticMeshComponent * GetSteeringWheelStaticMeshComponent();
 
 	bool SkipComponent(UPrimitiveComponent * NewComponent);
+
+	UFUNCTION(BlueprintCallable)
+	void UpdateSpringLimitationByCameraComponent(class UZSCameraComponent * NewCameraComponent);
 };
 
