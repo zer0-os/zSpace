@@ -35,6 +35,8 @@ FName AZSWheeledVehiclePawn::VehicleFrontAndRearLightsParamName = "EmissiveColor
 AZSWheeledVehiclePawn::AZSWheeledVehiclePawn(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer.SetDefaultSubobjectClass<UZSVehicleMovementComponent>(AWheeledVehiclePawn::VehicleMovementComponentName))
 {
 
+	DriverBoneNameForHHide.Add("head");
+
 	AbilitySystemComponent = CreateDefaultSubobject<UAbilitySystemComponent>(TEXT("AbilitySystemComponent"));
 	checkf(nullptr != AbilitySystemComponent, TEXT("The AbilitySystemComponent is nullptr."));
 	AbilitySystemComponent->SetIsReplicated(true);
@@ -48,6 +50,21 @@ AZSWheeledVehiclePawn::AZSWheeledVehiclePawn(const FObjectInitializer& ObjectIni
 	L_RepMovement.VelocityQuantizationLevel = EVectorQuantization::RoundTwoDecimals;
 	L_RepMovement.RotationQuantizationLevel = ERotatorQuantization::ShortComponents;
 	SetReplicatedMovement(L_RepMovement);
+
+	SkeletalMeshComponentDriver = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("SkeletalMeshComponentDriver"));
+	checkf(nullptr != SkeletalMeshComponentDriver, TEXT("The SkeletalMeshComponentDriver is nullptr."));
+	SkeletalMeshComponentDriver->SetupAttachment(RootComponent);
+
+	SteeringWheelStaticMeshComponent = CreateDefaultSubobject<USteeringWheelStaticMeshComponent>(TEXT("SteeringWheelStaticMeshComponent"));
+	checkf(nullptr != SteeringWheelStaticMeshComponent, TEXT("The SteeringWheelStaticMeshComponent is nullptr."));
+	SteeringWheelStaticMeshComponent->SetupAttachment(RootComponent);
+	SteeringWheelStaticMeshComponent->RotationAxisWheel = ESteeringWheelRotationAxis::Roll;
+	SteeringWheelStaticMeshComponent->InterpSpeed = 1;
+	SteeringWheelStaticMeshComponent->MaxTargetAngle = 80;
+	SteeringWheelStaticMeshComponent->MinTargetAngle = -80;
+	SteeringWheelStaticMeshComponent->SetIsReplicated(true);
+	SteeringWheelStaticMeshComponent->SetMobility(EComponentMobility::Movable);
+	
 	
 	SpringArmComponentDefault = CreateDefaultSubobject<UZSSpringArmComponent>(TEXT("SpringArmComponentDefault"));
 	checkf(nullptr != SpringArmComponentDefault, TEXT("The SpringArmComponent is nullptr."));
@@ -254,6 +271,7 @@ void AZSWheeledVehiclePawn::HideVehicleControlWidget()
 void AZSWheeledVehiclePawn::BeginPlay()
 {
 	Super::BeginPlay();
+	HiddenDriver(true);
 	// Start an engine sound playing
 	EngineSoundComponent->Play(); // TODO Need to set Engine Sound.
 	InitAttributes();
@@ -372,10 +390,10 @@ void AZSWheeledVehiclePawn::SendMoveRightValue(float NewValue)
 void AZSWheeledVehiclePawn::Server_SendMoveRightValue_Implementation(const float & NewValue)
 {
 	SteeringInput = NewValue;
-	USteeringWheelStaticMeshComponent * SteeringWheelStaticMeshComponent = GetSteeringWheelStaticMeshComponent();
-	if(IsValid(SteeringWheelStaticMeshComponent))
+	USteeringWheelStaticMeshComponent * L_SteeringWheelStaticMeshComponent = GetSteeringWheelStaticMeshComponent();
+	if(IsValid(L_SteeringWheelStaticMeshComponent))
 	{
-		SteeringWheelStaticMeshComponent->SetTarget(NewValue);
+		L_SteeringWheelStaticMeshComponent->SetTarget(NewValue);
 	}
 }
 
@@ -451,6 +469,7 @@ void AZSWheeledVehiclePawn::SetupDefaultCamera(ECameraPositionType NewCameraPosi
 				SelectedCameraPositionType = NewCameraPositionType;
 				IterCameraComponent->SetActive(true);
 				UpdateSpringLimitationByCameraComponent(IterCameraComponent);
+				ShowDriverHead(L_CamPostType);
 			}
 			else
 			{
@@ -725,6 +744,14 @@ void AZSWheeledVehiclePawn::FrontRearLights(const FOnAttributeChangeData& NewDat
 }
 
 
+void AZSWheeledVehiclePawn::HiddenDriver(const bool& NewHiddenDriver)
+{
+	if(IsValid(SkeletalMeshComponentDriver))
+	{
+		SkeletalMeshComponentDriver->SetHiddenInGame(NewHiddenDriver);
+	}
+}
+
 void AZSWheeledVehiclePawn::InitializeAbility(TSubclassOf<UGameplayAbility> NewAbilityToGet, int32 AbilityLevel)
 {
 	if(IsValid(AbilitySystemComponent))
@@ -789,12 +816,16 @@ void AZSWheeledVehiclePawn::UnPossessed()
 {
 	Super::UnPossessed();
 	SetActorTickEnabled(false);
+	SteeringWheelStaticMeshComponent->SetComponentTickEnabled(false);
+	HiddenDriver(true);
 }
 
 void AZSWheeledVehiclePawn::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
 	SetActorTickEnabled(true);
+	SteeringWheelStaticMeshComponent->SetComponentTickEnabled(true);
+	HiddenDriver(false);
 }
 
 
@@ -852,8 +883,8 @@ bool AZSWheeledVehiclePawn::Server_EnableFrontLight_Validate()
 
 USteeringWheelStaticMeshComponent * AZSWheeledVehiclePawn::GetSteeringWheelStaticMeshComponent()
 {
-	USteeringWheelStaticMeshComponent * SteeringWheelStaticMeshComponent = Cast<USteeringWheelStaticMeshComponent>(GetComponentByClass(USteeringWheelStaticMeshComponent::StaticClass()));
-	return SteeringWheelStaticMeshComponent; 
+	USteeringWheelStaticMeshComponent * L_SteeringWheelStaticMeshComponent = Cast<USteeringWheelStaticMeshComponent>(GetComponentByClass(USteeringWheelStaticMeshComponent::StaticClass()));
+	return L_SteeringWheelStaticMeshComponent; 
 }
 
 bool AZSWheeledVehiclePawn::SkipComponent(UPrimitiveComponent* NewComponent)
@@ -889,6 +920,27 @@ void AZSWheeledVehiclePawn::UpdateSpringLimitationByCameraComponent(UZSCameraCom
 				SpringArmComponent->ResetPlayerCameraManagerRotationLimit();
 			}
 		}
+	}
+}
+
+void AZSWheeledVehiclePawn::ShowDriverHead(const ECameraPositionType & NewCameraPositionType)
+{
+	if( ROLE_AutonomousProxy == GetLocalRole() && IsValid(SkeletalMeshComponentDriver))
+	{
+			if(ECameraPositionType::CameraInSide == NewCameraPositionType)
+			{
+				for(const FName & IterName : DriverBoneNameForHHide  )
+				{
+					SkeletalMeshComponentDriver->HideBoneByName(IterName, EPhysBodyOp::PBO_None);
+				}
+			}
+			else
+			{
+				for(const FName & IterName : DriverBoneNameForHHide  )
+				{
+					SkeletalMeshComponentDriver->UnHideBoneByName(IterName);
+				}
+			}
 	}
 }
 

@@ -21,6 +21,13 @@ class ZSPACE_API AZSWheeledVehiclePawn : public AWheeledVehiclePawn, public IAbi
 
 public:
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess=true))	
+	class USteeringWheelStaticMeshComponent * SteeringWheelStaticMeshComponent = nullptr;
+
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess=true))	
+	class USkeletalMeshComponent * SkeletalMeshComponentDriver = nullptr;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Abilities", meta = (AllowPrivateAccess=true))	
 	class UAbilitySystemComponent * AbilitySystemComponent = nullptr;
 
@@ -53,6 +60,9 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = true))
 	class UWidgetComponent * Speedometer3D = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = true))
+	TArray<FName> DriverBoneNameForHHide;
 	
 
 	// -1..0..1
@@ -234,6 +244,11 @@ public:
 	UFUNCTION(Server, Reliable, WithValidation)	
 	void Server_EnableFrontLight();
 
+private:
+
+	void HiddenDriver(const bool & NewHiddenDriver);
+
+
 public:
 	
 	UFUNCTION(BlueprintCallable)
@@ -253,5 +268,8 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void UpdateSpringLimitationByCameraComponent(class UZSCameraComponent * NewCameraComponent);
+
+	void ShowDriverHead(const ECameraPositionType & NewCameraPositionType);
+	
 };
 
