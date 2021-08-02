@@ -744,9 +744,9 @@ void AZSWheeledVehiclePawn::FrontRearLights(const FOnAttributeChangeData& NewDat
 }
 
 
-void AZSWheeledVehiclePawn::HiddenDriver(const bool& NewHiddenDriver)
+void AZSWheeledVehiclePawn::HiddenDriver_Implementation(bool NewHiddenDriver)
 {
-	if(IsValid(SkeletalMeshComponentDriver))
+	if(IsValid(SkeletalMeshComponentDriver) && GetLocalRole() < ROLE_Authority)
 	{
 		SkeletalMeshComponentDriver->SetHiddenInGame(NewHiddenDriver);
 	}

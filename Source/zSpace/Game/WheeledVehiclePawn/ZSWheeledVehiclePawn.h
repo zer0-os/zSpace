@@ -246,7 +246,8 @@ public:
 
 private:
 
-	void HiddenDriver(const bool & NewHiddenDriver);
+	UFUNCTION(NetMulticast, Reliable)	
+	void HiddenDriver(bool  NewHiddenDriver);
 
 
 public:
