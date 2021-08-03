@@ -455,6 +455,7 @@ void AZSWheeledVehiclePawn::LookRight(float NewValue)
 	AddControllerYawInput(NewValue);
 }
 
+
 void AZSWheeledVehiclePawn::SetupDefaultCamera(ECameraPositionType NewCameraPositionType)
 {
 	TArray<UZSCameraComponent *> CameraComponents ;
@@ -497,12 +498,16 @@ bool AZSWheeledVehiclePawn::IsExistCamera(ECameraPositionType NewCameraPositionT
 	return false;
 }
 
+void AZSWheeledVehiclePawn::LeaveVehicle()
+{
+	Server_LeaveVehicle();
+}
 
-void AZSWheeledVehiclePawn::LeaveVehicle_Implementation()
+void AZSWheeledVehiclePawn::Server_LeaveVehicle_Implementation()
 {
 	if(ROLE_Authority > GetLocalRole())
 	{
-		LeaveVehicle();	
+		Server_LeaveVehicle();	
 	}
 	UZSVehicleMovementComponent * L_VehicleMovementComponent = GetZSVehicleMovementComponent();
 	if(L_VehicleMovementComponent)
@@ -516,7 +521,7 @@ void AZSWheeledVehiclePawn::LeaveVehicle_Implementation()
 	}
 }
 
-bool AZSWheeledVehiclePawn::LeaveVehicle_Validate()
+bool AZSWheeledVehiclePawn::Server_LeaveVehicle_Validate()
 {
 	return true;
 }
@@ -814,10 +819,10 @@ void AZSWheeledVehiclePawn::CheckVehicleStop()
 
 void AZSWheeledVehiclePawn::UnPossessed()
 {
-	Super::UnPossessed();
 	SetActorTickEnabled(false);
 	SteeringWheelStaticMeshComponent->SetComponentTickEnabled(false);
 	HiddenDriver(true);
+	Super::UnPossessed();
 }
 
 void AZSWheeledVehiclePawn::PossessedBy(AController* NewController)
@@ -826,6 +831,7 @@ void AZSWheeledVehiclePawn::PossessedBy(AController* NewController)
 	SetActorTickEnabled(true);
 	SteeringWheelStaticMeshComponent->SetComponentTickEnabled(true);
 	HiddenDriver(false);
+	Client_SetupDefaultCamera();
 }
 
 
@@ -917,7 +923,7 @@ void AZSWheeledVehiclePawn::UpdateSpringLimitationByCameraComponent(UZSCameraCom
 			}
 			else
 			{
-				SpringArmComponent->ResetPlayerCameraManagerRotationLimit();
+				UZSSpringArmComponent::ResetPlayerCameraManagerRotationLimit(GetWorld());
 			}
 		}
 	}
@@ -944,5 +950,9 @@ void AZSWheeledVehiclePawn::ShowDriverHead(const ECameraPositionType & NewCamera
 	}
 }
 
+void AZSWheeledVehiclePawn::Client_SetupDefaultCamera_Implementation()
+{
+	SetupDefaultCamera(SelectedCameraPositionType);
+}
 
 

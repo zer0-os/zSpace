@@ -28,6 +28,7 @@
 #include "zSpace/VR/BallisticLineComponent/BallisticLineComponent.h"
 #include "Components/BoxComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "zSpace/Game/WheeledVehiclePawn/SpringArmComponent/ZSSpringArmComponent.h"
 
 
 AZSCharacterWithAbilities::AZSCharacterWithAbilities(const FObjectInitializer& NewObjectInitializer) : Super(NewObjectInitializer.SetDefaultSubobjectClass<UZSCharacterMovementComponent>(ACharacter::CharacterMovementComponentName))
@@ -978,6 +979,7 @@ void AZSCharacterWithAbilities::Client_DetachFromVehicle_Implementation()
 	//DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
 	SetActorHiddenInGame(false);
 	SetActorEnableCollision(true);
+	UZSSpringArmComponent::ResetPlayerCameraManagerRotationLimit(GetWorld());
 }
 
 FVector AZSCharacterWithAbilities::GetPossibleLeaveCarLocation(AZSWheeledVehiclePawn* NewVehicle, bool & NewStatus)

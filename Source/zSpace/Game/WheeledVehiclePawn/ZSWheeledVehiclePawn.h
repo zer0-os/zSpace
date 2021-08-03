@@ -171,9 +171,13 @@ public:
 
 	UFUNCTION()
 	void LookRight(float NewValue);
+	
+	UFUNCTION()
+	void LeaveVehicle();
 
 	UFUNCTION(Server, Reliable, WithValidation)
-	void LeaveVehicle();
+	void Server_LeaveVehicle();
+	
 
 
 	UFUNCTION(BlueprintCallable)
@@ -271,6 +275,9 @@ public:
 	void UpdateSpringLimitationByCameraComponent(class UZSCameraComponent * NewCameraComponent);
 
 	void ShowDriverHead(const ECameraPositionType & NewCameraPositionType);
+
+	UFUNCTION(Client, Reliable)
+	void Client_SetupDefaultCamera();
 	
 };
 

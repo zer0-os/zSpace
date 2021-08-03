@@ -42,6 +42,7 @@ private:
 	static float PlayerCameraManagerViewRollMax;
 	static float PlayerCameraManagerViewYawMin;	
 	static float PlayerCameraManagerViewYawMax;
+	static bool bIsResetLimitation;
 	
 
 public:
@@ -60,7 +61,7 @@ public:
 	void UpdateLimitation();
 
 	UFUNCTION(BlueprintCallable)
-	void ResetPlayerCameraManagerRotationLimit();
+	static void ResetPlayerCameraManagerRotationLimit(UWorld* NewWorld);
 
 	
 	

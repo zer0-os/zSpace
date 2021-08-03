@@ -13,6 +13,7 @@ float UZSSpringArmComponent::PlayerCameraManagerViewRollMin = 0;
 float UZSSpringArmComponent::PlayerCameraManagerViewRollMax = 0;
 float UZSSpringArmComponent::PlayerCameraManagerViewYawMin = 0;	
 float UZSSpringArmComponent::PlayerCameraManagerViewYawMax = 0;
+bool UZSSpringArmComponent::bIsResetLimitation = false;
 
 #if WITH_EDITOR
 void UZSSpringArmComponent::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
@@ -86,6 +87,7 @@ void UZSSpringArmComponent::SetLimitation(FRotator NewMinLimitRotation, FRotator
 	APlayerCameraManager * PlayerCameraManager = UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0);
 	if(IsValid(PlayerCameraManager))
 	{
+		bIsResetLimitation = true;
 		PlayerCameraManagerViewPitchMin = PlayerCameraManager->ViewPitchMin;
 		PlayerCameraManagerViewPitchMax = PlayerCameraManager->ViewPitchMax;
 		
@@ -116,10 +118,10 @@ void UZSSpringArmComponent::UpdateLimitation()
 	}
 }
 
-void UZSSpringArmComponent::ResetPlayerCameraManagerRotationLimit()
+void UZSSpringArmComponent::ResetPlayerCameraManagerRotationLimit(UWorld* NewWorld)
 {
-	APlayerCameraManager * PlayerCameraManager = UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0);
-	if(IsValid(PlayerCameraManager))
+	APlayerCameraManager * PlayerCameraManager = UGameplayStatics::GetPlayerCameraManager(NewWorld, 0);
+	if(IsValid(PlayerCameraManager) && bIsResetLimitation)
 	{
 		PlayerCameraManager->ViewPitchMin = PlayerCameraManagerViewPitchMin ;
 		PlayerCameraManager->ViewPitchMax = PlayerCameraManagerViewPitchMax;
