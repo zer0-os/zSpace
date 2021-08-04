@@ -22,12 +22,20 @@ UCLASS()
 class ZSPACE_API USteeringWheelStaticMeshComponent : public UStaticMeshComponent
 {
 	GENERATED_BODY()
+
+
+	friend class AZSWheeledVehiclePawn;
 	
 public:
+	
+	virtual void BeginPlay() override;
+	
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 	
 	USteeringWheelStaticMeshComponent();
 
 private:
+	
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess=true))
 	ESteeringWheelRotationAxis RotationAxisWheel = ESteeringWheelRotationAxis::Roll;
@@ -42,12 +50,11 @@ private:
 	float Target = 0;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess=true))
-	float MaxTargetAngle = 180;
+	float MaxTargetAngle = 540;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess=true))
-	float MinTargetAngle = -180;
+	float MinTargetAngle = -540;
 
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	void CalculateRotation(float DeltaTime);
 	

@@ -45,8 +45,12 @@ private:
 	float BaseLookUpRate = 45;
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, meta = (AllowPrivateAccess=true))
-	class USpringArmComponent * SpringArmComponent = nullptr; 
+	class USpringArmComponent * SpringArmComponent = nullptr;
 
+public:
+	virtual void UnPossessed() override;
+	virtual void PossessedBy(AController* NewController) override;
+private:
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, meta = (AllowPrivateAccess=true))
 	class UCameraComponent * CameraComponentDefault =  nullptr;
 	
