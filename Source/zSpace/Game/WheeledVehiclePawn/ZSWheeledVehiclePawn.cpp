@@ -193,7 +193,6 @@ AZSWheeledVehiclePawn::AZSWheeledVehiclePawn(const FObjectInitializer& ObjectIni
 	Speedometer3D->SetupAttachment(RootComponent);
 	Speedometer3D->SetVisibility(true);
 	
-	SetAutonomousProxy(true);
 }
 
 void AZSWheeledVehiclePawn::Server_SetForwardInputValue_Implementation(const float& NewForwardInput)
@@ -271,6 +270,7 @@ void AZSWheeledVehiclePawn::HideVehicleControlWidget()
 void AZSWheeledVehiclePawn::BeginPlay()
 {
 	Super::BeginPlay();
+	SetAutonomousProxy(true);
 	HiddenDriver(true);
 	// Start an engine sound playing
 	EngineSoundComponent->Play(); // TODO Need to set Engine Sound.

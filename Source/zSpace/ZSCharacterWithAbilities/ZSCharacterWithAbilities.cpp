@@ -253,6 +253,16 @@ bool AZSCharacterWithAbilities::CanCrouch() const
 	}
 }
 
+void AZSCharacterWithAbilities::UnPossessed()
+{
+	Super::UnPossessed();	
+}
+
+void AZSCharacterWithAbilities::PossessedBy(AController* NewController)
+{
+	Super::PossessedBy(NewController);
+}
+
 void AZSCharacterWithAbilities::Turn(float NewValue)
 {
 	if(false == IsTransferringBetweenMaps)

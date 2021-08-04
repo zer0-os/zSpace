@@ -126,4 +126,6 @@ public:
 
 	UFUNCTION(Client, Reliable)
 	void Client_OnUnPosses();
+
+	virtual  void PawnLeavingGame() override;
 };
