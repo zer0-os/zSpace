@@ -14,8 +14,10 @@
 #include "OWSPlayerState.h"
 #include "OWSGameMode.h"
 #include "Components/ZSEthereumActorComponent/ZSEthereumActorComponent.h"
+#include "zSpace/Game/WheeledVehiclePawn/ZSWheeledVehiclePawn.h"
 #include "zSpace/Game/ZSPlayerState/Components/ZSEtherlinkerRemoteWalletManager/ZSEtherlinkerRemoteWalletManager.h"
 #include "zSpace/Game/ZSPlayerState/Components/ZSEtherManager/ZSEtherManager.h"
+#include "zSpace/ZSCharacterWithAbilities/ZSCharacterWithAbilities.h"
 
 
 AZSGamePlayerController::AZSGamePlayerController()
@@ -254,4 +256,49 @@ void AZSGamePlayerController::Server_UserTerminal_Implementation(UEthereumTermin
 void AZSGamePlayerController::CallOnNotifyGetAllUserCharacters(const TArray<FUserCharacter>& NewUserCharacter)
 {
 	OnNotifyGetAllUserCharacters.Broadcast(NewUserCharacter);
+}
+
+void AZSGamePlayerController::OnPossess(APawn* aPawn)
+{
+	Super::OnPossess(aPawn);
+	OnPossesDelegate.Broadcast(aPawn);
+	Client_OnPosses(aPawn);
+}
+
+void AZSGamePlayerController::OnUnPossess()
+{
+	Super::OnUnPossess();
+	OnUnPossessDelegate.Broadcast();
+}
+
+
+
+void AZSGamePlayerController::Client_OnPosses_Implementation(APawn* NewPawn)
+{
+	OnPossesDelegate.Broadcast(NewPawn);
+}
+void AZSGamePlayerController::Client_OnUnPosses_Implementation()
+{
+	OnUnPossessDelegate.Broadcast();
+}
+
+void AZSGamePlayerController::PawnLeavingGame()
+{
+	UE_LOG(LogTemp, Log, TEXT("********************** PawnLeavingGame **********************"));
+	AZSWheeledVehiclePawn * Vehicle =  Cast<AZSWheeledVehiclePawn>(GetPawn());
+	if(IsValid(Vehicle))
+	{
+		TArray<AActor *> OutActors;
+		Vehicle->GetAttachedActors(OutActors);
+		for(AActor * IterActor : OutActors)
+		{
+			AZSCharacterWithAbilities * L_Character = Cast<AZSCharacterWithAbilities>(IterActor);
+			if(IsValid(L_Character))
+			{
+				L_Character->SetActorRotation(FRotator::ZeroRotator);
+				Possess(L_Character);
+			}
+		}
+	}
+	Super::PawnLeavingGame();	
 }

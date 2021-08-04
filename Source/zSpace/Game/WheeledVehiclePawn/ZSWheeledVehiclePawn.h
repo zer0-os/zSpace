@@ -9,7 +9,6 @@
 #include "zSpace/Game/ZSCameraComponent/ZSCameraComponent.h"
 #include "GameplayEffectTypes.h"
 #include "Accessories/SteeringWheelStaticMeshComponent/SteeringWheelStaticMeshComponent.h"
-
 #include "ZSWheeledVehiclePawn.generated.h"
 
 /**
@@ -22,6 +21,13 @@ class ZSPACE_API AZSWheeledVehiclePawn : public AWheeledVehiclePawn, public IAbi
 
 public:
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess=true))	
+	class USteeringWheelStaticMeshComponent * SteeringWheelStaticMeshComponent = nullptr;
+
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess=true))	
+	class USkeletalMeshComponent * SkeletalMeshComponentDriver = nullptr;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Abilities", meta = (AllowPrivateAccess=true))	
 	class UAbilitySystemComponent * AbilitySystemComponent = nullptr;
 
@@ -29,10 +35,13 @@ public:
 	const class UZSVehicleAttributeSet * AttributeSetVehicle = nullptr;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess=true))
-	class USpringArmComponent *  SpringArmComponent = nullptr;
+	class UZSSpringArmComponent *  SpringArmComponentDefault = nullptr;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess=true))
 	class UZSCameraComponent * CameraComponentDefault = nullptr;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess=true))
+	class UZSSpringArmComponent *  SpringArmComponentInSide = nullptr;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess=true))
 	class UZSCameraComponent * CameraComponentInSide = nullptr;
@@ -48,6 +57,13 @@ public:
 
 	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess=true))
 	class AZSCharacterWithAbilities * 	ZSCharacterWithAbilities = nullptr;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = true))
+	class UWidgetComponent * Speedometer3D = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = true))
+	TArray<FName> DriverBoneNameForHHide;
+	
 
 	// -1..0..1
 	UPROPERTY(Transient, BlueprintReadOnly, meta = (AllowPrivateAccess=true)) 
@@ -155,9 +171,13 @@ public:
 
 	UFUNCTION()
 	void LookRight(float NewValue);
+	
+	UFUNCTION()
+	void LeaveVehicle();
 
 	UFUNCTION(Server, Reliable, WithValidation)
-	void LeaveVehicle();
+	void Server_LeaveVehicle();
+	
 
 
 	UFUNCTION(BlueprintCallable)
@@ -228,6 +248,12 @@ public:
 	UFUNCTION(Server, Reliable, WithValidation)	
 	void Server_EnableFrontLight();
 
+private:
+
+	UFUNCTION(NetMulticast, Reliable)	
+	void HiddenDriver(bool  NewHiddenDriver);
+
+
 public:
 	
 	UFUNCTION(BlueprintCallable)
@@ -241,8 +267,17 @@ public:
 
 	void OnFrontLights(const  bool & IsEnableLights);
 
-
 	class USteeringWheelStaticMeshComponent * GetSteeringWheelStaticMeshComponent();
 
+	bool SkipComponent(UPrimitiveComponent * NewComponent);
+
+	UFUNCTION(BlueprintCallable)
+	void UpdateSpringLimitationByCameraComponent(class UZSCameraComponent * NewCameraComponent);
+
+	void ShowDriverHead(const ECameraPositionType & NewCameraPositionType);
+
+	UFUNCTION(Client, Reliable)
+	void Client_SetupDefaultCamera();
+	
 };
 

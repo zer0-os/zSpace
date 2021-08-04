@@ -3,10 +3,21 @@
 
 #include "zSpace/Game/WheeledVehiclePawn/Accessories/SteeringWheelStaticMeshComponent/SteeringWheelStaticMeshComponent.h"
 
+#include "Engine/CollisionProfile.h"
+
 USteeringWheelStaticMeshComponent::USteeringWheelStaticMeshComponent()
 {
+	PrimaryComponentTick.bCanEverTick = true;
+	PrimaryComponentTick.TickGroup = TG_PrePhysics;
+	SetCollisionProfileName(UCollisionProfile::NoCollision_ProfileName);
 	
 }
+
+void USteeringWheelStaticMeshComponent::BeginPlay()
+{
+	Super::BeginPlay();
+}
+
 
 void USteeringWheelStaticMeshComponent::TickComponent(float DeltaTime, ELevelTick TickType,
                                                       FActorComponentTickFunction* ThisTickFunction)
