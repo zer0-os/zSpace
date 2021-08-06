@@ -275,8 +275,9 @@ void AZSWheeledVehiclePawn::BeginPlay()
 	// Start an engine sound playing
 	EngineSoundComponent->Play(); // TODO Need to set Engine Sound.
 	InitAttributes();
-	SetActorTickEnabled(false);
+	MultiCastEnableTick(false);
 	OnFrontLights(false);
+	SetEngineStart(false);
 }
 
 void AZSWheeledVehiclePawn::Tick(float DeltaSeconds)
@@ -286,7 +287,7 @@ void AZSWheeledVehiclePawn::Tick(float DeltaSeconds)
 	{
 		CheckVehicleStop();
 	}
-	
+	EngineAudioProcessing();	
 }
 
 UZSVehicleMovementComponent * AZSWheeledVehiclePawn::GetZSVehicleMovementComponent() const
@@ -822,16 +823,18 @@ void AZSWheeledVehiclePawn::UnPossessed()
 	SetActorTickEnabled(false);
 	SteeringWheelStaticMeshComponent->SetComponentTickEnabled(false);
 	HiddenDriver(true);
+	MultiCastEnableTick(false);
 	Super::UnPossessed();
 }
 
 void AZSWheeledVehiclePawn::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
-	SetActorTickEnabled(true);
+	MultiCastEnableTick(true);
 	SteeringWheelStaticMeshComponent->SetComponentTickEnabled(true);
 	HiddenDriver(false);
 	Client_SetupDefaultCamera();
+	SetEngineStart(true);
 }
 
 
@@ -955,4 +958,49 @@ void AZSWheeledVehiclePawn::Client_SetupDefaultCamera_Implementation()
 	SetupDefaultCamera(SelectedCameraPositionType);
 }
 
+void AZSWheeledVehiclePawn::EngineAudioProcessing()
+{
+	if(ROLE_Authority > GetLocalRole())
+	{
+		UChaosWheeledVehicleMovementComponent * VehicleMovement = Cast<UChaosWheeledVehicleMovementComponent>(GetVehicleMovement());
+		if(IsValid(VehicleMovement))
+		{
+			const float EngineRPM = VehicleMovement->GetEngineRotationSpeed();
+			if(IsValid(EngineSoundComponent))
+			{
+				EngineSoundComponent->SetFloatParameter(TEXT("RPM"), EngineRPM);
+			}
+		}
+	}
+}
 
+
+
+void AZSWheeledVehiclePawn::SetEngineStart_Implementation(bool NewValue)
+{
+	if(GetLocalRole() < ROLE_Authority)
+	{
+		bIsEngineStarted = NewValue;
+		if (NewValue)
+		{
+			EngineSoundComponent->SetActive(true);
+		}
+		else
+		{
+			EngineSoundComponent->SetActive(false);
+		}	
+	}
+}
+
+
+void AZSWheeledVehiclePawn::MultiCastEnableTick_Implementation( bool NewEnable)
+{
+	if(NewEnable)
+	{
+		SetActorTickEnabled(true);
+	}
+	else
+	{
+		SetActorTickEnabled(false);
+	}
+}
