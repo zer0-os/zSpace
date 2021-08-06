@@ -275,7 +275,7 @@ void AZSWheeledVehiclePawn::BeginPlay()
 	// Start an engine sound playing
 	EngineSoundComponent->Play(); // TODO Need to set Engine Sound.
 	InitAttributes();
-	MultiCastEnableTick(false);
+	//MultiCastEnableTick(false);
 	OnFrontLights(false);
 	SetEngineStart(false);
 }
@@ -823,14 +823,14 @@ void AZSWheeledVehiclePawn::UnPossessed()
 	SetActorTickEnabled(false);
 	SteeringWheelStaticMeshComponent->SetComponentTickEnabled(false);
 	HiddenDriver(true);
-	MultiCastEnableTick(false);
+	//MultiCastEnableTick(false);
 	Super::UnPossessed();
 }
 
 void AZSWheeledVehiclePawn::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
-	MultiCastEnableTick(true);
+	//MultiCastEnableTick(true);
 	SteeringWheelStaticMeshComponent->SetComponentTickEnabled(true);
 	HiddenDriver(false);
 	Client_SetupDefaultCamera();
