@@ -63,6 +63,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = true))
 	TArray<FName> DriverBoneNameForHHide;
+
+	UPROPERTY(BlueprintReadOnly, meta =(AllowPrivateAccess=true))
+	uint8 bIsEngineStarted:1;
 	
 
 	// -1..0..1
@@ -278,6 +281,16 @@ public:
 
 	UFUNCTION(Client, Reliable)
 	void Client_SetupDefaultCamera();
+
+	void EngineAudioProcessing();
+
+	UFUNCTION(NetMulticast, Reliable)
+	void SetEngineStart(bool NewValue);
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MultiCastEnableTick(bool  NewEnable);
+
+	
 	
 };
 
