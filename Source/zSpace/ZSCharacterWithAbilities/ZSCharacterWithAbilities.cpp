@@ -963,7 +963,7 @@ void AZSCharacterWithAbilities::DetachFromVehicle(AZSWheeledVehiclePawn* NewVehi
 			const FVector CharacterLocation = GetPossibleLeaveCarLocation(NewVehicle, bLeaveAvailable);
 			if(bLeaveAvailable)
 			{
-				APlayerController * PC = UGameplayStatics::GetPlayerController(this, 0);
+				APlayerController * PC = Cast<APlayerController>(NewVehicle->GetController());
 				if(PC)
 				{
 						
@@ -978,6 +978,7 @@ void AZSCharacterWithAbilities::DetachFromVehicle(AZSWheeledVehiclePawn* NewVehi
 					PC->Possess(this);
 					Client_DetachFromVehicle();
 					const FVector VehicleForwardVector = GetActorForwardVector();
+					NewVehicle->SetZsCharacterWithAbilities(nullptr);
 				}
 			}
 		}
