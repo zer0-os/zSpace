@@ -10,7 +10,7 @@ IF EXIST  "C:\zSpaceArchive"  rmdir C:\zSpaceArchive /s /q
 
 set PROJECT_PATH=%CD%\%PROJECT_NAME%.uproject
 
-set CLIENTCONFIG=Development
+set CLIENTCONFIG=Shipping
 
 set ARCHIVEDIRECTORY=C:\zSpace_Server
 set ARCHIVEDIRECTORY_CLIENT=C:\%PROJECT_NAME%_Client\WindowsNoEditor
@@ -24,7 +24,7 @@ IF NOT EXIST %ARCHIVEDIRECTORY% mkdir "%ARCHIVEDIRECTORY%"
 IF NOT EXIST "C:\%PROJECT_NAME%_Client" mkdir "C:\%PROJECT_NAME%_Client"
 
 
-call "%UE4_PATH%\Engine\Build\BatchFiles\Build.bat" "%PROJECT_NAME%Editor" win64 %CLIENTCONFIG% "%PROJECT_PATH%" -WaitMutex 
+call "%UE4_PATH%\Engine\Build\BatchFiles\Build.bat" "%PROJECT_NAME%Editor" win64 Development "%PROJECT_PATH%" -WaitMutex 
 if %errorlevel% NEQ 0 exit /b %errorlevel%
 
 call "%CD%\BuildLighting.bat" 
