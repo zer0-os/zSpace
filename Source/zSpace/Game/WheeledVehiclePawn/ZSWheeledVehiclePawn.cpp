@@ -820,17 +820,15 @@ void AZSWheeledVehiclePawn::CheckVehicleStop()
 
 void AZSWheeledVehiclePawn::UnPossessed()
 {
-	SetActorTickEnabled(false);
 	SteeringWheelStaticMeshComponent->SetComponentTickEnabled(false);
 	HiddenDriver(true);
-	//MultiCastEnableTick(false);
+	SetEngineStart(false);
 	Super::UnPossessed();
 }
 
 void AZSWheeledVehiclePawn::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
-	//MultiCastEnableTick(true);
 	SteeringWheelStaticMeshComponent->SetComponentTickEnabled(true);
 	HiddenDriver(false);
 	Client_SetupDefaultCamera();
