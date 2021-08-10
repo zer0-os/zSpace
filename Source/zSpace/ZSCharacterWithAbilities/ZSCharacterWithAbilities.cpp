@@ -28,6 +28,7 @@
 #include "zSpace/VR/BallisticLineComponent/BallisticLineComponent.h"
 #include "Components/BoxComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/ManageCharacterMeshComponent/ManageCharacterMeshAC.h"
 #include "zSpace/Game/WheeledVehiclePawn/SpringArmComponent/ZSSpringArmComponent.h"
 
 
@@ -99,6 +100,10 @@ AZSCharacterWithAbilities::AZSCharacterWithAbilities(const FObjectInitializer& N
 	BallisticLineComponentRight  = CreateDefaultSubobject<UBallisticLineComponent>(TEXT("BallisticLineComponentRight"));
 	checkf(nullptr != BallisticLineComponentRight, TEXT("The BallisticLineComponentRight is nullptr.") );
 	BallisticLineComponentRight->SetupAttachment(MotionControllerComponentRight);
+
+	ManageCharacterMeshAC = CreateDefaultSubobject<UManageCharacterMeshAC>(TEXT("ManageCharacterMeshAC"));
+	checkf(nullptr != ManageCharacterMeshAC, TEXT("The ManageCharacterMeshAC is nullptr. "));
+	AddOwnedComponent(ManageCharacterMeshAC);
 	
 }
 
@@ -842,6 +847,7 @@ void AZSCharacterWithAbilities::GetLifetimeReplicatedProps(TArray<FLifetimePrope
 	DOREPLIFETIME(AZSCharacterWithAbilities, bIsMoveInputPressed);
 	DOREPLIFETIME(AZSCharacterWithAbilities, CharacterRelativeRotation);
 	DOREPLIFETIME(AZSCharacterWithAbilities, MoveInputKeyTimeDownAverage);
+	DOREPLIFETIME(AZSCharacterWithAbilities, MeshName);
 
 	// Move Axis Values
 	DOREPLIFETIME(AZSCharacterWithAbilities, MoveForwardAxisValue);
@@ -905,7 +911,6 @@ void AZSCharacterWithAbilities::EnterVehicle_Implementation()
 			if(IsValid(IterBoxComponent) && nullptr != Vehicle )
 			{
 				AttachToVehicle(Vehicle);
-				UE_LOG(LogTemp, Log, TEXT("Server: Posses"));
 			}
 			
 		}
@@ -921,7 +926,7 @@ void AZSCharacterWithAbilities::AttachToVehicle(AZSWheeledVehiclePawn * NewVehic
 {
 	if(ROLE_Authority == GetLocalRole())
 	{
-		if(IsValid(NewVehicle))
+		if(IsValid(NewVehicle) && NewVehicle->IsEnterVehicle(this))
 		{
 			SetActorEnableCollision(false);
 			AttachToActor(NewVehicle, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
@@ -933,7 +938,9 @@ void AZSCharacterWithAbilities::AttachToVehicle(AZSWheeledVehiclePawn * NewVehic
 			AOWSPlayerController * PC = GetOWSPlayerController();
 			Client_AttachToVehicle(NewVehicle);
 			PC->Possess(NewVehicle);
+			NewVehicle->SetDriverSkeletalMesh();
 			NewVehicle->SetZsCharacterWithAbilities(this);
+			UE_LOG(LogTemp, Log, TEXT("Server: Posses"));
 		}
 	}
 }
@@ -1022,4 +1029,14 @@ FVector AZSCharacterWithAbilities::GetPossibleLeaveCarLocation(AZSWheeledVehicle
 	return FVector::ZeroVector;	
 	
 }
+
+void AZSCharacterWithAbilities::ShowEnterVehicleWidget_Implementation(AZSWheeledVehiclePawn* NewVehicle)
+{
+	if(IsValid(NewVehicle))
+	{
+		NewVehicle->ShowVehicleControlWidget();
+	}
+}
+
+
 

@@ -28,6 +28,8 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess=true))	
 	class USkeletalMeshComponent * SkeletalMeshComponentDriver = nullptr;
 
+
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Abilities", meta = (AllowPrivateAccess=true))	
 	class UAbilitySystemComponent * AbilitySystemComponent = nullptr;
 
@@ -66,6 +68,14 @@ public:
 
 	UPROPERTY(BlueprintReadOnly, meta =(AllowPrivateAccess=true))
 	uint8 bIsEngineStarted:1;
+
+	UPROPERTY(Replicated, BlueprintReadOnly, meta = (AllowPrivateAccess=true))
+	uint8 bIsHiddenDriverRep:1;
+	
+public:
+
+	UFUNCTION(Server, Reliable, WithValidation)
+	void Server_SetIsHiddenDriver(bool  NewIsHiddenDriver);
 	
 
 	// -1..0..1
@@ -135,6 +145,9 @@ protected:
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 	
 public:
+
+	UFUNCTION(BlueprintCallable)
+	bool IsEnterVehicle(AActor * NewOtherActor);
 	
 	UFUNCTION()
 	void ComponentBeginOverlapVehicleZoneBoxComponent(UPrimitiveComponent * OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult);
@@ -290,7 +303,17 @@ public:
 	UFUNCTION(NetMulticast, Reliable)
 	void MultiCastEnableTick(bool  NewEnable);
 
+	UFUNCTION(NetMulticast, Reliable)
+	void SetDriverSkeletalMesh();
+
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty> & OutLifetimeProps) const override;
+
+	UPROPERTY(ReplicatedUsing=OnRep_SkeletalMeshDriver)
+	class USkeletalMesh * SkeletalMeshDriver = nullptr;
 	
+public:
 	
+	UFUNCTION()
+	void OnRep_SkeletalMeshDriver();
 };
 

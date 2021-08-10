@@ -20,6 +20,8 @@ class ZSPACE_API AZSCharacterWithAbilities : public AOWSCharacterWithAbilities
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnChangeAnimationState, const EAnimationState, AnimationState);
 	
 	friend class UZSCharacterMovementComponent;
+	friend class UManageCharacterMeshAC;
+	friend class AZSWheeledVehiclePawn;
 
 public:
 
@@ -66,6 +68,9 @@ private:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess=true))
 	TSoftObjectPtr<class USoundBase> SoundBaseAcceleration;
 
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess=true))
+	class UManageCharacterMeshAC * ManageCharacterMeshAC = nullptr;
+
 public:
 	UFUNCTION()
 	void Turn(float NewValue);
@@ -111,6 +116,9 @@ public:
 protected:
 	UPROPERTY(Replicated, BlueprintReadWrite, Category="Movement")
 	uint8 bIsDeath : 1;
+
+	UPROPERTY(BlueprintReadOnly, Replicated, meta = (AllowPrivateAccess=true))	
+	FName MeshName;
 	
 	UPROPERTY(Replicated, BlueprintReadOnly, Category="Movement")
 	uint8 bIsWalking : 1;
@@ -317,5 +325,11 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	FVector GetPossibleLeaveCarLocation(class AZSWheeledVehiclePawn * NewVehicle, bool & NewStatus);
+	
+public:
+	
+	UFUNCTION(BlueprintCallable, Client, Reliable)
+	void ShowEnterVehicleWidget(class AZSWheeledVehiclePawn * NewVehicle);
+
 };
 
