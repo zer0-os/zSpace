@@ -40,7 +40,7 @@ if %errorlevel% NEQ 0 exit /b %errorlevel%
 ::set SERVER_EXE_PATH=%ARCHIVEDIRECTORY%\WindowsServer\%PROJECT_NAME%\Binaries\Win64\%PROJECT_NAME%Server.exe
 
 if %1 == Development (set SERVER_EXE_PATH=%ARCHIVEDIRECTORY%\WindowsServer\%PROJECT_NAME%\Binaries\Win64\%PROJECT_NAME%Server.exe) ^
-else if %1 == Shipping (set SERVER_EXE_PATH=%ARCHIVEDIRECTORY%\WindowsServer\%PROJECT_NAME%\Binaries\Win64\%PROJECT_NAME%Server-Win64-Shipping) ^
+else if %1 == Shipping (set SERVER_EXE_PATH=%ARCHIVEDIRECTORY%\WindowsServer\%PROJECT_NAME%\Binaries\Win64\%PROJECT_NAME%Server-Win64-Shipping.exe) ^
 else (echo "Error: wrong argument" && exit 11)
 
 echo ***SERVER_EXE_PATH: %SERVER_EXE_PATH%
