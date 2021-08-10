@@ -23,7 +23,10 @@
 #include "zSpace/ZSCharacterWithAbilities/ZSCharacterWithAbilities.h"
 #include "Components/SpotLightComponent.h"
 #include "Components/WidgetComponent.h"
+#include "Net/UnrealNetwork.h"
 #include "SpringArmComponent/ZSSpringArmComponent.h"
+#include "zSpace/Game/ZSGamePlayerController/ZSGamePlayerController.h"
+#include "zSpace/ZSCharacterWithAbilities/Components/ManageCharacterMeshComponent/ManageCharacterMeshAC.h"
 
 FName AZSWheeledVehiclePawn::VehicleStopLightParamName = "EmissiveColorStopLights";
 
@@ -54,6 +57,7 @@ AZSWheeledVehiclePawn::AZSWheeledVehiclePawn(const FObjectInitializer& ObjectIni
 	SkeletalMeshComponentDriver = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("SkeletalMeshComponentDriver"));
 	checkf(nullptr != SkeletalMeshComponentDriver, TEXT("The SkeletalMeshComponentDriver is nullptr."));
 	SkeletalMeshComponentDriver->SetupAttachment(RootComponent);
+	SkeletalMeshComponentDriver->SetMobility(EComponentMobility::Movable);
 
 	SteeringWheelStaticMeshComponent = CreateDefaultSubobject<USteeringWheelStaticMeshComponent>(TEXT("SteeringWheelStaticMeshComponent"));
 	checkf(nullptr != SteeringWheelStaticMeshComponent, TEXT("The SteeringWheelStaticMeshComponent is nullptr."));
@@ -205,6 +209,16 @@ bool AZSWheeledVehiclePawn::Server_SetForwardInputValue_Validate(const float& Ne
 	return !(NewForwardInput > 1 || NewForwardInput < -1);
 }
 
+void AZSWheeledVehiclePawn::Server_SetIsHiddenDriver_Implementation(bool NewIsShowDriver)
+{
+	bIsHiddenDriverRep = NewIsShowDriver;	
+}
+
+bool AZSWheeledVehiclePawn::Server_SetIsHiddenDriver_Validate(bool NewIsShowDriver)
+{
+	return true;
+}
+
 void AZSWheeledVehiclePawn::SendForwardInputToServer(const float& NewForwardInput)
 {
 	if(NewForwardInput != ForwardInput)
@@ -226,8 +240,7 @@ AZSCharacterWithAbilities* AZSWheeledVehiclePawn::GetCharacterWithAbilities()
 
 void AZSWheeledVehiclePawn::ShowVehicleControlWidget()
 {
-	APlayerController * PC = UGameplayStatics::GetPlayerController(GetWorld(), 0);
-	if(IsValid(PC) && (ROLE_AutonomousProxy == PC->GetLocalRole() || UKismetSystemLibrary::IsStandalone(GetWorld()) ))
+	if(ROLE_Authority != GetLocalRole())
 	{
 		if(IsValid(VehicleWidgetsDataAsset))
 		{
@@ -253,8 +266,7 @@ void AZSWheeledVehiclePawn::ShowVehicleControlWidget()
 
 void AZSWheeledVehiclePawn::HideVehicleControlWidget()
 {
-	APlayerController * PC = UGameplayStatics::GetPlayerController(GetWorld(), 0);
-	if(IsValid(PC) && (ROLE_AutonomousProxy == PC->GetLocalRole() || UKismetSystemLibrary::IsStandalone(GetWorld()) ))
+	if(ROLE_Authority != GetLocalRole())
 	{
 		if(IsValid(VehicleControlWidget))
 		{
@@ -290,6 +302,7 @@ void AZSWheeledVehiclePawn::Tick(float DeltaSeconds)
 	EngineAudioProcessing();	
 }
 
+
 UZSVehicleMovementComponent * AZSWheeledVehiclePawn::GetZSVehicleMovementComponent() const
 {
 	return  Cast<UZSVehicleMovementComponent>(GetVehicleMovementComponent());
@@ -317,31 +330,44 @@ void AZSWheeledVehiclePawn::SetupPlayerInputComponent(UInputComponent* PlayerInp
 	}
 }
 
+bool AZSWheeledVehiclePawn::IsEnterVehicle(AActor* NewOtherActor)
+{
+	if(ROLE_Authority == GetLocalRole())
+	{
+		AZSCharacterWithAbilities * Character = Cast<AZSCharacterWithAbilities>(NewOtherActor);
+		if(IsValid(Character))
+		{
+			AZSGamePlayerController * PC = Cast<AZSGamePlayerController>(GetController());
+			if(nullptr == PC )
+			{
+				return true;	
+			}
+		}
+	}
+	return false;
+}
+
+
 void AZSWheeledVehiclePawn::ComponentBeginOverlapVehicleZoneBoxComponent(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	APlayerController * PC = UGameplayStatics::GetPlayerController(GetWorld(), 0);
-	if(IsValid(PC) && (ROLE_AutonomousProxy == PC->GetLocalRole() || UKismetSystemLibrary::IsStandalone(GetWorld()) ))
+	if(ROLE_Authority == GetLocalRole())
 	{
-		AZSCharacterWithAbilities * Character = Cast<AZSCharacterWithAbilities>(OtherActor);
 		UCapsuleComponent * CapsuleComponent = Cast<UCapsuleComponent>(OtherComp);
-		if(IsValid(Character) && Character->GetCapsuleComponent() == CapsuleComponent)
+		AZSCharacterWithAbilities * Character = Cast<AZSCharacterWithAbilities>(OtherActor);
+		if(IsValid(Character) && Character->GetCapsuleComponent() == CapsuleComponent && IsEnterVehicle(OtherActor))
 		{
-			ShowVehicleControlWidget();
+			Character->ShowEnterVehicleWidget(this);
 		}
 	}
 }
 
 void AZSWheeledVehiclePawn::ComponentEndOverlapVehicleZoneBoxComponent(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	APlayerController * PC = UGameplayStatics::GetPlayerController(GetWorld(), 0);
-	if(IsValid(PC) && (ROLE_AutonomousProxy == PC->GetLocalRole() || UKismetSystemLibrary::IsStandalone(GetWorld()) ))
+	AZSCharacterWithAbilities * Character = Cast<AZSCharacterWithAbilities>(OtherActor);
+	UCapsuleComponent * CapsuleComponent = Cast<UCapsuleComponent>(OtherComp);
+	if(IsValid(Character) && Character->GetCapsuleComponent() == CapsuleComponent)
 	{
-		AZSCharacterWithAbilities * Character = Cast<AZSCharacterWithAbilities>(OtherActor);
-		UCapsuleComponent * CapsuleComponent = Cast<UCapsuleComponent>(OtherComp);
-		if(IsValid(Character) && Character->GetCapsuleComponent() == CapsuleComponent)
-		{
-			HideVehicleControlWidget();
-		}
+		HideVehicleControlWidget();
 	}
 }
 
@@ -754,6 +780,7 @@ void AZSWheeledVehiclePawn::HiddenDriver_Implementation(bool NewHiddenDriver)
 {
 	if(IsValid(SkeletalMeshComponentDriver) && GetLocalRole() < ROLE_Authority)
 	{
+		Server_SetIsHiddenDriver(NewHiddenDriver);
 		SkeletalMeshComponentDriver->SetHiddenInGame(NewHiddenDriver);
 	}
 }
@@ -972,6 +999,45 @@ void AZSWheeledVehiclePawn::EngineAudioProcessing()
 	}
 }
 
+void AZSWheeledVehiclePawn::SetDriverSkeletalMesh_Implementation()
+{
+	TArray<AActor *> OutActors;	
+	GetAttachedActors(OutActors);
+	for(AActor * Iter : OutActors)
+	{
+		AZSCharacterWithAbilities * Character = Cast<AZSCharacterWithAbilities>	(Iter);
+		if(IsValid(Character))
+		{
+			if(IsValid(Character->ManageCharacterMeshAC))
+			{
+				const FName L_MeshName = Character->MeshName;
+				SkeletalMeshDriver = Character->ManageCharacterMeshAC->GetSkeletalMeshByMeshName(L_MeshName);
+				UE_LOG(LogTemp, Warning, TEXT("---------------------------------MeshName = %s --------------------------------------"), *L_MeshName.ToString());
+			}
+			break;
+		}
+	}
+}
+
+void AZSWheeledVehiclePawn::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	//DOREPLIFETIME_CONDITION_NOTIFY(AZSWheeledVehiclePawn, SkeletalMeshDriver , COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME(AZSWheeledVehiclePawn, SkeletalMeshDriver);
+	DOREPLIFETIME(AZSWheeledVehiclePawn, bIsHiddenDriverRep);
+
+}
+
+void AZSWheeledVehiclePawn::OnRep_SkeletalMeshDriver()
+{
+	//UE_LOG(LogTemp, Warning, TEXT("---------------------------------***** MeshName **** --------------------------------------"));
+	if(IsValid(SkeletalMeshComponentDriver) && IsValid(SkeletalMeshDriver))
+	{
+		SkeletalMeshComponentDriver->SetSkeletalMesh(SkeletalMeshDriver);
+		//UE_LOG(LogTemp, Warning, TEXT("---------------------------------MeshName %s **** --------------------------------------"), *SkeletalMeshDriver->GetName());
+		SkeletalMeshComponentDriver->SetHiddenInGame(bIsHiddenDriverRep);
+	}
+}
 
 
 void AZSWheeledVehiclePawn::SetEngineStart_Implementation(bool NewValue)

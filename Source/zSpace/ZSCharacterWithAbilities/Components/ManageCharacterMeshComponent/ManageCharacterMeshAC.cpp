@@ -9,6 +9,7 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "Net/UnrealNetwork.h"
 #include "zSpace/Game/ZSpaceGameInstance.h"
+#include "zSpace/ZSCharacterWithAbilities/ZSCharacterWithAbilities.h"
 
 // Sets default values for this component's properties
 UManageCharacterMeshAC::UManageCharacterMeshAC()
@@ -47,6 +48,7 @@ void UManageCharacterMeshAC::UpdateCharacterMesh(const FName& MeshName)
 	auto* Mesh = CharacterMeshesDataAsset->GetMeshByName(MeshName);
 	if (IsValid(Mesh))
 	{
+		Server_SetMeshName(MeshName);
 		Server_SetCharacterMesh(Mesh);
 	}
 }
@@ -73,6 +75,20 @@ void UManageCharacterMeshAC::OnRep_CharacterMesh()
 	SetMesh(CharacterMesh);
 }
 
+void UManageCharacterMeshAC::Server_SetMeshName_Implementation(const FName& NewMeshName)
+{
+	if (IsValid(OwnerCharacter))
+	{
+		AZSCharacterWithAbilities * Character = Cast<AZSCharacterWithAbilities>(OwnerCharacter);
+		Character->MeshName = NewMeshName;
+	}
+}
+
+bool UManageCharacterMeshAC::Server_SetMeshName_Validate(const FName& NewMeshName)
+{
+	return true;
+}
+
 void UManageCharacterMeshAC::SetMesh(USkeletalMesh* Mesh)
 {
 	if (IsValid(Mesh))
@@ -88,6 +104,17 @@ void UManageCharacterMeshAC::SetMesh(USkeletalMesh* Mesh)
 	}
 }
 
+USkeletalMesh* UManageCharacterMeshAC::GetSkeletalMeshByMeshName(const FName& NewMeshName)
+{
+	if (IsValid(CharacterMeshesDataAsset))
+	{
+		USkeletalMesh * Mesh = CharacterMeshesDataAsset->GetMeshByName(NewMeshName);
+		return Mesh;	
+	}
+	return nullptr;
+}
+
+
 void UManageCharacterMeshAC::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
@@ -98,6 +125,7 @@ void UManageCharacterMeshAC::GetLifetimeReplicatedProps(TArray<FLifetimeProperty
 void UManageCharacterMeshAC::Server_SetCharacterMesh_Implementation(USkeletalMesh* Mesh)
 {
 	CharacterMesh = Mesh;
+	SetMesh(Mesh);
 }
 
 bool UManageCharacterMeshAC::Server_SetCharacterMesh_Validate(USkeletalMesh* Mesh)
