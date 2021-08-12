@@ -45,7 +45,6 @@ else (echo "Error: wrong argument" && exit 11)
 
 echo ***SERVER_EXE_PATH: %SERVER_EXE_PATH%
 
-
 if %errorlevel% NEQ 0 exit /b %errorlevel%
 set MOVE_SERVER_EXE_PATH=%ARCHIVEDIRECTORY%\WindowsNoEditor\%PROJECT_NAME%\Binaries\Win64\
 
