@@ -209,14 +209,9 @@ bool AZSWheeledVehiclePawn::Server_SetForwardInputValue_Validate(const float& Ne
 	return !(NewForwardInput > 1 || NewForwardInput < -1);
 }
 
-void AZSWheeledVehiclePawn::Server_SetIsHiddenDriver_Implementation(bool NewIsShowDriver)
+void AZSWheeledVehiclePawn::SetIsHiddenDriver(bool NewIsShowDriver)
 {
-	bIsHiddenDriverRep = NewIsShowDriver;	
-}
-
-bool AZSWheeledVehiclePawn::Server_SetIsHiddenDriver_Validate(bool NewIsShowDriver)
-{
-	return true;
+	bIsHiddenDriver = NewIsShowDriver;	
 }
 
 void AZSWheeledVehiclePawn::SendForwardInputToServer(const float& NewForwardInput)
@@ -283,9 +278,12 @@ void AZSWheeledVehiclePawn::BeginPlay()
 {
 	Super::BeginPlay();
 	SetAutonomousProxy(true);
-	HiddenDriver(true);
+	if(ROLE_Authority == GetLocalRole())
+	{
+		SetIsHiddenDriver(true);
+	}
 	// Start an engine sound playing
-	EngineSoundComponent->Play(); // TODO Need to set Engine Sound.
+	EngineSoundComponent->Play(); 
 	InitAttributes();
 	//MultiCastEnableTick(false);
 	OnFrontLights(false);
@@ -775,13 +773,11 @@ void AZSWheeledVehiclePawn::FrontRearLights(const FOnAttributeChangeData& NewDat
 	}
 }
 
-
-void AZSWheeledVehiclePawn::HiddenDriver_Implementation(bool NewHiddenDriver)
+void AZSWheeledVehiclePawn::OnRepHiddenDriver()
 {
-	if(IsValid(SkeletalMeshComponentDriver) && GetLocalRole() < ROLE_Authority)
+	if(IsValid(SkeletalMeshComponentDriver))
 	{
-		Server_SetIsHiddenDriver(NewHiddenDriver);
-		SkeletalMeshComponentDriver->SetHiddenInGame(NewHiddenDriver);
+		SkeletalMeshComponentDriver->SetHiddenInGame(bIsHiddenDriver);
 	}
 }
 
@@ -848,7 +844,7 @@ void AZSWheeledVehiclePawn::CheckVehicleStop()
 void AZSWheeledVehiclePawn::UnPossessed()
 {
 	SteeringWheelStaticMeshComponent->SetComponentTickEnabled(false);
-	HiddenDriver(true);
+	SetIsHiddenDriver(true);
 	SetEngineStart(false);
 	Super::UnPossessed();
 }
@@ -857,7 +853,7 @@ void AZSWheeledVehiclePawn::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
 	SteeringWheelStaticMeshComponent->SetComponentTickEnabled(true);
-	HiddenDriver(false);
+	SetIsHiddenDriver(false);
 	Client_SetupDefaultCamera();
 	SetEngineStart(true);
 }
@@ -1024,7 +1020,7 @@ void AZSWheeledVehiclePawn::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	//DOREPLIFETIME_CONDITION_NOTIFY(AZSWheeledVehiclePawn, SkeletalMeshDriver , COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME(AZSWheeledVehiclePawn, SkeletalMeshDriver);
-	DOREPLIFETIME(AZSWheeledVehiclePawn, bIsHiddenDriverRep);
+	DOREPLIFETIME(AZSWheeledVehiclePawn, bIsHiddenDriver);
 
 }
 
@@ -1035,7 +1031,7 @@ void AZSWheeledVehiclePawn::OnRep_SkeletalMeshDriver()
 	{
 		SkeletalMeshComponentDriver->SetSkeletalMesh(SkeletalMeshDriver);
 		//UE_LOG(LogTemp, Warning, TEXT("---------------------------------MeshName %s **** --------------------------------------"), *SkeletalMeshDriver->GetName());
-		SkeletalMeshComponentDriver->SetHiddenInGame(bIsHiddenDriverRep);
+		SkeletalMeshComponentDriver->SetHiddenInGame(bIsHiddenDriver);
 	}
 }
 

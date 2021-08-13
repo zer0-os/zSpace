@@ -69,13 +69,13 @@ public:
 	UPROPERTY(BlueprintReadOnly, meta =(AllowPrivateAccess=true))
 	uint8 bIsEngineStarted:1;
 
-	UPROPERTY(Replicated, BlueprintReadOnly, meta = (AllowPrivateAccess=true))
-	uint8 bIsHiddenDriverRep:1;
+	UPROPERTY(ReplicatedUsing=OnRepHiddenDriver, BlueprintReadOnly, meta = (AllowPrivateAccess=true))
+	uint8 bIsHiddenDriver:1;
 	
 public:
 
-	UFUNCTION(Server, Reliable, WithValidation)
-	void Server_SetIsHiddenDriver(bool  NewIsHiddenDriver);
+	UFUNCTION()
+	void SetIsHiddenDriver(bool  NewIsHiddenDriver);
 	
 
 	// -1..0..1
@@ -266,8 +266,8 @@ public:
 
 private:
 
-	UFUNCTION(NetMulticast, Reliable)	
-	void HiddenDriver(bool  NewHiddenDriver);
+	UFUNCTION()	
+	void OnRepHiddenDriver();
 
 
 public:
