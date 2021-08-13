@@ -938,7 +938,7 @@ void AZSCharacterWithAbilities::AttachToVehicle(AZSWheeledVehiclePawn * NewVehic
 			AOWSPlayerController * PC = GetOWSPlayerController();
 			Client_AttachToVehicle(NewVehicle);
 			PC->Possess(NewVehicle);
-			NewVehicle->SetDriverSkeletalMesh();
+			NewVehicle->SetDriverSkeletalMesh(this);
 			NewVehicle->SetZsCharacterWithAbilities(this);
 			UE_LOG(LogTemp, Log, TEXT("Server: Posses"));
 		}
@@ -1009,15 +1009,18 @@ FVector AZSCharacterWithAbilities::GetPossibleLeaveCarLocation(AZSWheeledVehicle
 	const FVector VehicleRightVector =  NewVehicle->GetActorRightVector();
 	const ETraceTypeQuery TraceTypeQuery = UEngineTypes::ConvertToTraceType(ECollisionChannel::ECC_Visibility);
 	FVector Start = NewVehicle->GetActorLocation();
-	Start.Z+=30;
-	FVector End = NewVehicle->GetActorLocation() + (VehicleRightVector * 300);
+	Start.Z+=150;
+	constexpr float L_LengthLeaveDirection = 300.0;
+	float L_LengthLevelDirectionFinal = EVehicleLiveDirection::LEFT_DIRECTION == VehicleLiveDirection ? -L_LengthLeaveDirection : L_LengthLeaveDirection;
+	FVector End = NewVehicle->GetActorLocation() + (VehicleRightVector * L_LengthLevelDirectionFinal);
 	const bool bIsHit = UKismetSystemLibrary::LineTraceMulti(NewVehicle, Start, End, TraceTypeQuery,true, ActorsToIgnore, EDrawDebugTrace::ForDuration, OutHits, true);
 	if(!bIsHit)
 	{
 		NewStatus = true;
 		return End;
 	}
-	End = NewVehicle->GetActorLocation() + (VehicleRightVector * -300);
+	L_LengthLevelDirectionFinal = EVehicleLiveDirection::RIGHT_DIRECTION == VehicleLiveDirection ? -L_LengthLeaveDirection : L_LengthLeaveDirection;
+	End = NewVehicle->GetActorLocation() + (VehicleRightVector * L_LengthLevelDirectionFinal);
 	const bool bIsHit1 = UKismetSystemLibrary::LineTraceMulti(NewVehicle, Start, End, TraceTypeQuery,true, ActorsToIgnore, EDrawDebugTrace::ForDuration, OutHits, true);
 	if(!bIsHit1)
 	{

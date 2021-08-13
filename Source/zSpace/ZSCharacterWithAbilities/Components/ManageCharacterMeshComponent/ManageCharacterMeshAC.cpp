@@ -45,6 +45,7 @@ void UManageCharacterMeshAC::UpdateCharacterMesh(const FName& MeshName)
 {
 	if (!IsValid(CharacterMeshesDataAsset)) return;
 	
+	UE_LOG(LogTemp, Warning, TEXT("-1 ||||||||||||||| %s ||||||||||||||||"), *MeshName.ToString() );
 	auto* Mesh = CharacterMeshesDataAsset->GetMeshByName(MeshName);
 	if (IsValid(Mesh))
 	{

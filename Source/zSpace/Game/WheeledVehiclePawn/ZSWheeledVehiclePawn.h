@@ -303,8 +303,8 @@ public:
 	UFUNCTION(NetMulticast, Reliable)
 	void MultiCastEnableTick(bool  NewEnable);
 
-	UFUNCTION(NetMulticast, Reliable)
-	void SetDriverSkeletalMesh();
+	UFUNCTION()
+	void SetDriverSkeletalMesh(AZSCharacterWithAbilities * NewZSCharacterWithAbilities);
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty> & OutLifetimeProps) const override;
 
