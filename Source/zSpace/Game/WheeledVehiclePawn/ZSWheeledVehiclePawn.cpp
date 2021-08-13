@@ -995,22 +995,15 @@ void AZSWheeledVehiclePawn::EngineAudioProcessing()
 	}
 }
 
-void AZSWheeledVehiclePawn::SetDriverSkeletalMesh_Implementation()
+void AZSWheeledVehiclePawn::SetDriverSkeletalMesh(AZSCharacterWithAbilities * NewCharacter)
 {
-	TArray<AActor *> OutActors;	
-	GetAttachedActors(OutActors);
-	for(AActor * Iter : OutActors)
+	if(IsValid(NewCharacter))
 	{
-		AZSCharacterWithAbilities * Character = Cast<AZSCharacterWithAbilities>	(Iter);
-		if(IsValid(Character))
+		if(IsValid(NewCharacter->ManageCharacterMeshAC))
 		{
-			if(IsValid(Character->ManageCharacterMeshAC))
-			{
-				const FName L_MeshName = Character->MeshName;
-				SkeletalMeshDriver = Character->ManageCharacterMeshAC->GetSkeletalMeshByMeshName(L_MeshName);
-				UE_LOG(LogTemp, Warning, TEXT("---------------------------------MeshName = %s --------------------------------------"), *L_MeshName.ToString());
-			}
-			break;
+			const FName L_MeshName = NewCharacter->MeshName;
+			SkeletalMeshDriver = NewCharacter->ManageCharacterMeshAC->GetSkeletalMeshByMeshName(L_MeshName);
+			UE_LOG(LogTemp, Warning, TEXT("--------------------------------- MeshName = %s --------------------------------------"), *L_MeshName.ToString());
 		}
 	}
 }

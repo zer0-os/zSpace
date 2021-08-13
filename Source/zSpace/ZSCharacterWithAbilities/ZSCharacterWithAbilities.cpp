@@ -938,7 +938,7 @@ void AZSCharacterWithAbilities::AttachToVehicle(AZSWheeledVehiclePawn * NewVehic
 			AOWSPlayerController * PC = GetOWSPlayerController();
 			Client_AttachToVehicle(NewVehicle);
 			PC->Possess(NewVehicle);
-			NewVehicle->SetDriverSkeletalMesh();
+			NewVehicle->SetDriverSkeletalMesh(this);
 			NewVehicle->SetZsCharacterWithAbilities(this);
 			UE_LOG(LogTemp, Log, TEXT("Server: Posses"));
 		}
