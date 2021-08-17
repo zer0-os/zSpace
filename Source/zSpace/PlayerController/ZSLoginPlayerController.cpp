@@ -9,6 +9,7 @@
 #include "Kismet/KismetSystemLibrary.h"
 #include "zSpace/BlueprintFunctionLibrary/OWSBlueprintFunctionLibrary.h"
 #include "zSpace/Game/ZSpaceGameInstance.h"
+#include "zSpace/Types/CharacterMeshesDataAsset.h"
 
 AZSLoginPlayerController::AZSLoginPlayerController()
 {
@@ -53,11 +54,31 @@ void AZSLoginPlayerController::CheckCharacterCountAndAdd(int32 CheckCount, const
 	if (UserCharacters.Num() < CheckCount)
 	{	
 		const int32 CreateCount = CheckCount - UserCharacters.Num();
+		static TArray<FString> CharacterNameArray;
+		CharacterNameArray.Empty();
+		static TArray<FString> CustomFieldNameArray;
+		CustomFieldNameArray.Empty();
+		static  TArray<FString> DefaultSkeletalMeshNameArray;
+		DefaultSkeletalMeshNameArray.Empty();
 		for (int32 X(0); X < CreateCount; X++)
 		{
 			FString NewCharacterName = GetRandomString(9);
+			const FString CustomFieldName = UOWSBlueprintFunctionLibrary::GetMeshFieldName(this, NewCharacterName);
+			FString DefaultSkeletalMeshName = ""; 
+			CharacterMeshes->GetDefaultSkeletalMeshName(DefaultSkeletalMeshName);
 			CreateCharacter(UserSessionGUID, NewCharacterName, ClassName);
+			CharacterNameArray.Add(NewCharacterName);
+			CustomFieldNameArray.Add(CustomFieldName);
+			DefaultSkeletalMeshNameArray.Add(DefaultSkeletalMeshName);
 		}
+		FTimerHandle L_TimerHandle;
+		GetWorld()->GetTimerManager().SetTimer(L_TimerHandle, [&]()
+		{
+			for (int32 X(0); X < CharacterNameArray.Num(); X++)
+			{
+				AddOrUpdateCosmeticCustomCharacterData(UserSessionGUID, CharacterNameArray[X], CustomFieldNameArray[X], DefaultSkeletalMeshNameArray[X]);
+			}
+		}, 1, false);
 	}
 }
 

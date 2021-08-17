@@ -83,6 +83,9 @@ protected:
 
 	UPROPERTY(BlueprintGetter=GetCharacterName, BlueprintSetter=SetCharacterName)
 	FString CharacterName;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess=true))
+	class UCharacterMeshesDataAsset * CharacterMeshes = nullptr;
 	
 public:	
 	static const FString ClassName;

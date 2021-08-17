@@ -11,6 +11,13 @@
 #include "Accessories/SteeringWheelStaticMeshComponent/SteeringWheelStaticMeshComponent.h"
 #include "ZSWheeledVehiclePawn.generated.h"
 
+UENUM(Blueprintable, BlueprintType)
+enum class EVehicleLiveDirection :uint8
+{
+	 LEFT_DIRECTION UMETA(DisplayName = "Left Direction")
+	,RIGHT_DIRECTION UMETA(DisplayName = "Right Direction")
+};
+
 /**
  * 
  */
@@ -28,6 +35,8 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess=true))	
 	class USkeletalMeshComponent * SkeletalMeshComponentDriver = nullptr;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess=true))
+	EVehicleLiveDirection VehicleLiveDirection = EVehicleLiveDirection::LEFT_DIRECTION;
 
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Abilities", meta = (AllowPrivateAccess=true))	

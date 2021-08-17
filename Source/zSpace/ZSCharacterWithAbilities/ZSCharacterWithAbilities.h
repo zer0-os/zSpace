@@ -8,12 +8,6 @@
 #include "AnimInstances/ZSAnimInstance.h"
 #include "ZSCharacterWithAbilities.generated.h"
 
-UENUM(Blueprintable, BlueprintType)
-enum class EVehicleLiveDirection :uint8
-{
-	 LEFT_DIRECTION UMETA(DisplayName = "Left Direction")
-	,RIGHT_DIRECTION UMETA(DisplayName = "Right Direction")
-};
 
 
 /**
@@ -48,8 +42,6 @@ public:
 
 private:
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess=true))
-	EVehicleLiveDirection VehicleLiveDirection = EVehicleLiveDirection::LEFT_DIRECTION;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess=true))
 	float BaseTurnRate = 45;

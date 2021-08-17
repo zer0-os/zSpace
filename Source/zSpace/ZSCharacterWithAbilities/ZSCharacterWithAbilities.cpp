@@ -973,10 +973,9 @@ void AZSCharacterWithAbilities::DetachFromVehicle(AZSWheeledVehiclePawn* NewVehi
 				APlayerController * PC = Cast<APlayerController>(NewVehicle->GetController());
 				if(PC)
 				{
-						
-					const EDetachmentRule LocationRule = EDetachmentRule::KeepRelative;
-					const EDetachmentRule RotationRule = EDetachmentRule::KeepRelative;
-					const EDetachmentRule ScaleRule = EDetachmentRule::KeepRelative;
+					constexpr EDetachmentRule LocationRule = EDetachmentRule::KeepRelative;
+					constexpr EDetachmentRule RotationRule = EDetachmentRule::KeepRelative;
+					constexpr EDetachmentRule ScaleRule = EDetachmentRule::KeepRelative;
 					DetachFromActor(FDetachmentTransformRules(LocationRule, RotationRule, ScaleRule, true));
 					SetActorRotation(FRotator(0, 0, 0), ETeleportType::ResetPhysics);
 					SetActorLocation(CharacterLocation);
@@ -997,6 +996,7 @@ void AZSCharacterWithAbilities::Client_DetachFromVehicle_Implementation()
 	//DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
 	SetActorHiddenInGame(false);
 	SetActorEnableCollision(true);
+	SetActorRotation(FRotator(0, 0, 0), ETeleportType::ResetPhysics);
 	UZSSpringArmComponent::ResetPlayerCameraManagerRotationLimit(GetWorld());
 }
 
@@ -1011,7 +1011,7 @@ FVector AZSCharacterWithAbilities::GetPossibleLeaveCarLocation(AZSWheeledVehicle
 	FVector Start = NewVehicle->GetActorLocation();
 	Start.Z+=150;
 	constexpr float L_LengthLeaveDirection = 300.0;
-	float L_LengthLevelDirectionFinal = EVehicleLiveDirection::LEFT_DIRECTION == VehicleLiveDirection ? -L_LengthLeaveDirection : L_LengthLeaveDirection;
+	float L_LengthLevelDirectionFinal = EVehicleLiveDirection::LEFT_DIRECTION == NewVehicle->VehicleLiveDirection ? -L_LengthLeaveDirection : L_LengthLeaveDirection;
 	FVector End = NewVehicle->GetActorLocation() + (VehicleRightVector * L_LengthLevelDirectionFinal);
 	const bool bIsHit = UKismetSystemLibrary::LineTraceMulti(NewVehicle, Start, End, TraceTypeQuery,true, ActorsToIgnore, EDrawDebugTrace::ForDuration, OutHits, true);
 	if(!bIsHit)
@@ -1019,7 +1019,7 @@ FVector AZSCharacterWithAbilities::GetPossibleLeaveCarLocation(AZSWheeledVehicle
 		NewStatus = true;
 		return End;
 	}
-	L_LengthLevelDirectionFinal = EVehicleLiveDirection::RIGHT_DIRECTION == VehicleLiveDirection ? -L_LengthLeaveDirection : L_LengthLeaveDirection;
+	L_LengthLevelDirectionFinal = EVehicleLiveDirection::RIGHT_DIRECTION == NewVehicle->VehicleLiveDirection ? -L_LengthLeaveDirection : L_LengthLeaveDirection;
 	End = NewVehicle->GetActorLocation() + (VehicleRightVector * L_LengthLevelDirectionFinal);
 	const bool bIsHit1 = UKismetSystemLibrary::LineTraceMulti(NewVehicle, Start, End, TraceTypeQuery,true, ActorsToIgnore, EDrawDebugTrace::ForDuration, OutHits, true);
 	if(!bIsHit1)
