@@ -259,6 +259,11 @@ void UZSpaceGameInstance::HideLoadWalletWithMnemonicWidget()
 	}
 }
 
+UCharacterMeshesDataAsset* UZSpaceGameInstance::GetCharacterMeshesDataAsset() const
+{
+	return CharacterMeshesDataAsset;
+}
+
 void UZSpaceGameInstance::SetCurrentSelectedCharacterIndex(const int32& NewCurrentSelectedCharacterIndex)
 {
 	CurrentSelectedCharacterIndex = NewCurrentSelectedCharacterIndex;

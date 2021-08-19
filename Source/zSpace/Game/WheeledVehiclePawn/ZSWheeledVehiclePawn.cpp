@@ -1001,9 +1001,8 @@ void AZSWheeledVehiclePawn::SetDriverSkeletalMesh(AZSCharacterWithAbilities * Ne
 	{
 		if(IsValid(NewCharacter->ManageCharacterMeshAC))
 		{
-			const FName L_MeshName = NewCharacter->MeshName;
-			SkeletalMeshDriver = NewCharacter->ManageCharacterMeshAC->GetSkeletalMeshByMeshName(L_MeshName);
-			UE_LOG(LogTemp, Warning, TEXT("--------------------------------- MeshName = %s --------------------------------------"), *L_MeshName.ToString());
+			DriverSkeletalMeshName = NewCharacter->MeshName.ToString();
+			UE_LOG(LogTemp, Warning, TEXT("--------------------------------- MeshName = %s --------------------------------------"), *DriverSkeletalMeshName);
 		}
 	}
 }
@@ -1012,22 +1011,40 @@ void AZSWheeledVehiclePawn::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	//DOREPLIFETIME_CONDITION_NOTIFY(AZSWheeledVehiclePawn, SkeletalMeshDriver , COND_None, REPNOTIFY_Always);
-	DOREPLIFETIME(AZSWheeledVehiclePawn, SkeletalMeshDriver);
 	DOREPLIFETIME(AZSWheeledVehiclePawn, bIsHiddenDriver);
+	DOREPLIFETIME(AZSWheeledVehiclePawn, DriverSkeletalMeshName);
 
 }
 
-void AZSWheeledVehiclePawn::OnRep_SkeletalMeshDriver()
+void AZSWheeledVehiclePawn::OnRep_DriverSkeletalMeshName()
 {
-	//UE_LOG(LogTemp, Warning, TEXT("---------------------------------***** MeshName **** --------------------------------------"));
+	SkeletalMeshDriver = GetCharacterSkeletalMeshBySkeletalMeshName(DriverSkeletalMeshName);
 	if(IsValid(SkeletalMeshComponentDriver) && IsValid(SkeletalMeshDriver))
 	{
-		SkeletalMeshComponentDriver->SetSkeletalMesh(SkeletalMeshDriver);
-		//UE_LOG(LogTemp, Warning, TEXT("---------------------------------MeshName %s **** --------------------------------------"), *SkeletalMeshDriver->GetName());
+		SkeletalMeshComponentDriver->SetSkeletalMesh(SkeletalMeshDriver, true);
+		UE_LOG(LogTemp, Warning, TEXT("Client ** ---------------------------------MeshName %s **** --------------------------------------"), *SkeletalMeshDriver->GetName());
 		SkeletalMeshComponentDriver->SetHiddenInGame(bIsHiddenDriver);
 	}
 }
 
+USkeletalMesh* AZSWheeledVehiclePawn::GetCharacterSkeletalMeshBySkeletalMeshName(const FString& NewSkeletalMeshName)
+{
+	USkeletalMesh * R_SkeletalMesh = nullptr;
+	const UZSpaceGameInstance * GameInstance = Cast<UZSpaceGameInstance>(UGameplayStatics::GetGameInstance(this));
+	if(IsValid(GameInstance))
+	{
+		const UCharacterMeshesDataAsset * L_CharacterMeshesDataAsset = GameInstance->GetCharacterMeshesDataAsset();
+		if(IsValid(L_CharacterMeshesDataAsset))
+		{
+			R_SkeletalMesh = L_CharacterMeshesDataAsset->GetMeshByName(FName(NewSkeletalMeshName));
+		}
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("The CharacterMeshesDataAsset is nullptr. Please Set Data asset in GameInstance."));
+		}
+	}
+	return R_SkeletalMesh;
+}
 
 void AZSWheeledVehiclePawn::SetEngineStart_Implementation(bool NewValue)
 {

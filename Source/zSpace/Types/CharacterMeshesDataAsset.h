@@ -6,6 +6,19 @@
 #include "Engine/DataAsset.h"
 #include "CharacterMeshesDataAsset.generated.h"
 
+USTRUCT(BlueprintType)
+struct FCharacterMeshData
+{
+	GENERATED_BODY()
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	USkeletalMesh * CharacterMesh = nullptr;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	uint8 bIsDefaultCharacter:1;
+	
+};
+
 /**
  * 
  */
@@ -15,8 +28,9 @@ class ZSPACE_API UCharacterMeshesDataAsset : public UDataAsset
 	GENERATED_BODY()
 
 public:
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	TMap<USkeletalMesh*, FName> CharacterMeshAndName;
+	TArray<FCharacterMeshData> CharacterMeshDataArray;
 
 public:
 	UFUNCTION(BlueprintPure)
@@ -24,4 +38,18 @@ public:
 	
 	UFUNCTION(BlueprintPure)
 	FName GetNameByMesh(const USkeletalMesh* Mesh) const;
+
+	UFUNCTION(BlueprintPure)
+	TArray<class USkeletalMesh *> GetAllSkeletalMeshes();
+
+	UFUNCTION(BlueprintPure)
+	void GetAllCharacterNames(TArray<FName>& CharacterNames);
+
+	UFUNCTION(BlueprintPure)
+	void GetDefaultSkeletalMeshName(FString & NewDefaultSkeletalMeshName);
+
+#if WITH_EDITOR
+	virtual void PreEditChange( class FEditPropertyChain& PropertyAboutToChange ) override;
+#endif
+	
 };
