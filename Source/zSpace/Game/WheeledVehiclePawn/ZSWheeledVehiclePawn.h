@@ -139,6 +139,8 @@ private:
 	static FName VehicleRearLightParamName;
 
 	static FName VehicleFrontAndRearLightsParamName;
+
+	static FName VehicleInSideLight;
 		
 protected:
 	virtual void BeginPlay() override;
@@ -291,6 +293,8 @@ public:
 	virtual void PossessedBy(AController* NewController) override;
 
 	void OnFrontLights(const  bool & IsEnableLights);
+
+	void OnInSideLight(const  bool & IsEnableLights);
 
 	class USteeringWheelStaticMeshComponent * GetSteeringWheelStaticMeshComponent();
 
