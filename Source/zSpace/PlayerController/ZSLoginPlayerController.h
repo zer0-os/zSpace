@@ -6,9 +6,21 @@
 #include "OWSPlayerController.h"
 #include "ZSLoginPlayerController.generated.h"
 
+USTRUCT()
+struct FCharacterArrayData
+{
+	GENERATED_BODY()
+
+	TArray<FString> CharacterNameArray,  CustomFieldNameArray,  DefaultSkeletalMeshNameArray;
+
+	FORCEINLINE void Empty() {CharacterNameArray.Empty(); CustomFieldNameArray.Empty(); DefaultSkeletalMeshNameArray.Empty();}
+};
+
 /**
  * 
  */
+
+struct FCharacterArrayData;
 
 UCLASS()
 class ZSPACE_API AZSLoginPlayerController : public AOWSPlayerController
@@ -59,6 +71,8 @@ protected:
 	UFUNCTION(BlueprintCallable)
 	void UpdateOrAddCustomCharacterDataMesh(const FCustomCharacterDataStruct& NewData);
 
+	void PostAddOrUpdateCosmeticCustomCharacterData(const FCharacterArrayData & CharacterArrayData);
+	
 public:
 	/**
 	 * @param Length Max Length 32
@@ -84,11 +98,14 @@ protected:
 	UPROPERTY(BlueprintGetter=GetCharacterName, BlueprintSetter=SetCharacterName)
 	FString CharacterName;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess=true))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess=true)) // TODO The CharacterMeshes must be remove and use from game instance. 
 	class UCharacterMeshesDataAsset * CharacterMeshes = nullptr;
 	
-public:	
+public:
+	
 	static const FString ClassName;
 	
 };
+
+
 

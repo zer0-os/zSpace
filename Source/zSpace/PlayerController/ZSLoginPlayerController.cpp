@@ -11,6 +11,7 @@
 #include "zSpace/Game/ZSpaceGameInstance.h"
 #include "zSpace/Types/CharacterMeshesDataAsset.h"
 
+
 AZSLoginPlayerController::AZSLoginPlayerController()
 {
 	OnGetAllCharacters.AddDynamic(this, &AZSLoginPlayerController::OnGetAllCharactersEvent);	
@@ -52,14 +53,10 @@ void AZSLoginPlayerController::OnEscOnClicked()
 void AZSLoginPlayerController::CheckCharacterCountAndAdd(int32 CheckCount, const TArray<FUserCharacter>& UserCharacters)
 {
 	if (UserCharacters.Num() < CheckCount)
-	{	
+	{
+		static FCharacterArrayData L_CharacterArrayData;
+		L_CharacterArrayData.Empty();
 		const int32 CreateCount = CheckCount - UserCharacters.Num();
-		static TArray<FString> CharacterNameArray;
-		CharacterNameArray.Empty();
-		static TArray<FString> CustomFieldNameArray;
-		CustomFieldNameArray.Empty();
-		static  TArray<FString> DefaultSkeletalMeshNameArray;
-		DefaultSkeletalMeshNameArray.Empty();
 		for (int32 X(0); X < CreateCount; X++)
 		{
 			FString NewCharacterName = GetRandomString(9);
@@ -67,20 +64,29 @@ void AZSLoginPlayerController::CheckCharacterCountAndAdd(int32 CheckCount, const
 			FString DefaultSkeletalMeshName = ""; 
 			CharacterMeshes->GetDefaultSkeletalMeshName(DefaultSkeletalMeshName);
 			CreateCharacter(UserSessionGUID, NewCharacterName, ClassName);
-			CharacterNameArray.Add(NewCharacterName);
-			CustomFieldNameArray.Add(CustomFieldName);
-			DefaultSkeletalMeshNameArray.Add(DefaultSkeletalMeshName);
+			L_CharacterArrayData.CharacterNameArray.Add(NewCharacterName);
+			L_CharacterArrayData.CustomFieldNameArray.Add(CustomFieldName);
+			L_CharacterArrayData.DefaultSkeletalMeshNameArray.Add(DefaultSkeletalMeshName);
 		}
-		FTimerHandle L_TimerHandle;
-		GetWorld()->GetTimerManager().SetTimer(L_TimerHandle, [&]()
-		{
-			for (int32 X(0); X < CharacterNameArray.Num(); X++)
-			{
-				AddOrUpdateCosmeticCustomCharacterData(UserSessionGUID, CharacterNameArray[X], CustomFieldNameArray[X], DefaultSkeletalMeshNameArray[X]);
-			}
-		}, 1, false);
+
+		PostAddOrUpdateCosmeticCustomCharacterData(L_CharacterArrayData);
 	}
 }
+
+void  AZSLoginPlayerController::PostAddOrUpdateCosmeticCustomCharacterData(const FCharacterArrayData & CharacterArrayData)
+{
+	FTimerHandle L_TimerHandle;
+	GetWorld()->GetTimerManager().SetTimer(L_TimerHandle, [&]()
+	{
+		for (int32 X(0); X < CharacterArrayData.CharacterNameArray.Num(); X++)
+		{
+			AddOrUpdateCosmeticCustomCharacterData(UserSessionGUID, CharacterArrayData.CharacterNameArray[X],
+														            CharacterArrayData.CustomFieldNameArray[X],
+														            CharacterArrayData.DefaultSkeletalMeshNameArray[X]);
+		}
+	}, 1, false);	
+}
+
 
 void AZSLoginPlayerController::OnGetAllCharactersEvent(const TArray<FUserCharacter>& UserCharacters)
 {

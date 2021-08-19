@@ -148,7 +148,14 @@ private:
 	UPROPERTY()
 	TArray<FUserCharacter> UserCharacter;
 	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess=true))
+	class UCharacterMeshesDataAsset * CharacterMeshesDataAsset = nullptr;
+	
 public:
+
+	UFUNCTION(BlueprintPure)
+	class UCharacterMeshesDataAsset * GetCharacterMeshesDataAsset() const;
+	
 
 	UFUNCTION(BlueprintCallable)
 	void SetCurrentSelectedCharacterIndex(const int32 & NewCurrentSelectedCharacterIndex);
@@ -159,5 +166,4 @@ public:
 	UFUNCTION()
 	void StreamingLevelLoaded();
 	
-
 };

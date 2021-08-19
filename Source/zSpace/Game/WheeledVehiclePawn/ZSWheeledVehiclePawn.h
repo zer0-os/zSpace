@@ -317,12 +317,18 @@ public:
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty> & OutLifetimeProps) const override;
 
-	UPROPERTY(ReplicatedUsing=OnRep_SkeletalMeshDriver)
+	UPROPERTY()
 	class USkeletalMesh * SkeletalMeshDriver = nullptr;
+
+	UPROPERTY(ReplicatedUsing=OnRep_DriverSkeletalMeshName)
+	FString DriverSkeletalMeshName;
+
+	UFUNCTION()
+	void OnRep_DriverSkeletalMeshName();
+
+	class USkeletalMesh * GetCharacterSkeletalMeshBySkeletalMeshName(const FString& NewSkeletalMeshName);
 	
 public:
 	
-	UFUNCTION()
-	void OnRep_SkeletalMeshDriver();
 };
 

@@ -64,3 +64,15 @@ void UCharacterMeshesDataAsset::GetDefaultSkeletalMeshName(FString& NewDefaultSk
 	NewDefaultSkeletalMeshName = "";
 }
 
+
+#if WITH_EDITOR
+void UCharacterMeshesDataAsset::PreEditChange(FEditPropertyChain& PropertyAboutToChange)
+{
+	Super::PreEditChange(PropertyAboutToChange);
+	for(FCharacterMeshData & Iter : CharacterMeshDataArray)
+	{
+		Iter.bIsDefaultCharacter = false;
+	}
+}
+#endif
+
