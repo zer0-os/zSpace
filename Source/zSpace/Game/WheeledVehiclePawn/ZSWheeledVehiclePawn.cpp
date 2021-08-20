@@ -34,6 +34,8 @@ FName AZSWheeledVehiclePawn::VehicleRearLightParamName = "EmissiveColorRearLight
 
 FName AZSWheeledVehiclePawn::VehicleFrontAndRearLightsParamName = "EmissiveColorFrontAndRearLights";
 
+FName AZSWheeledVehiclePawn::VehicleInSideLight = "LightOn";
+
 
 AZSWheeledVehiclePawn::AZSWheeledVehiclePawn(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer.SetDefaultSubobjectClass<UZSVehicleMovementComponent>(AWheeledVehiclePawn::VehicleMovementComponentName))
 {
@@ -288,6 +290,7 @@ void AZSWheeledVehiclePawn::BeginPlay()
 	//MultiCastEnableTick(false);
 	OnFrontLights(false);
 	SetEngineStart(false);
+	OnInSideLight(false);
 }
 
 void AZSWheeledVehiclePawn::Tick(float DeltaSeconds)
@@ -669,6 +672,7 @@ void AZSWheeledVehiclePawn::OnFrontAndRearLightChangedNative(const FOnAttributeC
 	FrontRearLights(NewData);
 	const bool bIsEnable = NewData.NewValue != 0 ? true : false;
 	OnFrontLights(bIsEnable);
+	OnInSideLight(bIsEnable);
 }
 
 void AZSWheeledVehiclePawn::StopRearLight(const FOnAttributeChangeData& NewData)
@@ -877,6 +881,40 @@ void AZSWheeledVehiclePawn::OnFrontLights(const bool & IsEnableLights)
 	}
 }
 
+void AZSWheeledVehiclePawn::OnInSideLight(const bool& IsEnableLights)
+{
+	if(IsValid(GetMesh()))
+	{
+		TArray<USceneComponent *> MeshChildComponent;
+		GetMesh()->GetChildrenComponents(true, MeshChildComponent);
+		MeshChildComponent.Add(GetMesh());
+		for(USceneComponent * IterSceneComponent : MeshChildComponent)
+		{
+			UPrimitiveComponent * Iter = Cast<UPrimitiveComponent>(IterSceneComponent);
+			if(SkipComponent(Iter))
+			{
+				continue;
+			}
+			if(IsValid(Iter) )
+			{
+				const int32 Num = Iter->GetNumMaterials();
+				for(int32 I = 0; I < Num; I++)
+				{
+					UMaterialInstanceDynamic * MatDyn = Cast<UMaterialInstanceDynamic>(Iter->GetMaterial(I));
+					if(nullptr == MatDyn)
+					{
+						MatDyn = Iter->CreateAndSetMaterialInstanceDynamic(I);
+					}
+					if(MatDyn)
+					{
+						const float Val = IsEnableLights ? 1.0 : 0;
+						MatDyn->SetScalarParameterValue(VehicleInSideLight, Val);
+					}
+				}
+			}
+		}
+	}
+}
 
 
 void AZSWheeledVehiclePawn::EnableFrontLight()
