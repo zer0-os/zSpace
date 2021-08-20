@@ -49,8 +49,14 @@ public:
 	UFUNCTION(Server, Reliable, WithValidation)
 	void Server_SetCharacterMesh(class USkeletalMesh* Mesh);
 
+	UFUNCTION(Server, Reliable, WithValidation)
+	void Server_SetMeshName(const FName & NewMeshName);
+
 	UFUNCTION(BlueprintCallable)
 	void SetMesh(class USkeletalMesh* Mesh);
+
+	UFUNCTION(BlueprintCallable)
+	USkeletalMesh * GetSkeletalMeshByMeshName(const FName & NewMeshName);
 
 protected:
 	virtual void GetLifetimeReplicatedProps(TArray <class FLifetimeProperty>& OutLifetimeProps) const override;

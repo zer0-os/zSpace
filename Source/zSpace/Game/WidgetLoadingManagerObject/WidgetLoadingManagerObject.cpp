@@ -7,6 +7,9 @@
 #include "zSpace/Game/ZSpaceGameInstance.h"
 #include "OculusFunctionLibrary.h"
 #include "XRLoadingScreenFunctionLibrary.h"
+#include "../ZSGamePlayerController/ZSGamePlayerController.h"
+#include "zSpace/ZSCharacterWithAbilities/ZSCharacterWithAbilities.h"
+#include <GameFramework/Controller.h>
 
 void UWidgetLoadingManagerObject::SetNotShowLoadingWidget(bool NewNotShowLoadingWidget)
 {
@@ -55,6 +58,15 @@ void UWidgetLoadingManagerObject::ShowLoadingWidget(TSubclassOf<UUserWidget> New
 	{
 		UXRLoadingScreenFunctionLibrary::AddLoadingScreenSplash(TextureLoading, FVector(0), FRotator(0), FVector2D(1, 1));
 	}
+
+	FTimerHandle OutTimer;
+
+	GetWorld()->GetTimerManager().SetTimer(OutTimer, [&] ()
+	{
+
+		EnableOrDisableCharacterMovement(false);
+
+	}, 0.2f, false);
 }
 
 void UWidgetLoadingManagerObject::HideLoadingWidget()
@@ -73,5 +85,28 @@ void UWidgetLoadingManagerObject::HideLoadingWidget()
 	else if(EOculusDeviceType::Quest_Link == L_OculusDeviceType)
 	{
 		UXRLoadingScreenFunctionLibrary::HideLoadingScreen();
+	}
+	EnableOrDisableCharacterMovement(true);
+}
+
+void UWidgetLoadingManagerObject::EnableOrDisableCharacterMovement(bool isEnable)
+{
+	AZSCharacterWithAbilities* PlayerCharacter = Cast<AZSCharacterWithAbilities>(UGameplayStatics::GetPlayerCharacter(this, 0));
+	if (PlayerCharacter)
+	{
+		AZSGamePlayerController* PC = Cast<AZSGamePlayerController>(PlayerCharacter->GetController());
+		if (IsValid(PC))
+		{
+			if (isEnable)
+			{
+				PlayerCharacter->EnableInput(PC);
+				//UKismetSystemLibrary::PrintString(this, "Enable input++++++++++++++++++++++++++", true, false, FLinearColor::Green, 15.f);
+			}
+			else
+			{
+				PlayerCharacter->DisableInput(PC);
+				//UKismetSystemLibrary::PrintString(this, "Disable input++++++++++++++++++++++++++", true, false, FLinearColor::Red, 15.f);
+			}
+		}
 	}
 }

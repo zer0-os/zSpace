@@ -9,3 +9,7 @@ Content/ancient_temple/Megascans/3D_Assets/Roman_Column_tj1lebsfa_3d/Normal_8K_L
 Content/GrassMountains/Textures/Background/T_Background_01_A.uasset filter=lfs diff=lfs merge=lfs -text
 Content/Megascans/Surfaces/Gold_Inlay_Marble_Tiles_vdkgdbpv/Displacement_4K_vdkgdbpv.uasset filter=lfs diff=lfs merge=lfs -text
 Content/zSpaceContent/Maps/UltraDynamicSky/Textures/Sky/Real_Stars.uasset filter=lfs diff=lfs merge=lfs -text
+Content/zSpaceContent/Maps/Miami/Miami_8K_BuiltData.uasset filter=lfs diff=lfs merge=lfs -text
+Content/zSpaceContent/AnotherMaps/wilderworldexterior_BuiltData.uasset filter=lfs diff=lfs merge=lfs -text
+Content/zSpaceContent/Maps/Miami/HM_48_44/HM_48_44_x0_y0_BuiltData.uasset filter=lfs diff=lfs merge=lfs -text
+*_BuiltData.uasset filter=lfs diff=lfs merge=lfs -text

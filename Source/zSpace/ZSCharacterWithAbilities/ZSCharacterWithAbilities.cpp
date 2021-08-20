@@ -23,8 +23,13 @@
 #include "Blueprint/UserWidget.h"
 #include "Components/WidgetComponent.h"
 #include "Components/WidgetInteractionComponent.h"
-#include "zSpace/VirtualkeyboarActor/VirtualKeyboardWidgetInterface/VirtualKeyboardWidgetInterface.h"
+#include "zSpace/Game/WheeledVehiclePawn/ZSWheeledVehiclePawn.h"
+#include "zSpace/VR/VirtualkeyboarActor/VirtualKeyboardWidgetInterface/VirtualKeyboardWidgetInterface.h"
 #include "zSpace/VR/BallisticLineComponent/BallisticLineComponent.h"
+#include "Components/BoxComponent.h"
+#include "Components/CapsuleComponent.h"
+#include "Components/ManageCharacterMeshComponent/ManageCharacterMeshAC.h"
+#include "zSpace/Game/WheeledVehiclePawn/SpringArmComponent/ZSSpringArmComponent.h"
 
 
 AZSCharacterWithAbilities::AZSCharacterWithAbilities(const FObjectInitializer& NewObjectInitializer) : Super(NewObjectInitializer.SetDefaultSubobjectClass<UZSCharacterMovementComponent>(ACharacter::CharacterMovementComponentName))
@@ -36,16 +41,16 @@ AZSCharacterWithAbilities::AZSCharacterWithAbilities(const FObjectInitializer& N
 	SpringArmComponent->TargetArmLength = 300;
 	SpringArmComponent->SetRelativeLocation(FVector(0.0,70,68));
 
-	CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraComponent"));
-	checkf(nullptr != CameraComponent, TEXT("The CameraComponent is nullptr."));
-	CameraComponent->SetupAttachment(SpringArmComponent, USpringArmComponent::SocketName);
-	
+	CameraComponentDefault = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraComponent"));
+	checkf(nullptr != CameraComponentDefault, TEXT("The CameraComponent is nullptr."));
+	CameraComponentDefault->SetupAttachment(SpringArmComponent, USpringArmComponent::SocketName);
+
 	SceneComponentVR = CreateDefaultSubobject<USceneComponent>(TEXT("SceneComponentVR"));
 	checkf(nullptr != SceneComponentVR, TEXT("The SceneComponentVR is nullptr."));
 	SceneComponentVR->SetupAttachment(RootComponent);
 	
 	CameraComponentVR = CreateDefaultSubobject<UCameraComponent>(TEXT("VRCameraComponent"));
-	checkf(nullptr != CameraComponent, TEXT("The VRCameraComponent is nullptr."));
+	checkf(nullptr != CameraComponentDefault, TEXT("The VRCameraComponent is nullptr."));
 	CameraComponentVR->SetupAttachment(RootComponent);
 
 	DetectSurfaceTypeComponent = CreateDefaultSubobject<UDetectSurfaceTypeComponent>(TEXT("DetectSurfaceTypeComponent"));
@@ -95,6 +100,10 @@ AZSCharacterWithAbilities::AZSCharacterWithAbilities(const FObjectInitializer& N
 	BallisticLineComponentRight  = CreateDefaultSubobject<UBallisticLineComponent>(TEXT("BallisticLineComponentRight"));
 	checkf(nullptr != BallisticLineComponentRight, TEXT("The BallisticLineComponentRight is nullptr.") );
 	BallisticLineComponentRight->SetupAttachment(MotionControllerComponentRight);
+
+	ManageCharacterMeshAC = CreateDefaultSubobject<UManageCharacterMeshAC>(TEXT("ManageCharacterMeshAC"));
+	checkf(nullptr != ManageCharacterMeshAC, TEXT("The ManageCharacterMeshAC is nullptr. "));
+	AddOwnedComponent(ManageCharacterMeshAC);
 	
 }
 
@@ -132,7 +141,7 @@ void AZSCharacterWithAbilities::SetupOculusSettings()
 		checkf(nullptr != CharacterSkeletalMeshComponent, TEXT("The CharacterSkeletalmeshComponent is nullptr."));
 		//CharacterSkeletalMeshComponent->Deactivate();
 		CharacterSkeletalMeshComponent->DestroyComponent();
-		CameraComponent->Deactivate();
+		CameraComponentDefault->Deactivate();
 		CameraComponentVR->Activate();
 	} else if(EOculusDeviceType::OculusUnknown == L_OculusDeviceType)
 	{
@@ -200,6 +209,7 @@ void AZSCharacterWithAbilities::SetupPlayerInputComponent(UInputComponent* NewPl
 		NewPlayerInputComponent->BindAction(TEXT("OculusLTeleport"), EInputEvent::IE_Released, this, &AZSCharacterWithAbilities::OculusLTeleportReleased);
 		NewPlayerInputComponent->BindAction(TEXT("OculusRTeleport"), EInputEvent::IE_Pressed, this, &AZSCharacterWithAbilities::OculusRTeleportPressed);
 		NewPlayerInputComponent->BindAction(TEXT("OculusRTeleport"), EInputEvent::IE_Released, this, &AZSCharacterWithAbilities::OculusRTeleportReleased);
+		NewPlayerInputComponent->BindAction(TEXT("EnterVehicle"), EInputEvent::IE_Pressed, this, &AZSCharacterWithAbilities::EnterVehicle);
 		
 	}
 }
@@ -246,6 +256,16 @@ bool AZSCharacterWithAbilities::CanCrouch() const
 	{
 		return !GetCharacterMovement()->IsFalling();
 	}
+}
+
+void AZSCharacterWithAbilities::UnPossessed()
+{
+	Super::UnPossessed();	
+}
+
+void AZSCharacterWithAbilities::PossessedBy(AController* NewController)
+{
+	Super::PossessedBy(NewController);
 }
 
 void AZSCharacterWithAbilities::Turn(float NewValue)
@@ -395,16 +415,14 @@ void AZSCharacterWithAbilities::Dodge()
 			{
 				GetOWSMovementComponent()->DoDodge();
 						
-				if (AnimationState == EAnimationState::StartMovingAnimation)
+				if (AnimationState != EAnimationState::StartMovingAnimation)
 				{
-					StopStartMovementAnimMontage();
-				}
-
-				USoundBase * L_Acceleration = Cast<USoundBase>(SoundBaseAcceleration.LoadSynchronous());
-				checkf(nullptr != L_Acceleration, TEXT("The L_Acceleration is nullptr., Pleas Set Acceleration Sound."));
-				if(L_Acceleration)
-				{
-					UGameplayStatics::PlaySoundAtLocation(this, L_Acceleration, GetActorLocation());
+					USoundBase * L_Acceleration = Cast<USoundBase>(SoundBaseAcceleration.LoadSynchronous());
+					checkf(nullptr != L_Acceleration, TEXT("The L_Acceleration is nullptr., Pleas Set Acceleration Sound."));
+					if(L_Acceleration)
+					{
+						UGameplayStatics::PlaySoundAtLocation(this, L_Acceleration, GetActorLocation());
+					}
 				}
 			}
 		}
@@ -829,6 +847,7 @@ void AZSCharacterWithAbilities::GetLifetimeReplicatedProps(TArray<FLifetimePrope
 	DOREPLIFETIME(AZSCharacterWithAbilities, bIsMoveInputPressed);
 	DOREPLIFETIME(AZSCharacterWithAbilities, CharacterRelativeRotation);
 	DOREPLIFETIME(AZSCharacterWithAbilities, MoveInputKeyTimeDownAverage);
+	DOREPLIFETIME(AZSCharacterWithAbilities, MeshName);
 
 	// Move Axis Values
 	DOREPLIFETIME(AZSCharacterWithAbilities, MoveForwardAxisValue);
@@ -870,3 +889,157 @@ void AZSCharacterWithAbilities::HoveredWidgetChanged(UWidgetComponent* NewWidget
 		}
 	}
 }
+
+
+void AZSCharacterWithAbilities::EnterVehicle_Implementation()
+{
+	UE_LOG(LogTemp, Log, TEXT("********************************** Enter Vehicle ***********************"));
+	if(ROLE_Authority > GetLocalRole())
+	{
+		UE_LOG(LogTemp, Log, TEXT("Client: Enger Vehicle "));
+		EnterVehicle();	
+	}
+	UE_LOG(LogTemp, Log, TEXT("Server: Enger Vehicle "));
+	TArray<UPrimitiveComponent *> OverlappingComponents;
+	GetOverlappingComponents(OverlappingComponents);
+	for( UPrimitiveComponent * Iter : OverlappingComponents)
+	{
+		UBoxComponent * IterBoxComponent = Cast<UBoxComponent>(Iter);
+		if(IsValid(IterBoxComponent))
+		{
+			AZSWheeledVehiclePawn * Vehicle = Cast<AZSWheeledVehiclePawn>(IterBoxComponent->GetOwner());
+			if(IsValid(IterBoxComponent) && nullptr != Vehicle )
+			{
+				AttachToVehicle(Vehicle);
+			}
+			
+		}
+	}
+}
+
+bool AZSCharacterWithAbilities::EnterVehicle_Validate()
+{
+	return true;
+}
+
+void AZSCharacterWithAbilities::AttachToVehicle(AZSWheeledVehiclePawn * NewVehicle)
+{
+	if(ROLE_Authority == GetLocalRole())
+	{
+		if(IsValid(NewVehicle) && NewVehicle->IsEnterVehicle(this))
+		{
+			SetActorEnableCollision(false);
+			AttachToActor(NewVehicle, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+			const FVector L_VehicleLocation = NewVehicle->GetActorLocation();
+			UCapsuleComponent * L_CapsuleComponent = GetCapsuleComponent();
+			checkf( nullptr != L_CapsuleComponent, TEXT("The CapsuleComponent is nullptr."));
+			SetActorLocation(L_VehicleLocation);
+			SetActorHiddenInGame(true);
+			AOWSPlayerController * PC = GetOWSPlayerController();
+			Client_AttachToVehicle(NewVehicle);
+			PC->Possess(NewVehicle);
+			NewVehicle->SetDriverSkeletalMesh(this);
+			NewVehicle->SetZsCharacterWithAbilities(this);
+			UE_LOG(LogTemp, Log, TEXT("Server: Posses"));
+		}
+	}
+}
+
+void AZSCharacterWithAbilities::Client_AttachToVehicle_Implementation(AZSWheeledVehiclePawn* NewVehicle)
+{
+	if(IsValid(NewVehicle))
+	{
+		SetActorEnableCollision(false);
+		//AttachToActor(NewVehicle, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+		//const FVector L_VehicleLocation = NewVehicle->GetActorLocation();
+		//UCapsuleComponent * L_CapsuleComponent = GetCapsuleComponent();
+		//checkf( nullptr != L_CapsuleComponent, TEXT("The CapsuleComponent is nullptr."));
+		///SetActorLocation(L_VehicleLocation);
+		SetActorHiddenInGame(true);
+	}
+}
+
+
+void AZSCharacterWithAbilities::DetachFromVehicle(AZSWheeledVehiclePawn* NewVehicle)
+{
+	if(ROLE_Authority == GetLocalRole())
+	{
+		if(IsValid(NewVehicle))
+		{
+			bool bLeaveAvailable = false;
+			const FVector CharacterLocation = GetPossibleLeaveCarLocation(NewVehicle, bLeaveAvailable);
+			if(bLeaveAvailable)
+			{
+				APlayerController * PC = Cast<APlayerController>(NewVehicle->GetController());
+				if(PC)
+				{
+					constexpr EDetachmentRule LocationRule = EDetachmentRule::KeepRelative;
+					constexpr EDetachmentRule RotationRule = EDetachmentRule::KeepRelative;
+					constexpr EDetachmentRule ScaleRule = EDetachmentRule::KeepRelative;
+					DetachFromActor(FDetachmentTransformRules(LocationRule, RotationRule, ScaleRule, true));
+					SetActorRotation(FRotator(0, 0, 0), ETeleportType::ResetPhysics);
+					SetActorLocation(CharacterLocation);
+					SetActorEnableCollision(true);
+					SetActorHiddenInGame(false);
+					PC->Possess(this);
+					Client_DetachFromVehicle();
+					const FVector VehicleForwardVector = GetActorForwardVector();
+					NewVehicle->SetZsCharacterWithAbilities(nullptr);
+				}
+			}
+		}
+	}
+}
+
+void AZSCharacterWithAbilities::Client_DetachFromVehicle_Implementation()
+{
+	//DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+	SetActorHiddenInGame(false);
+	SetActorEnableCollision(true);
+	SetActorRotation(FRotator(0, 0, 0), ETeleportType::ResetPhysics);
+	UZSSpringArmComponent::ResetPlayerCameraManagerRotationLimit(GetWorld());
+}
+
+FVector AZSCharacterWithAbilities::GetPossibleLeaveCarLocation(AZSWheeledVehiclePawn* NewVehicle, bool & NewStatus)
+{
+	checkf(nullptr != NewVehicle, TEXT("The NewVehicle is nullptr."));
+	TArray<AActor *> ActorsToIgnore;
+	ActorsToIgnore.Add(NewVehicle->GetCharacterWithAbilities());	
+	TArray<FHitResult> OutHits;
+	const FVector VehicleRightVector =  NewVehicle->GetActorRightVector();
+	const ETraceTypeQuery TraceTypeQuery = UEngineTypes::ConvertToTraceType(ECollisionChannel::ECC_Visibility);
+	FVector Start = NewVehicle->GetActorLocation();
+	Start.Z+=150;
+	constexpr float L_LengthLeaveDirection = 300.0;
+	float L_LengthLevelDirectionFinal = EVehicleLiveDirection::LEFT_DIRECTION == NewVehicle->VehicleLiveDirection ? -L_LengthLeaveDirection : L_LengthLeaveDirection;
+	FVector End = NewVehicle->GetActorLocation() + (VehicleRightVector * L_LengthLevelDirectionFinal);
+	const bool bIsHit = UKismetSystemLibrary::LineTraceMulti(NewVehicle, Start, End, TraceTypeQuery,true, ActorsToIgnore, EDrawDebugTrace::ForDuration, OutHits, true);
+	if(!bIsHit)
+	{
+		NewStatus = true;
+		return End;
+	}
+	L_LengthLevelDirectionFinal = EVehicleLiveDirection::RIGHT_DIRECTION == NewVehicle->VehicleLiveDirection ? -L_LengthLeaveDirection : L_LengthLeaveDirection;
+	End = NewVehicle->GetActorLocation() + (VehicleRightVector * L_LengthLevelDirectionFinal);
+	const bool bIsHit1 = UKismetSystemLibrary::LineTraceMulti(NewVehicle, Start, End, TraceTypeQuery,true, ActorsToIgnore, EDrawDebugTrace::ForDuration, OutHits, true);
+	if(!bIsHit1)
+	{
+		NewStatus = true;
+		return End;
+	}
+	NewStatus = false;
+	UE_LOG(LogTemp, Warning, TEXT("The Character deosn't leave from vehicle becouse not available location"));
+	return FVector::ZeroVector;	
+	
+}
+
+void AZSCharacterWithAbilities::ShowEnterVehicleWidget_Implementation(AZSWheeledVehiclePawn* NewVehicle)
+{
+	if(IsValid(NewVehicle))
+	{
+		NewVehicle->ShowVehicleControlWidget();
+	}
+}
+
+
+

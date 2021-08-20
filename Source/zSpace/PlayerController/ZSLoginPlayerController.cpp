@@ -9,6 +9,8 @@
 #include "Kismet/KismetSystemLibrary.h"
 #include "zSpace/BlueprintFunctionLibrary/OWSBlueprintFunctionLibrary.h"
 #include "zSpace/Game/ZSpaceGameInstance.h"
+#include "zSpace/Types/CharacterMeshesDataAsset.h"
+
 
 AZSLoginPlayerController::AZSLoginPlayerController()
 {
@@ -51,15 +53,40 @@ void AZSLoginPlayerController::OnEscOnClicked()
 void AZSLoginPlayerController::CheckCharacterCountAndAdd(int32 CheckCount, const TArray<FUserCharacter>& UserCharacters)
 {
 	if (UserCharacters.Num() < CheckCount)
-	{	
+	{
+		static FCharacterArrayData L_CharacterArrayData;
+		L_CharacterArrayData.Empty();
 		const int32 CreateCount = CheckCount - UserCharacters.Num();
 		for (int32 X(0); X < CreateCount; X++)
 		{
 			FString NewCharacterName = GetRandomString(9);
+			const FString CustomFieldName = UOWSBlueprintFunctionLibrary::GetMeshFieldName(this, NewCharacterName);
+			FString DefaultSkeletalMeshName = ""; 
+			CharacterMeshes->GetDefaultSkeletalMeshName(DefaultSkeletalMeshName);
 			CreateCharacter(UserSessionGUID, NewCharacterName, ClassName);
+			L_CharacterArrayData.CharacterNameArray.Add(NewCharacterName);
+			L_CharacterArrayData.CustomFieldNameArray.Add(CustomFieldName);
+			L_CharacterArrayData.DefaultSkeletalMeshNameArray.Add(DefaultSkeletalMeshName);
 		}
+
+		PostAddOrUpdateCosmeticCustomCharacterData(L_CharacterArrayData);
 	}
 }
+
+void  AZSLoginPlayerController::PostAddOrUpdateCosmeticCustomCharacterData(const FCharacterArrayData & CharacterArrayData)
+{
+	FTimerHandle L_TimerHandle;
+	GetWorld()->GetTimerManager().SetTimer(L_TimerHandle, [&]()
+	{
+		for (int32 X(0); X < CharacterArrayData.CharacterNameArray.Num(); X++)
+		{
+			AddOrUpdateCosmeticCustomCharacterData(UserSessionGUID, CharacterArrayData.CharacterNameArray[X],
+														            CharacterArrayData.CustomFieldNameArray[X],
+														            CharacterArrayData.DefaultSkeletalMeshNameArray[X]);
+		}
+	}, 1, false);	
+}
+
 
 void AZSLoginPlayerController::OnGetAllCharactersEvent(const TArray<FUserCharacter>& UserCharacters)
 {

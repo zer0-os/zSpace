@@ -49,8 +49,8 @@ void APreviewCharacter::BeginPlay()
 
 void APreviewCharacter::NextCharacterMesh()
 {
-	TArray<USkeletalMesh*> Meshes;
-	CharacterMeshesDataAsset->CharacterMeshAndName.GenerateKeyArray(Meshes);
+	TArray<USkeletalMesh*> Meshes = CharacterMeshesDataAsset->GetAllSkeletalMeshes();
+
 	if (CurrentCharacterMeshIndex + 1 > Meshes.Num() - 1)
 	{
 		CurrentCharacterMeshIndex = 0;
@@ -68,8 +68,7 @@ void APreviewCharacter::NextCharacterMesh()
 
 void APreviewCharacter::PreviousCharacterMesh()
 {
-	TArray<USkeletalMesh*> Meshes;
-	CharacterMeshesDataAsset->CharacterMeshAndName.GenerateKeyArray(Meshes);
+	TArray<USkeletalMesh*> Meshes = CharacterMeshesDataAsset->GetAllSkeletalMeshes();
 
 	if (CurrentCharacterMeshIndex - 1 < 0)
 	{
@@ -94,7 +93,8 @@ UCharacterMeshesDataAsset* APreviewCharacter::GetCharacterMeshesDataAsset() cons
 FName APreviewCharacter::GetCurrentMeshName() const
 {
 	TArray<FName> Names;
-	CharacterMeshesDataAsset->CharacterMeshAndName.GenerateValueArray(Names);
+
+	CharacterMeshesDataAsset->GetAllCharacterNames(Names);
 
 	if (Names.IsValidIndex(CurrentCharacterMeshIndex))
 	{
@@ -105,8 +105,7 @@ FName APreviewCharacter::GetCurrentMeshName() const
 
 USkeletalMesh* APreviewCharacter::GetCurrentMesh() const
 {
-	TArray<USkeletalMesh*> Meshes;
-	CharacterMeshesDataAsset->CharacterMeshAndName.GenerateKeyArray(Meshes);
+	TArray<USkeletalMesh*> Meshes = CharacterMeshesDataAsset->GetAllSkeletalMeshes();
 
 	if (Meshes.IsValidIndex(CurrentCharacterMeshIndex))
 	{

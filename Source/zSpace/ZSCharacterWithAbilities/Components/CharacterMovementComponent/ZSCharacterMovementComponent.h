@@ -86,4 +86,9 @@ protected:
 	void UpdateMaxWalkSpeed();
 	
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
+
+public:
+	
+	virtual bool IsWalkable(const FHitResult& Hit) const override;
 };

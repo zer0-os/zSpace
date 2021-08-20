@@ -12,7 +12,7 @@ set PROJECT_PATH=%CD%\%PROJECT_NAME%.uproject
 call %UE4_PATH%\Engine\Binaries\Win64\UE4Editor-Cmd.exe ^
  "%PROJECT_PATH%" ^
  -Run=ResavePackages ^
- -IgnoreChangeList ^
+ -IgnoreChangeLis ^
  -BuildLighting ^
  -Quality=Production ^
  -MapsOnly ^

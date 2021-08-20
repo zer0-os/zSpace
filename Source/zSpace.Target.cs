@@ -9,6 +9,8 @@ public class zSpaceTarget : TargetRules
 	{
 		Type = TargetType.Game;
         ExtraModuleNames.AddRange(new string[] { "zSpace" });
+        //bCompileChaos = true;
+        //bUseChaos = true;
         DefaultBuildSettings = BuildSettingsVersion.V2;
     }
 }

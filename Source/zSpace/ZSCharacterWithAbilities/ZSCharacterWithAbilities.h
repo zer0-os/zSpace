@@ -6,8 +6,9 @@
 #include "OWSCharacterWithAbilities.h"
 #include "AnimInstances/ZSAnimationTypes.h"
 #include "AnimInstances/ZSAnimInstance.h"
-
 #include "ZSCharacterWithAbilities.generated.h"
+
+
 
 /**
  * 
@@ -20,6 +21,8 @@ class ZSPACE_API AZSCharacterWithAbilities : public AOWSCharacterWithAbilities
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnChangeAnimationState, const EAnimationState, AnimationState);
 	
 	friend class UZSCharacterMovementComponent;
+	friend class UManageCharacterMeshAC;
+	friend class AZSWheeledVehiclePawn;
 
 public:
 
@@ -38,6 +41,8 @@ public:
 	virtual bool CanCrouch() const override;
 
 private:
+
+	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess=true))
 	float BaseTurnRate = 45;
 
@@ -45,10 +50,14 @@ private:
 	float BaseLookUpRate = 45;
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, meta = (AllowPrivateAccess=true))
-	class USpringArmComponent * SpringArmComponent = nullptr; 
+	class USpringArmComponent * SpringArmComponent = nullptr;
 
+public:
+	virtual void UnPossessed() override;
+	virtual void PossessedBy(AController* NewController) override;
+private:
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, meta = (AllowPrivateAccess=true))
-	class UCameraComponent * CameraComponent =  nullptr;
+	class UCameraComponent * CameraComponentDefault =  nullptr;
 	
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, meta = (AllowPrivateAccess=true))
 	class UCameraComponent * CameraComponentVR =  nullptr;
@@ -61,6 +70,9 @@ private:
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess=true))
 	TSoftObjectPtr<class USoundBase> SoundBaseAcceleration;
+
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess=true))
+	class UManageCharacterMeshAC * ManageCharacterMeshAC = nullptr;
 
 public:
 	UFUNCTION()
@@ -107,6 +119,9 @@ public:
 protected:
 	UPROPERTY(Replicated, BlueprintReadWrite, Category="Movement")
 	uint8 bIsDeath : 1;
+
+	UPROPERTY(BlueprintReadOnly, Replicated, meta = (AllowPrivateAccess=true))	
+	FName MeshName;
 	
 	UPROPERTY(Replicated, BlueprintReadOnly, Category="Movement")
 	uint8 bIsWalking : 1;
@@ -273,6 +288,11 @@ private:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta=(AllowPrivateAccess=true))
 	class UBallisticLineComponent * BallisticLineComponentRight = nullptr;
+	
+private:
+
+	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess=true))
+	TEnumAsByte<ECollisionEnabled::Type> LastCollisionEnabled;
 		
 public:
 
@@ -290,6 +310,31 @@ public:
 	
 	UFUNCTION()
 	void HoveredWidgetChanged(class UWidgetComponent* NewWidgetComponent, class UWidgetComponent* NewPreviousWidgetComponent);
+
+	UFUNCTION(Server, Reliable, WithValidation)
+	void EnterVehicle();
+
+	UFUNCTION(BlueprintCallable)
+	void AttachToVehicle(class AZSWheeledVehiclePawn * NewVehicle);
+
+	UFUNCTION(Client, Reliable)
+	void Client_AttachToVehicle(class AZSWheeledVehiclePawn * NewVehicle);
+
+	UFUNCTION(BlueprintCallable)
+	void DetachFromVehicle(class AZSWheeledVehiclePawn * NewVehicle);
 	
+	UFUNCTION(Client, Reliable)
+	void Client_DetachFromVehicle();
+
+	UFUNCTION(BlueprintCallable)
+	FVector GetPossibleLeaveCarLocation(class AZSWheeledVehiclePawn * NewVehicle, bool & NewStatus);
+	
+public:
+	
+	UFUNCTION(BlueprintCallable, Client, Reliable)
+	void ShowEnterVehicleWidget(class AZSWheeledVehiclePawn * NewVehicle);
+
+	
+
 };
 
