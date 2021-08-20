@@ -28,6 +28,7 @@ class ZSPACE_API AZSWheeledVehiclePawn : public AWheeledVehiclePawn, public IAbi
 
 public:
 
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess=true))	
 	class USteeringWheelStaticMeshComponent * SteeringWheelStaticMeshComponent = nullptr;
 
@@ -333,6 +334,21 @@ public:
 	class USkeletalMesh * GetCharacterSkeletalMeshBySkeletalMeshName(const FString& NewSkeletalMeshName);
 	
 public:
+	
+	UFUNCTION(NetMulticast, Reliable)
+	void SetIdleBrakeInput(float  NewInput);
+
+
+#if WITH_EDITOR
+	virtual void OnConstruction(const FTransform& Transform) override;
+#endif
+
+	UFUNCTION(BlueprintCallable)
+	void EnableMove();
+
+	UFUNCTION(BlueprintCallable)
+	void DisableMove();
+
 	
 };
 
