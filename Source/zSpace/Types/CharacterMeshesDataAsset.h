@@ -28,9 +28,6 @@ class ZSPACE_API UCharacterMeshesDataAsset : public UDataAsset
 	GENERATED_BODY()
 
 public:
-	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	TMap<USkeletalMesh*, FName> CharacterMeshAndName;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TArray<FCharacterMeshData> CharacterMeshDataArray;
@@ -50,4 +47,9 @@ public:
 
 	UFUNCTION(BlueprintPure)
 	void GetDefaultSkeletalMeshName(FString & NewDefaultSkeletalMeshName);
+
+#if WITH_EDITOR
+	virtual void PreEditChange( class FEditPropertyChain& PropertyAboutToChange ) override;
+#endif
+	
 };

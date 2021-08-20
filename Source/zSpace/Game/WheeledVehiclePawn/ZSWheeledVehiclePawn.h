@@ -139,6 +139,8 @@ private:
 	static FName VehicleRearLightParamName;
 
 	static FName VehicleFrontAndRearLightsParamName;
+
+	static FName VehicleInSideLight;
 		
 protected:
 	virtual void BeginPlay() override;
@@ -292,6 +294,8 @@ public:
 
 	void OnFrontLights(const  bool & IsEnableLights);
 
+	void OnInSideLight(const  bool & IsEnableLights);
+
 	class USteeringWheelStaticMeshComponent * GetSteeringWheelStaticMeshComponent();
 
 	bool SkipComponent(UPrimitiveComponent * NewComponent);
@@ -317,12 +321,18 @@ public:
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty> & OutLifetimeProps) const override;
 
-	UPROPERTY(ReplicatedUsing=OnRep_SkeletalMeshDriver)
+	UPROPERTY()
 	class USkeletalMesh * SkeletalMeshDriver = nullptr;
+
+	UPROPERTY(ReplicatedUsing=OnRep_DriverSkeletalMeshName)
+	FString DriverSkeletalMeshName;
+
+	UFUNCTION()
+	void OnRep_DriverSkeletalMeshName();
+
+	class USkeletalMesh * GetCharacterSkeletalMeshBySkeletalMeshName(const FString& NewSkeletalMeshName);
 	
 public:
 	
-	UFUNCTION()
-	void OnRep_SkeletalMeshDriver();
 };
 
