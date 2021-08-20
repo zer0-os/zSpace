@@ -23,3 +23,8 @@ int32 UZSVehicleMovementComponent::GetVehicleSpeed()
 	}
 	return R_Speed;
 }
+
+void UZSVehicleMovementComponent::SetIdleBrakeInput(const float& NewInput)
+{
+	IdleBrakeInput = NewInput;
+}

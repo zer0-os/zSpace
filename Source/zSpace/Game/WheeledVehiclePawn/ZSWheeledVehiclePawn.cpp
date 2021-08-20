@@ -198,6 +198,7 @@ AZSWheeledVehiclePawn::AZSWheeledVehiclePawn(const FObjectInitializer& ObjectIni
 	Speedometer3D = CreateDefaultSubobject<UWidgetComponent>(TEXT("Speedometer3D"));
 	Speedometer3D->SetupAttachment(RootComponent);
 	Speedometer3D->SetVisibility(true);
+
 	
 }
 
@@ -282,6 +283,7 @@ void AZSWheeledVehiclePawn::BeginPlay()
 	SetAutonomousProxy(true);
 	if(ROLE_Authority == GetLocalRole())
 	{
+	    SetIdleBrakeInput(10);
 		SetIsHiddenDriver(true);
 	}
 	// Start an engine sound playing
@@ -850,12 +852,16 @@ void AZSWheeledVehiclePawn::UnPossessed()
 	SteeringWheelStaticMeshComponent->SetComponentTickEnabled(false);
 	SetIsHiddenDriver(true);
 	SetEngineStart(false);
+	SetIdleBrakeInput(10);
+	//DisableMove();
 	Super::UnPossessed();
 }
 
 void AZSWheeledVehiclePawn::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
+	//EnableMove();
+	SetIdleBrakeInput(0);
 	SteeringWheelStaticMeshComponent->SetComponentTickEnabled(true);
 	SetIsHiddenDriver(false);
 	Client_SetupDefaultCamera();
@@ -1083,6 +1089,46 @@ USkeletalMesh* AZSWheeledVehiclePawn::GetCharacterSkeletalMeshBySkeletalMeshName
 	}
 	return R_SkeletalMesh;
 }
+
+void AZSWheeledVehiclePawn::SetIdleBrakeInput_Implementation(float NewInput)
+{
+	UZSVehicleMovementComponent * L_VehicleMovementComponent = GetZSVehicleMovementComponent();
+	if(IsValid(L_VehicleMovementComponent))
+	{
+		L_VehicleMovementComponent->SetIdleBrakeInput(NewInput);
+	}
+}
+
+
+#if WITH_EDITOR
+void AZSWheeledVehiclePawn::OnConstruction(const FTransform& MovieSceneBlends)
+{
+	Super::OnConstruction(MovieSceneBlends);
+}
+#endif
+
+void AZSWheeledVehiclePawn::EnableMove()
+{
+	USkeletalMeshComponent * L_Mesh = GetMesh();
+	if(IsValid(L_Mesh))
+	{
+		const FName L_BoneName("");
+		L_Mesh->SetAllBodiesBelowSimulatePhysics(L_BoneName, true, true);
+		L_Mesh->ResetAllBodiesSimulatePhysics();
+	}
+}
+
+void AZSWheeledVehiclePawn::DisableMove()
+{
+	USkeletalMeshComponent * L_Mesh = GetMesh();
+	if(IsValid(L_Mesh))
+	{
+		const FName L_BoneName("");
+		L_Mesh->SetAllBodiesBelowSimulatePhysics(L_BoneName, false, true);
+	}
+	
+}
+
 
 void AZSWheeledVehiclePawn::SetEngineStart_Implementation(bool NewValue)
 {

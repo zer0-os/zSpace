@@ -334,5 +334,7 @@ public:
 	UFUNCTION(BlueprintCallable, Client, Reliable)
 	void ShowEnterVehicleWidget(class AZSWheeledVehiclePawn * NewVehicle);
 
+	
+
 };
 

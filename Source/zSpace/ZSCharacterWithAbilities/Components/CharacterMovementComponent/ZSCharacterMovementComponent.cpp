@@ -9,6 +9,7 @@
 #include "Engine/EngineTypes.h"
 #include "Net/UnrealNetwork.h"
 #include "zSpace/zSpace.h"
+#include "zSpace/Game/WheeledVehiclePawn/ZSWheeledVehiclePawn.h"
 
 UZSCharacterMovementComponent::UZSCharacterMovementComponent(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
@@ -201,4 +202,9 @@ void UZSCharacterMovementComponent::GetLifetimeReplicatedProps(TArray<FLifetimeP
 
 	DOREPLIFETIME(UZSCharacterMovementComponent, PlayerGait);
 	DOREPLIFETIME(UZSCharacterMovementComponent, PlayerGaitPreStanding);
+}
+
+bool UZSCharacterMovementComponent::IsWalkable(const FHitResult& Hit) const
+{
+	return Super::IsWalkable(Hit);
 }

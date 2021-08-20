@@ -20,4 +20,9 @@ class ZSPACE_API UZSVehicleMovementComponent : public UChaosWheeledVehicleMoveme
 	
     UFUNCTION(BlueprintCallable)
     int32 GetVehicleSpeed();
+	
+public:
+	
+	UFUNCTION(BlueprintCallable)
+	void SetIdleBrakeInput(const float & NewInput);
 };
