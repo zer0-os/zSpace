@@ -3,6 +3,8 @@
 #include "OWSPlayerControllerComponent.h"
 #include "OWSTravelToMapActor.h"
 #include "OWSGameInstance.h"
+#include "OWSPlayerController.h"
+#include "OWSPlugin.h"
 
 
 // Sets default values for this component's properties
@@ -140,19 +142,46 @@ void UOWSPlayerControllerComponent::TravelToMap2(const FString& ServerAndPort, c
 	PlayerController->ClientTravel(URL, TRAVEL_Absolute, false, FGuid());
 }
 
-void UOWSPlayerControllerComponent::SetSelectedCharacterAndConnectToLastZone(FString UserSessionGUID, FString SelectedCharacterName)
+void UOWSPlayerControllerComponent::ProcessOWS1POSTRequest(FString ApiToCall, FString PostParameters, void (UOWSPlayerControllerComponent::*InMethodPtr)(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful))
 {
-	//Set character name and get user session
-
-	
-
 	Http = &FHttpModule::Get();
 	Http->SetHttpTimeout(TravelTimeout); //Set timeout
+	TSharedRef<IHttpRequest, ESPMode::ThreadSafe> Request = Http->CreateRequest();
+	Request->OnProcessRequestComplete().BindUObject(this, InMethodPtr);
 
+	Request->SetURL(FString(TEXT("http://" + RPGAPIPath + ApiToCall)));
+	Request->SetVerb("POST");
+	Request->SetHeader(TEXT("User-Agent"), "X-UnrealEngine-Agent");
+	Request->SetHeader("Content-Type", TEXT("application/x-www-form-urlencoded"));
+	Request->SetContentAsString(PostParameters + FString(TEXT("&CustomerGUID=")) + RPGAPICustomerKey);
+	Request->ProcessRequest();
+}
+
+void UOWSPlayerControllerComponent::ProcessOWS2POSTRequest(FString ApiToCall, FString PostParameters, void (UOWSPlayerControllerComponent::* InMethodPtr)(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful))
+{
+	Http = &FHttpModule::Get();
+	Http->SetHttpTimeout(TravelTimeout); //Set timeout
+	TSharedRef<IHttpRequest, ESPMode::ThreadSafe> Request = Http->CreateRequest();
+	Request->OnProcessRequestComplete().BindUObject(this, InMethodPtr);
+
+	Request->SetURL(FString(OWS2APIPath + ApiToCall));
+	Request->SetVerb("POST");
+	Request->SetHeader(TEXT("User-Agent"), "X-UnrealEngine-Agent");
+	Request->SetHeader("Content-Type", TEXT("application/json"));
+	Request->SetHeader(TEXT("X-CustomerGUID"), RPGAPICustomerKey);
+	Request->SetContentAsString(PostParameters);
+	Request->ProcessRequest();
+}
+
+//Set character name and get user session
+void UOWSPlayerControllerComponent::SetSelectedCharacterAndConnectToLastZone(FString UserSessionGUID, FString SelectedCharacterName)
+{
+	/*
+	Http = &FHttpModule::Get();
+	Http->SetHttpTimeout(TravelTimeout); //Set timeout
 	TSharedRef<IHttpRequest, ESPMode::ThreadSafe> Request = Http->CreateRequest();
 	Request->OnProcessRequestComplete().BindUObject(this, &UOWSPlayerControllerComponent::OnSetSelectedCharacterAndConnectToLastZoneResponseReceived);
-	//This is the url on which to process the request
-	FString url = FString(OWS2APIPath + "api/Users/SetSelectedCharacterAndGetUserSession");
+	*/
 
 	//Trim whitespace
 	SelectedCharacterName.TrimStartAndEndInline();
@@ -162,13 +191,15 @@ void UOWSPlayerControllerComponent::SetSelectedCharacterAndConnectToLastZone(FSt
 	FormatParams.Add(SelectedCharacterName);
 	FString PostParameters = FString::Format(TEXT("{ \"UserSessionGUID\": \"{0}\", \"SelectedCharacterName\": \"{1}\" }"), FormatParams);
 
-	Request->SetURL(url);
+	ProcessOWS2POSTRequest("api/Users/SetSelectedCharacterAndGetUserSession", PostParameters, &UOWSPlayerControllerComponent::OnSetSelectedCharacterAndConnectToLastZoneResponseReceived);
+
+	/*Request->SetURL(url);
 	Request->SetVerb("POST");
 	Request->SetHeader(TEXT("User-Agent"), "X-UnrealEngine-Agent");
 	Request->SetHeader("Content-Type", TEXT("application/json"));
 	Request->SetHeader(TEXT("X-CustomerGUID"), RPGAPICustomerKey);
 	Request->SetContentAsString(PostParameters);
-	Request->ProcessRequest();
+	Request->ProcessRequest();*/
 }
 
 void UOWSPlayerControllerComponent::OnSetSelectedCharacterAndConnectToLastZoneResponseReceived(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful)
@@ -215,17 +246,12 @@ void UOWSPlayerControllerComponent::OnSetSelectedCharacterAndConnectToLastZoneRe
 
 void UOWSPlayerControllerComponent::TravelToLastZoneServer(FString CharacterName)
 {
+	/*
 	Http = &FHttpModule::Get();
 	Http->SetHttpTimeout(TravelTimeout); //Set timeout
-
-	//UE_LOG(LogTemp, Warning, TEXT("CustomerID: %s"), *RPGAPICustomerKey);
-
 	TSharedRef<IHttpRequest, ESPMode::ThreadSafe> Request = Http->CreateRequest();
 	Request->OnProcessRequestComplete().BindUObject(this, &UOWSPlayerControllerComponent::OnTravelToLastZoneServerResponseReceived);
-
-	//CharacterName = CharacterName.Replace(TEXT(" "), TEXT("%20")); //Removed for OWS2
-	//This is the url on which to process the request.
-	FString url = FString(OWS2APIPath + "api/Users/GetServerToConnectTo");
+	*/
 
 	TArray<FStringFormatArg> FormatParams;
 	FormatParams.Add(CharacterName);
@@ -233,13 +259,15 @@ void UOWSPlayerControllerComponent::TravelToLastZoneServer(FString CharacterName
 	FormatParams.Add(TEXT("0"));
 	FString PostParameters = FString::Format(TEXT("{ \"CharacterName\": \"{0}\", \"ZoneName\": \"{1}\", \"PlayerGroupType\": {2} }"), FormatParams);
 
-	Request->SetURL(url);
+	ProcessOWS2POSTRequest("api/Users/GetServerToConnectTo", PostParameters, &UOWSPlayerControllerComponent::OnTravelToLastZoneServerResponseReceived);
+
+	/*Request->SetURL(url);
 	Request->SetVerb("POST");
 	Request->SetHeader(TEXT("User-Agent"), "X-UnrealEngine-Agent");
 	Request->SetHeader("Content-Type", TEXT("application/json"));
 	Request->SetHeader(TEXT("X-CustomerGUID"), RPGAPICustomerKey);
 	Request->SetContentAsString(PostParameters);
-	Request->ProcessRequest();
+	Request->ProcessRequest();*/
 
 	/*
 	FString url = FString(TEXT("http://" + RPGAPIPath + "/RPGServer/GetServerToConnectTo"));
@@ -396,7 +424,7 @@ void UOWSPlayerControllerComponent::OnGetMapServerToTravelToResponseReceived(FHt
 
 void UOWSPlayerControllerComponent::SavePlayerLocation()
 {
-	Http = &FHttpModule::Get();
+	//Http = &FHttpModule::Get();
 	
 	/*
 	APlayerController* ParentController = Cast<APlayerController>(GetOwner());
@@ -411,10 +439,12 @@ void UOWSPlayerControllerComponent::SavePlayerLocation()
 	FString PlayerName = "";
 	GetPlayerNameAndOWSCharacter(MyRPGCharacter, PlayerName);
 
+	/*
 	TSharedRef<IHttpRequest, ESPMode::ThreadSafe> Request = Http->CreateRequest();
 	Request->OnProcessRequestComplete().BindUObject(this, &UOWSPlayerControllerComponent::OnSavePlayerLocationResponseReceived);
+	*/
 	//This is the url on which to process the request
-	FString url = FString(TEXT("http://" + RPGAPIPath + "/RPGServer/UpdatePosition"));
+	//FString url = FString(TEXT("http://" + RPGAPIPath + "/RPGServer/UpdatePosition"));
 
 	FString PostParameters = FString(TEXT("id=")) + PlayerName
 		+ FString(TEXT("&X=")) + FString::SanitizeFloat(MyRPGCharacter->GetActorLocation().X)
@@ -422,15 +452,16 @@ void UOWSPlayerControllerComponent::SavePlayerLocation()
 		+ FString(TEXT("&Z=")) + FString::SanitizeFloat(MyRPGCharacter->GetActorLocation().Z)
 		+ FString(TEXT("&RX=")) + FString::SanitizeFloat(MyRPGCharacter->GetActorRotation().Roll)
 		+ FString(TEXT("&RY=")) + FString::SanitizeFloat(MyRPGCharacter->GetActorRotation().Pitch)
-		+ FString(TEXT("&RZ=")) + FString::SanitizeFloat(MyRPGCharacter->GetActorRotation().Yaw)
-		+ FString(TEXT("&CustomerGUID=")) + RPGAPICustomerKey;
+		+ FString(TEXT("&RZ=")) + FString::SanitizeFloat(MyRPGCharacter->GetActorRotation().Yaw);
 
-	Request->SetURL(url);
+	ProcessOWS1POSTRequest("/RPGServer/UpdatePosition", PostParameters, &UOWSPlayerControllerComponent::OnSavePlayerLocationResponseReceived);
+
+	/*Request->SetURL(url);
 	Request->SetVerb("POST");
 	Request->SetHeader(TEXT("User-Agent"), "X-UnrealEngine-Agent");
 	Request->SetHeader("Content-Type", TEXT("application/x-www-form-urlencoded"));
 	Request->SetContentAsString(PostParameters);
-	Request->ProcessRequest();
+	Request->ProcessRequest();*/
 }
 
 void UOWSPlayerControllerComponent::OnSavePlayerLocationResponseReceived(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful)
@@ -447,17 +478,18 @@ void UOWSPlayerControllerComponent::OnSavePlayerLocationResponseReceived(FHttpRe
 
 void UOWSPlayerControllerComponent::SaveAllPlayerData()
 {
-	Http = &FHttpModule::Get();
+	//Http = &FHttpModule::Get();
 
 	AOWSCharacter* MyRPGCharacter = NULL;
 	FString PlayerName = "";
 	GetPlayerNameAndOWSCharacter(MyRPGCharacter, PlayerName);
 
+	/*
 	TSharedRef<IHttpRequest, ESPMode::ThreadSafe> Request = Http->CreateRequest();
 	Request->OnProcessRequestComplete().BindUObject(this, &UOWSPlayerControllerComponent::OnSaveAllPlayerDataResponseReceived);
 	//This is the url on which to process the request
 	FString url = FString(TEXT("http://" + RPGAPIPath + "/RPGServer/UpdatePosition"));
-
+	*/
 
 	FString PostParameters = FString(TEXT("id=")) + PlayerName
 		+ FString(TEXT("&X=")) + FString::SanitizeFloat(MyRPGCharacter->GetActorLocation().X)
@@ -468,13 +500,16 @@ void UOWSPlayerControllerComponent::SaveAllPlayerData()
 		+ FString(TEXT("&RZ=")) + FString::SanitizeFloat(MyRPGCharacter->GetActorRotation().Yaw)
 		+ FString(TEXT("&CustomerGUID=")) + RPGAPICustomerKey;
 
-	Request->SetURL(url);
+	ProcessOWS1POSTRequest("/RPGServer/UpdatePosition", PostParameters, &UOWSPlayerControllerComponent::OnSaveAllPlayerDataResponseReceived);
+
+	/*Request->SetURL(url);
 	Request->SetVerb("POST");
 	Request->SetHeader(TEXT("User-Agent"), "X-UnrealEngine-Agent");
 	Request->SetHeader("Content-Type", TEXT("application/x-www-form-urlencoded"));
 	Request->SetContentAsString(PostParameters);
 	//UE_LOG(LogTemp, Warning, TEXT("Sent %s"), *PostParameters);
 	Request->ProcessRequest();
+	*/
 }
 
 void UOWSPlayerControllerComponent::OnSaveAllPlayerDataResponseReceived(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful)
@@ -551,5 +586,49 @@ void UOWSPlayerControllerComponent::OnGetChatGroupsForPlayerResponseReceived(FHt
 	{
 		UE_LOG(OWS, Error, TEXT("OnGetChatGroupsForPlayerResponseReceived Error accessing server!"));
 		OnErrorGetChatGroupsForPlayerDelegate.ExecuteIfBound(TEXT("OnGetChatGroupsForPlayerResponseReceived Error accessing server!"));
+	}
+}
+
+void UOWSPlayerControllerComponent::GetCharacterStatuses()
+{
+	AOWSCharacter* MyRPGCharacter = NULL;
+	FString PlayerName = "";
+	GetPlayerNameAndOWSCharacter(MyRPGCharacter, PlayerName);
+
+	TSharedRef<IHttpRequest, ESPMode::ThreadSafe> Request = Http->CreateRequest();
+	Request->OnProcessRequestComplete().BindUObject(this, &UOWSPlayerControllerComponent::OnGetCharacterStatusesResponseReceived);
+	//This is the url on which to process the request
+	FString url = FString(TEXT("http://" + RPGAPIPath + "/RPGServer/GetCharacterStatuses"));
+
+	FString PostParameters = FString(TEXT("id=")) + PlayerName
+		+ FString(TEXT("&CustomerGUID=")) + RPGAPICustomerKey;
+
+	Request->SetURL(url);
+	Request->SetVerb("POST");
+	Request->SetHeader(TEXT("User-Agent"), "X-UnrealEngine-Agent");
+	Request->SetHeader("Content-Type", TEXT("application/x-www-form-urlencoded"));
+	Request->SetContentAsString(PostParameters);
+	Request->ProcessRequest();
+}
+
+void UOWSPlayerControllerComponent::OnGetCharacterStatusesResponseReceived(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful)
+{
+	if (bWasSuccessful)
+	{
+		TSharedPtr<FJsonObject> JsonObject;
+		TSharedRef<TJsonReader<>> Reader = TJsonReaderFactory<>::Create(Response->GetContentAsString());
+
+		if (FJsonSerializer::Deserialize(Reader, JsonObject))
+		{
+			//CharacterName = JsonObject->GetStringField("CharacterName");
+		}
+		else
+		{
+			UE_LOG(OWS, Error, TEXT("OnGetCharacterStatusesResponseReceived Server returned no data!"));
+		}
+	}
+	else
+	{
+		UE_LOG(OWS, Error, TEXT("OnGetCharacterStatusesResponseReceived Error accessing server!"));
 	}
 }

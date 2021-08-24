@@ -142,7 +142,7 @@ public:
 	UPROPERTY(Category = MovementMode, BlueprintReadOnly)
 		bool bIsExitingClimb;
 
-	UFUNCTION(BlueprintCallable, Category = "Movement")
+	UFUNCTION(BlueprintCallable, Category = "Climbing")
 		void SetClimbing(bool bClimbing, FRotator newRotation);
 
 	bool bLaunchForwardOnExitClimb = false;
@@ -151,6 +151,13 @@ public:
 	uint8 bWantsToExitClimb : 1;
 
 	bool CheckForExitToClimbing(FVector CheckPoint, FVector& WallNormal);
+
+	//Animation Distance Matching
+	UFUNCTION(BlueprintCallable, Category = "Movement")
+		void PredictJumpApex(const FVector& CharacterLocation, FVector& outApexLocation, FVector& outLandLocation, float& outTimeToApex, bool Debug);
+
+	UFUNCTION(BlueprintCallable, Category = "Movement")
+		FVector GetStoppingDistance(const FVector& CharacterLocation, float Local_WorldDeltaSecond, bool Debug);
 
 protected:
 	virtual void PhysCustom(float deltaTime, int32 Iterations) override;

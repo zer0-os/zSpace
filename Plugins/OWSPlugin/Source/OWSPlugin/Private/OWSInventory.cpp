@@ -2,6 +2,7 @@
 
 #include "OWSInventory.h"
 #include "OWSGameMode.h"
+#include "OWSPlugin.h"
 
 UOWSInventory::UOWSInventory(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -271,35 +272,6 @@ int32 UOWSInventory::FindFirstEmptySlotToFitItemOfSize(int32 IconSlotWidth, int3
 
 	UpdateSlotsFilled();
 
-	/*TArray<bool> FilledSlots;
-	FilledSlots.SetNum(NumberOfSlots);
-
-	for (TArray<UOWSInventoryItemStack*>::TConstIterator StackIter(InventoryItemStacks); StackIter; ++StackIter)
-	{
-		AOWSInventoryItem* ItemInSlot = (*StackIter)->GetTopItemFromStack();
-
-		if (ItemInSlot)
-		{
-			FilledSlots.EmplaceAt(Slot, true);
-
-			if (ItemInSlot->IconSlotWidth > 1 || ItemInSlot->IconSlotHeight)
-			{
-				int32 StartingRow = FMath::FloorToInt(Slot / NumberOfColumns);
-				int32 StartingCol = Slot % NumberOfColumns;
-
-				for (int32 CurRow = StartingRow; CurRow < StartingRow + ItemInSlot->IconSlotHeight; CurRow++) {
-					for (int32 CurCol = StartingCol; CurCol < StartingCol + ItemInSlot->IconSlotWidth; CurCol++) {
-						if (CurRow != StartingRow || CurCol != StartingCol)
-						{
-							FilledSlots.EmplaceAt((CurRow * NumberOfColumns) + CurCol, true);
-						}
-					}
-				}
-			}
-		}
-		Slot++;
-	}*/
-
 	Slot = 0;
 	for (TArray<UOWSInventoryItemStack*>::TConstIterator StackIter(InventoryItemStacks); StackIter; ++StackIter)
 	{
@@ -309,6 +281,12 @@ int32 UOWSInventory::FindFirstEmptySlotToFitItemOfSize(int32 IconSlotWidth, int3
 
 		if (!ItemInSlot)
 		{
+			if (SlotsFilled[Slot])
+			{
+				Slot++;
+				continue;
+			}
+
 			if (IconSlotWidth > 1 || IconSlotHeight)
 			{
 				int32 StartingRow = FMath::FloorToInt(Slot / NumberOfColumns);
@@ -318,18 +296,40 @@ int32 UOWSInventory::FindFirstEmptySlotToFitItemOfSize(int32 IconSlotWidth, int3
 					for (int32 CurCol = StartingCol; CurCol < StartingCol + IconSlotWidth; CurCol++) {
 						if (CurRow != StartingRow || CurCol != StartingCol)
 						{
+							//We are outside the bounds of the inventory on the right side
+							if (CurCol >= NumberOfColumns)
+							{
+								SlotIsFilled = true;
+								break;
+							}
+
+							//We are outside the bounds of the inventory on the bottom side
+							if (CurRow >= NumberOfColumns)
+							{
+								SlotIsFilled = true;
+								break;
+							}
+
 							int32 SlotToCheck = (CurRow * NumberOfColumns) + CurCol;
 							if (SlotToCheck < 0 || SlotToCheck >= NumberOfSlots)
+							{
 								continue;
+							}
 
 							if (SlotsFilled[SlotToCheck])
 							{
 								SlotIsFilled = true;
+								break;
 							}
 						}
 					}
 				}
 			}
+		}
+		else
+		{
+			Slot++;
+			continue;
 		}
 
 		if (!SlotIsFilled)

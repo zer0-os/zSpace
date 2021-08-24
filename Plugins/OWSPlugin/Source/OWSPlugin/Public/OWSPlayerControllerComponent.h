@@ -65,10 +65,20 @@ public:
 	FNotifyGetChatGroupsForPlayerDelegate OnNotifyGetChatGroupsForPlayerDelegate;
 	FErrorGetChatGroupsForPlayerDelegate OnErrorGetChatGroupsForPlayerDelegate;
 
+	//Get Character Statuses
+	UFUNCTION(BlueprintCallable, Category = "Character")
+		void GetCharacterStatuses();
+
+	void OnGetCharacterStatusesResponseReceived(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful);
+
+
+
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
+	void ProcessOWS1POSTRequest(FString ApiToCall, FString PostParameters, void (UOWSPlayerControllerComponent::* InMethodPtr)(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful));
+	void ProcessOWS2POSTRequest(FString ApiToCall, FString PostParameters, void (UOWSPlayerControllerComponent::* InMethodPtr)(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful));
 	void GetPlayerNameAndOWSCharacter(AOWSCharacter* OWSCharacter, FString& PlayerName);
 
 	UPROPERTY(BlueprintReadWrite)

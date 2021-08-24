@@ -7,7 +7,7 @@ public class zSpace : ModuleRules
 	public zSpace(ReadOnlyTargetRules ROTargetRules) : base(ROTargetRules)
     {
         PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
-
+	    bEnableUndefinedIdentifierWarnings = false; // TODO The line added for  "winnt.h(611): [C4005] 'TEXT': macro redefinition", The line is tmp.
         PublicDependencyModuleNames.AddRange(new string[] { "Core"
             , "CoreUObject"
             , "Engine"

@@ -2,6 +2,9 @@
 
 #include "OWSCharacterMovementComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "DrawDebugHelpers.h"
+#include "Kismet/GameplayStaticsTypes.h"
+#include "Kismet/GameplayStatics.h"
 #include "GameFramework/Character.h"
 #include "OWSPlugin.h"
 
@@ -666,4 +669,80 @@ void UOWSCharacterMovementComponent::SetClimbing(bool bClimbing, FRotator newRot
 		//Cast<APlayerController>(CharacterOwner->GetController())->InputYawScale = 1.f;
 		//bUseControllerDesiredRotation = true;
 	}
+}
+
+
+//Animation Distance Matching
+void UOWSCharacterMovementComponent::PredictJumpApex(const FVector& CharacterLocation, FVector& outApexLocation, FVector& outLandLocation, float& outTimeToApex, bool Debug)
+{
+	const float Gravity = GetGravityZ();
+	float height = GetMaxJumpHeight();
+	outTimeToApex = JumpZVelocity / Gravity * -1;
+
+	//calculate Apex by adding forward motion
+	outApexLocation = CharacterLocation + (FVector(0, 0, 1) * height) + (Velocity * outTimeToApex);
+
+	//calculate launch velocity for use in predicted land
+	FVector LaunchVelocity = Velocity + FVector(0, 0, 1) * JumpZVelocity;
+
+	//Predict landing location using PredictProjectilePath
+	FPredictProjectilePathParams Params = FPredictProjectilePathParams(1, CharacterLocation + FVector(0, 0, -90), LaunchVelocity, 2);
+	Params.TraceChannel = ECC_Visibility;
+	Params.bTraceWithChannel = true;
+	Params.bTraceWithCollision = true;
+	FPredictProjectilePathResult OutResults;
+
+	bool bhit = UGameplayStatics::PredictProjectilePath(this, Params, OutResults);
+
+	if (bhit) {
+		outLandLocation = OutResults.HitResult.Location;
+		if (Debug) DrawDebugSphere(GetWorld(), outLandLocation + FVector(0, 0, 90), 20, 26, FColor::Orange, true);
+	}
+
+	if (Debug) DrawDebugSphere(GetWorld(), outApexLocation, 20, 26, FColor::Blue, true);
+
+}
+
+FVector UOWSCharacterMovementComponent::GetStoppingDistance(const FVector& CharacterLocation, float Local_WorldDeltaSecond, bool Debug)
+{
+	if (Debug) DrawDebugSphere(GetWorld(), CharacterLocation, 20, 26, FColor::Green, true);
+
+	// Small number break loop when velocity is less than this value
+	float SmallVelocity = 10.f * FMath::Square(Local_WorldDeltaSecond);
+
+	// Current velocity at current frame in unit/frame
+	FVector CurrentVelocityInFrame = Velocity * Local_WorldDeltaSecond;
+
+	// Store velocity direction for later use
+	FVector CurrentVelocityDirection = Velocity.GetSafeNormal2D();
+
+	// Current deacceleration at current frame in unit/fame^2
+	FVector CurrentDeaccelerationInFrame = (CurrentVelocityDirection * BrakingDecelerationWalking) * FMath::Square(Local_WorldDeltaSecond);
+
+	// Calculate number of frames needed to reach zero velocity and gets its int value
+	int StopFrameCount = CurrentVelocityInFrame.Size() / CurrentDeaccelerationInFrame.Size();
+
+	// float variable use to store distance to targeted stop location
+	float StoppingDistance = 0.0f;
+
+	// Do Stop calculation go through all frames and calculate stop distance in each frame and stack them
+	for (int i = 0; i <= StopFrameCount; i++)
+	{
+		//Update velocity
+		CurrentVelocityInFrame -= CurrentDeaccelerationInFrame;
+
+		// if velocity in XY plane is small break loop for safety
+		if (CurrentVelocityInFrame.Size2D() <= SmallVelocity)
+		{
+			break;
+		}
+
+		// Calculate distance travel in current frame and add to previous distance
+		StoppingDistance += CurrentVelocityInFrame.Size2D();
+	}
+
+	// return stopping distance from player position in previous frame
+	if (Debug) DrawDebugSphere(GetWorld(), CharacterLocation + CurrentVelocityDirection * StoppingDistance, 20, 26, FColor::Red, true);
+
+	return CharacterLocation + CurrentVelocityDirection * StoppingDistance;
 }
