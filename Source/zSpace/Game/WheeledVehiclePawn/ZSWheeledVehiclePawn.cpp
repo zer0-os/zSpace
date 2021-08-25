@@ -328,10 +328,22 @@ void AZSWheeledVehiclePawn::SetupPlayerInputComponent(UInputComponent* PlayerInp
 		
 		PlayerInputComponent->BindAction(TEXT("VehicleNextCamera"), EInputEvent::IE_Pressed, this, &AZSWheeledVehiclePawn::VehicleNextCamera);
 		PlayerInputComponent->BindAction(TEXT("VehicleBackCamera"), EInputEvent::IE_Pressed, this, &AZSWheeledVehiclePawn::VehicleBackCamera);
+		PlayerInputComponent->BindAction(TEXT("RectifyVehicle"), EInputEvent::IE_Pressed, this, &AZSWheeledVehiclePawn::Server_OnRectifyVehicle);
 		
 		
 	}
 }
+
+void AZSWheeledVehiclePawn::Server_OnRectifyVehicle_Implementation()
+{
+	UE_LOG(LogTemp, Warning, TEXT("****************************** OnRectifyVehicle ******************") );		
+}
+
+bool AZSWheeledVehiclePawn::Server_OnRectifyVehicle_Validate()
+{
+	return true;
+}
+
 
 bool AZSWheeledVehiclePawn::IsEnterVehicle(AActor* NewOtherActor)
 {

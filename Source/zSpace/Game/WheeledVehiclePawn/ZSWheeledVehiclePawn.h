@@ -158,6 +158,9 @@ protected:
 	
 public:
 
+	UFUNCTION(Server, Reliable, WithValidation)
+	void Server_OnRectifyVehicle();
+	
 	UFUNCTION(BlueprintCallable)
 	bool IsEnterVehicle(AActor * NewOtherActor);
 	
