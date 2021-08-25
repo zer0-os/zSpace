@@ -78,15 +78,66 @@ void  AZSLoginPlayerController::PostAddOrUpdateCosmeticCustomCharacterData(const
 	FTimerHandle L_TimerHandle;
 	GetWorld()->GetTimerManager().SetTimer(L_TimerHandle, [&]()
 	{
-		for (int32 X(0); X < CharacterArrayData.CharacterNameArray.Num(); X++)
+		for (int32 I(0); I < CharacterArrayData.CharacterNameArray.Num(); I++)
 		{
-			AddOrUpdateCosmeticCustomCharacterData(UserSessionGUID, CharacterArrayData.CharacterNameArray[X],
-														            CharacterArrayData.CustomFieldNameArray[X],
-														            CharacterArrayData.DefaultSkeletalMeshNameArray[X]);
+			ZSAddOrUpdateCosmeticCustomCharacterData(UserSessionGUID, CharacterArrayData.CharacterNameArray[I],
+														            CharacterArrayData.CustomFieldNameArray[I],
+														            CharacterArrayData.DefaultSkeletalMeshNameArray[I]);
 		}
 	}, 1, false);	
 }
 
+void AZSLoginPlayerController::ZSAddOrUpdateCosmeticCustomCharacterData(FString UserSessionGUIDParam, FString CharacterNameParam, FString CustomFieldName, FString CustomValue)
+{
+	FHttpModule* L_Http = &FHttpModule::Get();
+	checkf(nullptr != L_Http, TEXT("The LHttp is nullptr."));
+	TSharedRef<IHttpRequest, ESPMode::ThreadSafe> Request = L_Http->CreateRequest();
+	Request->OnProcessRequestComplete().BindUObject(this, &AZSLoginPlayerController::ZSOnAddOrUpdateCosmeticCustomCharacterDataResponseReceived);
+
+	CharacterNameParam = CharacterNameParam.Replace(TEXT(" "), TEXT("%20"));
+	//This is the url on which to process the request
+	FString url = FString(TEXT("http://" + RPGAPIPath + "/RPGServer/AddOrUpdateCosmeticCharacterData"));
+
+	FString PostParameters = FString(TEXT("id=")) + CharacterNameParam
+		+ FString(TEXT("&UserSessionGUID=")) + UserSessionGUID
+		+ FString(TEXT("&FieldName=")) + CustomFieldName
+		+ FString(TEXT("&FieldValue=")) + CustomValue
+		+ FString(TEXT("&CustomerGUID=")) + RPGAPICustomerKey;
+
+	UE_LOG(LogTemp, Log, TEXT("OnAddOrUpdateCosmeticCustomCharacterDataResponseReceived - PlayerName: %s, FieldName: %s, Value: %s"), *CharacterNameParam, *CustomFieldName, *CustomValue);
+
+	Request->SetURL(url);
+	Request->SetVerb("POST");
+	Request->SetHeader(TEXT("User-Agent"), "X-UnrealEngine-Agent");
+	Request->SetHeader("Content-Type", TEXT("application/x-www-form-urlencoded"));
+	Request->SetContentAsString(PostParameters);
+	Request->ProcessRequest();
+}
+
+void AZSLoginPlayerController::ZSOnAddOrUpdateCosmeticCustomCharacterDataResponseReceived(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful)
+{
+	static int32 SL_CallCount = 0;
+	if (bWasSuccessful)
+	{
+		TSharedPtr<FJsonObject> JsonObject;
+		TSharedRef<TJsonReader<>> Reader = TJsonReaderFactory<>::Create(Response->GetContentAsString());
+
+		if (FJsonSerializer::Deserialize(Reader, JsonObject))
+		{
+			//UE_LOG(OWS, Verbose, TEXT("OnAddOrUpdateCosmeticCustomCharacterDataResponseReceived Success!"));
+		}
+		else
+		{
+			//UE_LOG(OWS, Error, TEXT("OnAddOrUpdateCosmeticCustomCharacterDataResponseReceived Server returned no data!"));
+		}
+	}
+	else
+	{
+		//UE_LOG(OWS, Error, TEXT("OnAddOrUpdateCosmeticCustomCharacterDataResponseReceived Error accessing server!"));
+	}
+
+	ZSNotifyAddOrUpdateCosmeticCustomCharacterData(SL_CallCount++);
+}
 
 void AZSLoginPlayerController::OnGetAllCharactersEvent(const TArray<FUserCharacter>& UserCharacters)
 {

@@ -72,6 +72,15 @@ protected:
 	void UpdateOrAddCustomCharacterDataMesh(const FCustomCharacterDataStruct& NewData);
 
 	void PostAddOrUpdateCosmeticCustomCharacterData(const FCharacterArrayData & CharacterArrayData);
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "Cosmetic data update")
+	void ZSNotifyAddOrUpdateCosmeticCustomCharacterData(const int32 & CallCount);
+
+	// Functions replicated from OWSPlayerController: This is a temporary solution, needs to be redone
+	UFUNCTION(BlueprintCallable, Category = "Stats")
+	void ZSAddOrUpdateCosmeticCustomCharacterData(FString UserSessionGUID, FString CharacterName, FString CustomFieldName, FString CustomValue);
+
+	void ZSOnAddOrUpdateCosmeticCustomCharacterDataResponseReceived(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful);
 	
 public:
 	/**
