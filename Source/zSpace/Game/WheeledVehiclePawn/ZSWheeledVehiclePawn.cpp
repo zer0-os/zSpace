@@ -866,6 +866,8 @@ void AZSWheeledVehiclePawn::UnPossessed()
 	SetEngineStart(false);
 	SetIdleBrakeInput(10);
 	//DisableMove();
+	MoveForward(0);
+	HandbrakePressed();
 	Super::UnPossessed();
 }
 
