@@ -336,7 +336,13 @@ void AZSWheeledVehiclePawn::SetupPlayerInputComponent(UInputComponent* PlayerInp
 
 void AZSWheeledVehiclePawn::Server_OnRectifyVehicle_Implementation()
 {
-	UE_LOG(LogTemp, Warning, TEXT("****************************** OnRectifyVehicle ******************") );		
+	FRotator Rotation = GetActorRotation();
+	const float Angle = UKismetMathLibrary::Abs(Rotation.Roll);
+	if(Angle > 65)
+	{
+		Rotation.Roll = 0;
+		SetActorRotation(Rotation, ETeleportType::TeleportPhysics);
+	}
 }
 
 bool AZSWheeledVehiclePawn::Server_OnRectifyVehicle_Validate()
