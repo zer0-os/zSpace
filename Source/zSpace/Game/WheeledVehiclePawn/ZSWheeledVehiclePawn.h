@@ -351,7 +351,6 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void DisableMove();
-
 	
 };
 
