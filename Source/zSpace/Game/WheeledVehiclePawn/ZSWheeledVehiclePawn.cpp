@@ -1045,7 +1045,7 @@ void AZSWheeledVehiclePawn::Client_SetupDefaultCamera_Implementation()
 
 void AZSWheeledVehiclePawn::EngineAudioProcessing()
 {
-	if(ROLE_Authority > GetLocalRole())
+	if(ROLE_Authority > GetLocalRole() || UKismetSystemLibrary::IsStandalone(this))
 	{
 		UChaosWheeledVehicleMovementComponent * VehicleMovement = Cast<UChaosWheeledVehicleMovementComponent>(GetVehicleMovement());
 		if(IsValid(VehicleMovement))
@@ -1150,9 +1150,10 @@ void AZSWheeledVehiclePawn::DisableMove()
 }
 
 
+
 void AZSWheeledVehiclePawn::SetEngineStart_Implementation(bool NewValue)
 {
-	if(GetLocalRole() < ROLE_Authority)
+	if(ROLE_Authority > GetLocalRole() || UKismetSystemLibrary::IsStandalone(this) )
 	{
 		bIsEngineStarted = NewValue;
 		if (NewValue)
