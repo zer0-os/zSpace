@@ -3,7 +3,6 @@
 #pragma once
 
 #include "CoreMinimal.h"
-
 #include "AbilitySystemInterface.h"
 #include "WheeledVehiclePawn.h"
 #include "zSpace/Game/ZSCameraComponent/ZSCameraComponent.h"
@@ -81,6 +80,9 @@ public:
 
 	UPROPERTY(ReplicatedUsing=OnRepHiddenDriver, BlueprintReadOnly, meta = (AllowPrivateAccess=true))
 	uint8 bIsHiddenDriver:1;
+
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess=true))
+	class USurfaceTypesDetectActorComponent * SurfaceTypesDetectActorComponent = nullptr;
 	
 public:
 

@@ -25,6 +25,7 @@
 #include "Components/WidgetComponent.h"
 #include "Net/UnrealNetwork.h"
 #include "SpringArmComponent/ZSSpringArmComponent.h"
+#include "SurfaceTypesDetectActorComponent/SurfaceTypesDetectActorComponent.h"
 #include "zSpace/Game/ZSGamePlayerController/ZSGamePlayerController.h"
 #include "zSpace/ZSCharacterWithAbilities/Components/ManageCharacterMeshComponent/ManageCharacterMeshAC.h"
 
@@ -199,6 +200,11 @@ AZSWheeledVehiclePawn::AZSWheeledVehiclePawn(const FObjectInitializer& ObjectIni
 	Speedometer3D->SetupAttachment(RootComponent);
 	Speedometer3D->SetVisibility(true);
 
+	//
+	SurfaceTypesDetectActorComponent = CreateDefaultSubobject<USurfaceTypesDetectActorComponent>(TEXT("SurfaceTypesDetectActorComponent"));
+	checkf(nullptr != SurfaceTypesDetectActorComponent, TEXT("The SurfaceTypesDetectActorComponent is nullptr. "));
+	SurfaceTypesDetectActorComponent->SetIsReplicated(true);
+	AddOwnedComponent(SurfaceTypesDetectActorComponent);
 	
 }
 
