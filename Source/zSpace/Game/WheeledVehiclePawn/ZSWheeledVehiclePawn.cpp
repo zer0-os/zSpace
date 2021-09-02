@@ -24,6 +24,7 @@
 #include "Components/SpotLightComponent.h"
 #include "Components/WidgetComponent.h"
 #include "Net/UnrealNetwork.h"
+#include "SpawnTrackComponent/SpawnTrackComponent.h"
 #include "SpringArmComponent/ZSSpringArmComponent.h"
 #include "SurfaceTypesDetectActorComponent/SurfaceTypesDetectActorComponent.h"
 #include "zSpace/Game/ZSGamePlayerController/ZSGamePlayerController.h"
@@ -205,6 +206,10 @@ AZSWheeledVehiclePawn::AZSWheeledVehiclePawn(const FObjectInitializer& ObjectIni
 	checkf(nullptr != SurfaceTypesDetectActorComponent, TEXT("The SurfaceTypesDetectActorComponent is nullptr. "));
 	SurfaceTypesDetectActorComponent->SetIsReplicated(true);
 	AddOwnedComponent(SurfaceTypesDetectActorComponent);
+	
+	SpawnTrackComponent = CreateDefaultSubobject<USpawnTrackComponent>(TEXT("SpawnTrackComponent"));
+	checkf(nullptr != SpawnTrackComponent, TEXT("The SpawnTrackComponent is nullptr. "));
+	AddOwnedComponent(SpawnTrackComponent);
 	
 }
 

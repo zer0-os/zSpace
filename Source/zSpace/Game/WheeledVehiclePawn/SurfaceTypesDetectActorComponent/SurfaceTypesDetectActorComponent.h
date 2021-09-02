@@ -35,7 +35,8 @@ private:
 	TArray<UPhysicalMaterial *>  ContactSurfaceMaterial;
 
 	void CheckUnderWheels();
-
+	
+public:
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FServerSurfaceTypeChange, UPhysicalMaterial *, NewPhysicalMaterial);
 
 	UPROPERTY(BlueprintAssignable)

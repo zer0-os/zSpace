@@ -83,6 +83,9 @@ public:
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess=true))
 	class USurfaceTypesDetectActorComponent * SurfaceTypesDetectActorComponent = nullptr;
+
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess=true))
+	class USpawnTrackComponent * SpawnTrackComponent = nullptr;
 	
 public:
 
