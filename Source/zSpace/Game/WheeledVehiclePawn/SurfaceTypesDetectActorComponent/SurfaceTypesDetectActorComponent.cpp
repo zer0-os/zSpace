@@ -2,9 +2,6 @@
 
 
 #include "Game/WheeledVehiclePawn/SurfaceTypesDetectActorComponent/SurfaceTypesDetectActorComponent.h"
-
-#include <DirectX/Include/d3d10sdklayers.h>
-
 #include "Game/WheeledVehiclePawn/ZSWheeledVehiclePawn.h"
 #include "Game/WheeledVehiclePawn/MovementComponent/ZSVehicleMovementComponent.h"
 
