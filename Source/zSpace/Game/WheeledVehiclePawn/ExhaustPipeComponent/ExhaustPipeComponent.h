@@ -30,15 +30,17 @@ private:
 	FExhaustPipeSmokeParticle ExhaustSmokeParticle;
 
 	UPROPERTY()
-	class UZSVehicleMovementComponent* OwnerMovementComponent;
+	class UChaosWheeledVehicleMovementComponent * OwnerMovementComponent = nullptr;
 
 	UPROPERTY()
-	class AZSWheeledVehiclePawn* Owner;
+	class AZSWheeledVehiclePawn* Owner = nullptr;
 
 	TArray<class UParticleSystemComponent*> SmokeParticleComponents;
 
 protected:
+	
 	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+	
 	virtual void BeginPlay() override;
 
 	void AdjustSmokeIntensityScale();

@@ -7,8 +7,11 @@
 #include "Game/WheeledVehiclePawn/MovementComponent/ZSVehicleMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Particles/ParticleSystemComponent.h"
-#include "Engine/StaticMeshSocket.h"
 
+UExhaustPipeComponent::UExhaustPipeComponent()
+{
+	PrimaryComponentTick.bCanEverTick = true;
+}
 UParticleSystem* FExhaustPipeSmokeParticle::LoadSmokeParticle() const
 {
 	UParticleSystem* L_ResultSmokeParticle = SmokeParticle.LoadSynchronous();
@@ -18,29 +21,31 @@ UParticleSystem* FExhaustPipeSmokeParticle::LoadSmokeParticle() const
 void UExhaustPipeComponent::TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-	if (Owner->bIsEngineStarted)
+	if ( IsValid(Owner) &&  Owner->bIsEngineStarted)
+	{
 		AdjustSmokeIntensityScale();
+	}
 }
 
 void UExhaustPipeComponent::BeginPlay()
 {
 	Super::BeginPlay();
-
 	Owner = Cast<AZSWheeledVehiclePawn>(GetOwner());
-	OwnerMovementComponent = Owner->GetZSVehicleMovementComponent();
-
-	for (FName IterSocketName : GetAllSocketNames())
+	if(IsValid(Owner))
 	{
-		UParticleSystemComponent* PCS = 
-										UGameplayStatics::SpawnEmitterAttached(
-													ExhaustSmokeParticle.LoadSmokeParticle(),
-												    this, 
-													IterSocketName, 
-													GetSocketLocation(IterSocketName),
-												    GetSocketRotation(IterSocketName), 
-													EAttachLocation::KeepWorldPosition,
-													false);
-		SmokeParticleComponents.Add(PCS);
+		OwnerMovementComponent = Owner->GetZSVehicleMovementComponent();
+		for (FName IterSocketName : GetAllSocketNames())
+		{
+			UParticleSystemComponent * PCS = UGameplayStatics::SpawnEmitterAttached(
+														ExhaustSmokeParticle.LoadSmokeParticle(),
+														this, 
+														IterSocketName, 
+														GetSocketLocation(IterSocketName),
+														GetSocketRotation(IterSocketName), 
+														EAttachLocation::KeepWorldPosition,
+														false);
+			SmokeParticleComponents.Add(PCS);
+		}
 	}
 }
 
@@ -54,11 +59,10 @@ void UExhaustPipeComponent::AdjustSmokeIntensityScale()
 
 	for (UParticleSystemComponent* ParticleCompIter : SmokeParticleComponents)
 	{
-		ParticleCompIter->SetVectorParameter(FName("Scale"), FVector(L_SmokeScale, L_SmokeScale, L_SmokeScale));
+		if(IsValid(ParticleCompIter))
+		{
+			ParticleCompIter->SetVectorParameter(FName("Scale"), FVector(L_SmokeScale, L_SmokeScale, L_SmokeScale));
+		}
 	}
 }
 
-UExhaustPipeComponent::UExhaustPipeComponent()
-{
-	PrimaryComponentTick.bCanEverTick = true;
-}
