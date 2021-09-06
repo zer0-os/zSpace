@@ -43,7 +43,7 @@ protected:
 	
 	virtual void BeginPlay() override;
 
-	void AdjustSmokeIntensityScale();
+	void AdjustSmokeIntensityScale(bool EngineStarted);
 public:
 	UExhaustPipeComponent();
 };

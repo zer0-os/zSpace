@@ -21,9 +21,10 @@ UParticleSystem* FExhaustPipeSmokeParticle::LoadSmokeParticle() const
 void UExhaustPipeComponent::TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-	if ( IsValid(Owner) &&  Owner->bIsEngineStarted)
+
+	if (IsValid(Owner))
 	{
-		AdjustSmokeIntensityScale();
+		AdjustSmokeIntensityScale(Owner->bIsEngineStarted);
 	}
 }
 
@@ -49,7 +50,7 @@ void UExhaustPipeComponent::BeginPlay()
 	}
 }
 
-void UExhaustPipeComponent::AdjustSmokeIntensityScale()
+void UExhaustPipeComponent::AdjustSmokeIntensityScale(bool EngineStarted)
 {
 	static float L_MaxRotationSpeed = OwnerMovementComponent->GetEngineMaxRotationSpeed();
 
@@ -59,8 +60,10 @@ void UExhaustPipeComponent::AdjustSmokeIntensityScale()
 
 	for (UParticleSystemComponent* ParticleCompIter : SmokeParticleComponents)
 	{
+
 		if(IsValid(ParticleCompIter))
 		{
+			ParticleCompIter->SetActive(EngineStarted);
 			ParticleCompIter->SetVectorParameter(FName("Scale"), FVector(L_SmokeScale, L_SmokeScale, L_SmokeScale));
 		}
 	}
