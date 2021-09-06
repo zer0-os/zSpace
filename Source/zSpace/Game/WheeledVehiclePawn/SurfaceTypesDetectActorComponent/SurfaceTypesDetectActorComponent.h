@@ -37,12 +37,12 @@ private:
 	void CheckUnderWheels();
 	
 public:
-	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FServerSurfaceTypeChange, UPhysicalMaterial *, NewPhysicalMaterial);
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FServerSurfaceTypeChange, UPhysicalMaterial *, NewPhysicalMaterial, int32, WheelIndex);
 
 	UPROPERTY(BlueprintAssignable)
 	FServerSurfaceTypeChange OnServerSurfaceTypeChange;
 	
-	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FClientSurfaceTypeChange, UPhysicalMaterial *, NewPhysicalMaterial);
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FClientSurfaceTypeChange, UPhysicalMaterial *, NewPhysicalMaterial, int32, WheelIndex);
 	
 	UPROPERTY(BlueprintAssignable)
 	FClientSurfaceTypeChange OnClientSurfaceTypeChange;

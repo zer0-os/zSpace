@@ -29,13 +29,19 @@ private:
 	class UTrackDataAsset * TrackDataAsset = nullptr;
 
 	class AZSWheeledVehiclePawn * GetVehiclePawn();
+	class UZSVehicleMovementComponent * GetVehicleMovementComponent();
 
 	void BindSurfaceDetection();
 	
 public:
 	
 	UFUNCTION()
-	void ClientSurfaceTypeChange(UPhysicalMaterial * NewPhysicalMaterial);
+	void ClientSurfaceTypeChange(UPhysicalMaterial * NewPhysicalMaterial, int32 I);
+
+	UFUNCTION()
+	void SpawnTrack(UParticleSystem * Particle, FVector Location, FName SocketName);
 	
+	UFUNCTION()	
+	void TrackLocation(UParticleSystem * Particle);	
 		
 };

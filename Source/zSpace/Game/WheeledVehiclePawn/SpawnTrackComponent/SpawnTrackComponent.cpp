@@ -2,10 +2,12 @@
 
 
 #include "Game/WheeledVehiclePawn/SpawnTrackComponent/SpawnTrackComponent.h"
-
+#include "SComponentClassCombo.h"
 #include "Game/WheeledVehiclePawn/ZSWheeledVehiclePawn.h"
 #include "Game/WheeledVehiclePawn/DataAsset/TrackDataAsset/TrackDataAsset.h"
+#include "Game/WheeledVehiclePawn/MovementComponent/ZSVehicleMovementComponent.h"
 #include "Game/WheeledVehiclePawn/SurfaceTypesDetectActorComponent/SurfaceTypesDetectActorComponent.h"
+#include "Kismet/GameplayStatics.h"
 
 // Sets default values for this component's properties
 USpawnTrackComponent::USpawnTrackComponent()
@@ -24,7 +26,7 @@ void USpawnTrackComponent::BeginPlay()
 	Super::BeginPlay();
 
 	// ...
-	if(ROLE_Authority > GetOwnerRole())
+	if(ROLE_Authority > GetOwnerRole() || UKismetSystemLibrary::IsStandalone(this))
 	{
 		BindSurfaceDetection();
 	}
@@ -57,7 +59,7 @@ void USpawnTrackComponent::BindSurfaceDetection()
 	}
 }
 
-void USpawnTrackComponent::ClientSurfaceTypeChange(UPhysicalMaterial * NewPhysicalMaterial)
+void USpawnTrackComponent::ClientSurfaceTypeChange(UPhysicalMaterial * NewPhysicalMaterial, int32 I)
 {
 	if(IsValid(NewPhysicalMaterial))
 	{
@@ -65,10 +67,43 @@ void USpawnTrackComponent::ClientSurfaceTypeChange(UPhysicalMaterial * NewPhysic
 		if (IsValid(TrackDataAsset))
 		{	
 			UParticleSystem * L_Particle = TrackDataAsset->GetParticle(L_Surface);
-			UE_LOG(LogTemp, Warning, TEXT("************* Surface Type = %s **********************"), *UEnum::GetValueAsString<EPhysicalSurface>(L_Surface));
+			TrackLocation(L_Particle);
 		}
 	}
-	
+}
+
+UZSVehicleMovementComponent* USpawnTrackComponent::GetVehicleMovementComponent()
+{
+	UZSVehicleMovementComponent * R_Movement = nullptr;
+	AZSWheeledVehiclePawn * Vehicle = GetVehiclePawn();
+	if(IsValid(Vehicle))
+	{
+		R_Movement = Cast<UZSVehicleMovementComponent>(Vehicle->GetVehicleMovementComponent());	
+	}
+	return R_Movement;
+}
+
+ void USpawnTrackComponent::SpawnTrack(UParticleSystem * Particle, FVector Location, FName SocketName)
+{
+	UParticleSystemComponent * L_SpawnParticle = nullptr;
+	AZSWheeledVehiclePawn * Vehicle = GetVehiclePawn();
+	USkeletalMeshComponent * L_Mesh = Vehicle->GetMesh();
+	L_SpawnParticle = UGameplayStatics::SpawnEmitterAttached(Particle, L_Mesh, SocketName, Location) ;
+}
+
+void USpawnTrackComponent::TrackLocation(UParticleSystem * Particle)
+{
+	UZSVehicleMovementComponent * Movement = GetVehicleMovementComponent();
+    	if(IsValid(Movement))
+    	{
+    		const int32 L_WheelCount = Movement->GetNumWheels();	
+    		for(int32 I = 0; I < L_WheelCount; I++)
+    		{
+    			FVector Location = Movement->Wheels[I]->Location;
+    			FName L_Name = Movement->WheelSetups[I].BoneName;
+				SpawnTrack(Particle, Location, L_Name);
+    		}
+    	}
 }
 
 
