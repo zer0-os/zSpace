@@ -18,15 +18,16 @@ UParticleSystem* FExhaustPipeSmokeParticle::LoadSmokeParticle() const
 void UExhaustPipeComponent::TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-	AdjustSmokeIntensityScale();
+	if (Owner->bIsEngineStarted)
+		AdjustSmokeIntensityScale();
 }
 
 void UExhaustPipeComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	AZSWheeledVehiclePawn* L_OwnerPawn = Cast<AZSWheeledVehiclePawn>(GetOwner());
-	OwnerMovementComponent = L_OwnerPawn->GetZSVehicleMovementComponent();
+	Owner = Cast<AZSWheeledVehiclePawn>(GetOwner());
+	OwnerMovementComponent = Owner->GetZSVehicleMovementComponent();
 
 	for (FName IterSocketName : GetAllSocketNames())
 	{
@@ -40,7 +41,6 @@ void UExhaustPipeComponent::BeginPlay()
 													EAttachLocation::KeepWorldPosition,
 													false);
 		SmokeParticleComponents.Add(PCS);
-		//UE_LOG(LogTemp, Warning, TEXT("Particle Spawned At %f %f %f"), GetSocketLocation(STSocket).X, GetSocketLocation(STSocket).Y, GetSocketLocation(STSocket).Z);
 	}
 }
 
@@ -55,12 +55,6 @@ void UExhaustPipeComponent::AdjustSmokeIntensityScale()
 	for (UParticleSystemComponent* ParticleCompIter : SmokeParticleComponents)
 	{
 		ParticleCompIter->SetVectorParameter(FName("Scale"), FVector(L_SmokeScale, L_SmokeScale, L_SmokeScale));
-
-		FVector x;
-		if (ParticleCompIter->GetVectorParameter(FName("Scale"), x))
-		{
-			UE_LOG(LogTemp, Warning, TEXT("Current Particle Scale Parameter: %f %f %f"), x.X, x.Y, x.Z);
-		}
 	}
 }
 

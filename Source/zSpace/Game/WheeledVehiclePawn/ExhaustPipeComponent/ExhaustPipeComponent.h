@@ -32,6 +32,9 @@ private:
 	UPROPERTY()
 	class UZSVehicleMovementComponent* OwnerMovementComponent;
 
+	UPROPERTY()
+	class AZSWheeledVehiclePawn* Owner;
+
 	TArray<class UParticleSystemComponent*> SmokeParticleComponents;
 
 protected:
