@@ -60,11 +60,11 @@ void UExhaustPipeComponent::AdjustSmokeIntensityScale(bool EngineStarted)
 
 	for (UParticleSystemComponent* ParticleCompIter : SmokeParticleComponents)
 	{
-
 		if(IsValid(ParticleCompIter))
 		{
 			ParticleCompIter->SetActive(EngineStarted);
-			ParticleCompIter->SetVectorParameter(FName("Scale"), FVector(L_SmokeScale, L_SmokeScale, L_SmokeScale));
+			ParticleCompIter->SetVectorParameter(FName("Scale"), FVector(L_SmokeScale, 0.f, 0.f));
+			ParticleCompIter->SetVectorParameter(FName("ColorScale"), FVector(L_SmokeScale, L_SmokeScale, L_SmokeScale));
 		}
 	}
 }
