@@ -7,10 +7,15 @@
 #include "Game/WheeledVehiclePawn/MovementComponent/ZSVehicleMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Particles/ParticleSystemComponent.h"
+#include "Components/AudioComponent.h"
+#include "ExhaustPipeComponent.h"
 
 UExhaustPipeComponent::UExhaustPipeComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
+
+	ThrottleSoundComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("ThrottleSoundComponent"));
+	ThrottleSoundComponent->SetupAttachment(this);
 }
 UParticleSystem* FExhaustPipeSmokeParticle::LoadSmokeParticle() const
 {
@@ -22,10 +27,11 @@ void UExhaustPipeComponent::TickComponent(float DeltaTime, enum ELevelTick TickT
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	if (IsValid(Owner))
+	if (!IsValid(Owner))
 	{
-		AdjustSmokeIntensityScale(Owner->bIsEngineStarted);
+		return;
 	}
+	AdjustSmokeIntensityScale(Owner->bIsEngineStarted);
 }
 
 void UExhaustPipeComponent::BeginPlay()
@@ -67,5 +73,33 @@ void UExhaustPipeComponent::AdjustSmokeIntensityScale(bool EngineStarted)
 			ParticleCompIter->SetVectorParameter(FName("ColorScale"), FVector(L_SmokeScale, L_SmokeScale, L_SmokeScale));
 		}
 	}
+}
+
+void UExhaustPipeComponent::AttemptPlayThrottleSound()
+{
+	static const float L_Threshold = 80.f;
+	static const float L_RPMLimit  = OwnerMovementComponent->GetEngineMaxRotationSpeed();
+
+	float L_CurrentPercentage = L_RPMLimit * OwnerMovementComponent->GetEngineRotationSpeed() / 100.f;
+
+	if (L_CurrentPercentage >= L_Threshold)
+	{
+		USoundWave* CurrentThrottleSound = GetRandomThrottleSound();
+
+		if (!IsValid(CurrentThrottleSound))
+		{
+			return;
+		}
+
+		ThrottleSoundComponent->SetSound(CurrentThrottleSound);
+		ThrottleSoundComponent->Play();
+	}
+}
+
+USoundWave* UExhaustPipeComponent::GetRandomThrottleSound() const
+{
+	USoundWave* L_RandomThrottleSound = ThrottleSounds[FMath::RandRange(0, ThrottleSounds.Num() - 1)];
+
+	return L_RandomThrottleSound;
 }
 
