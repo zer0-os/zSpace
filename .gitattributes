@@ -21,3 +21,4 @@ Content/ASS/ENV/TEX/ROX/MOD/T_CliffL_01_D.uasset filter=lfs diff=lfs merge=lfs -
 Content/ASS/ENV/TEX/ROX/MOD/T_CliffL_01_N.uasset filter=lfs diff=lfs merge=lfs -text
 Content/ASS/ENV/TEX/ROX/MOD/T_CliffL_01_R.uasset filter=lfs diff=lfs merge=lfs -text
 Content/ASS/ENV/TEX/ROX/MOD/T_CliffL_01B_D.uasset filter=lfs diff=lfs merge=lfs -text
+Content/** filter=lfs diff=lfs merge=lfs -text
