@@ -23,11 +23,18 @@ protected:
 public:	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+
+	FVector GetWheelLocation(int32 NewIndex);
+	
 private:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess=true))
 	class UTrackDataAsset * TrackDataAsset = nullptr;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess=true))
+	TArray<UParticleSystemComponent *> SpawnedTrackes;
+
+	
 	class AZSWheeledVehiclePawn * GetVehiclePawn();
 	class UZSVehicleMovementComponent * GetVehicleMovementComponent();
 
@@ -39,9 +46,9 @@ public:
 	void ClientSurfaceTypeChange(UPhysicalMaterial * NewPhysicalMaterial, int32 I);
 
 	UFUNCTION()
-	void SpawnTrack(UParticleSystem * Particle, FVector Location, FName SocketName);
+	void SpawnTrack(UParticleSystem * NewParticle, FVector Location, FName SocketName, int32 NewIndex);
 	
-	UFUNCTION()	
-	void TrackLocation(UParticleSystem * Particle);	
+	//UFUNCTION()	
+	//void TrackLocation(UParticleSystem * Particle, int32 I);	
 		
 };
