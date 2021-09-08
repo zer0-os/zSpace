@@ -17,7 +17,7 @@ private:
 	TEnumAsByte<EPhysicalSurface> SurfaceType;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess=true))
-	TSoftClassPtr<class UParticleSystem> ParticleSystemSoftClassPtr;
+	TSoftObjectPtr<class UParticleSystem> ParticleSystemSoftClassPtr;
 
 public:
 	

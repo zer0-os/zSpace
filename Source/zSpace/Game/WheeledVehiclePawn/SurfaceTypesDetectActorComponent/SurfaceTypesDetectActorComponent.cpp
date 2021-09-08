@@ -4,6 +4,7 @@
 #include "Game/WheeledVehiclePawn/SurfaceTypesDetectActorComponent/SurfaceTypesDetectActorComponent.h"
 #include "Game/WheeledVehiclePawn/ZSWheeledVehiclePawn.h"
 #include "Game/WheeledVehiclePawn/MovementComponent/ZSVehicleMovementComponent.h"
+#include "Kismet/KismetSystemLibrary.h"
 
 // Sets default values for this component's properties
 USurfaceTypesDetectActorComponent::USurfaceTypesDetectActorComponent()
@@ -69,21 +70,14 @@ void USurfaceTypesDetectActorComponent::CheckUnderWheels()
 				{
 					ContactSurfaceMaterial[I] = L_WheelPhysicsMaterial;
 				}
-				if(IsValid(L_WheelPhysicsMaterial))
+				
+				if(ROLE_Authority > GetOwnerRole() || UKismetSystemLibrary::IsStandalone(this))
 				{
-					UE_LOG(LogTemp, Warning, TEXT("************* Surface Type = %s"), *UEnum::GetValueAsString<EPhysicalSurface>(L_WheelPhysicsMaterial->SurfaceType));
-				}
-				else
-				{
-					UE_LOG(LogTemp, Warning, TEXT("************* Surface Type is default"));
+					OnClientSurfaceTypeChange.Broadcast(L_WheelPhysicsMaterial, I);
 				}
 				if(ROLE_Authority == GetOwnerRole())
 				{
-					OnServerSurfaceTypeChange.Broadcast(L_WheelPhysicsMaterial);
-				}
-				else if(ROLE_Authority > GetOwnerRole())
-				{
-					OnClientSurfaceTypeChange.Broadcast(L_WheelPhysicsMaterial);
+					OnServerSurfaceTypeChange.Broadcast(L_WheelPhysicsMaterial, I);
 				}
 			}
 		}
