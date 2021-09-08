@@ -13,3 +13,4 @@ Content/zSpaceContent/Maps/Miami/Miami_8K_BuiltData.uasset filter=lfs diff=lfs m
 Content/zSpaceContent/AnotherMaps/wilderworldexterior_BuiltData.uasset filter=lfs diff=lfs merge=lfs -text
 Content/zSpaceContent/Maps/Miami/HM_48_44/HM_48_44_x0_y0_BuiltData.uasset filter=lfs diff=lfs merge=lfs -text
 *_BuiltData.uasset filter=lfs diff=lfs merge=lfs -text
+Content/** filter=lfs diff=lfs merge=lfs -text
