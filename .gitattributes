@@ -15,3 +15,4 @@ Content/zSpaceContent/Maps/Miami/HM_48_44/HM_48_44_x0_y0_BuiltData.uasset filter
 *_BuiltData.uasset filter=lfs diff=lfs merge=lfs -text
 Content/References/AutomotiveMats/Materials/Interior/Leather/Textures/T_Leather_06_N.uasset filter=lfs diff=lfs merge=lfs -text
 Content/ASS/ENV/TEX/TRE/T_Bark_A_N.uasset filter=lfs diff=lfs merge=lfs -text
+Content/** filter=lfs diff=lfs merge=lfs -text
