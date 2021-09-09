@@ -30,10 +30,10 @@ private:
 	FExhaustPipeSmokeParticle ExhaustSmokeParticle;
 
 	UPROPERTY()
-	class UAudioComponent* ThrottleSoundComponent = nullptr;
+	class UAudioComponent* RumbleSoundComponent = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = true))
-	TArray<class USoundWave*> ThrottleSounds;
+	TArray<class USoundWave*> RumbleSounds;
 
 	UPROPERTY()
 	class UChaosWheeledVehicleMovementComponent * OwnerMovementComponent = nullptr;
@@ -50,8 +50,8 @@ protected:
 	void AdjustSmokeIntensityScale(bool EngineStarted);
 	void AttemptPlayThrottleSound();
 
-	class USoundWave* GetRandomThrottleSound()	const;
-	bool              GetProbableBit(float Percentage) const;
+	bool GetProbableBit(float Percentage) const;
+	class USoundWave* GetRandomRumbleSound()	const;
 public:
 	UExhaustPipeComponent();
 };

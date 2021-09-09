@@ -14,9 +14,9 @@ UExhaustPipeComponent::UExhaustPipeComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
 
-	ThrottleSoundComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("ThrottleSoundComponent"));
-	ThrottleSoundComponent->SetupAttachment(this);
-	ThrottleSoundComponent->bAutoActivate = false;
+	RumbleSoundComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("RumbleSoundComponent"));
+	RumbleSoundComponent->SetupAttachment(this);
+	RumbleSoundComponent->bAutoActivate = false;
 }
 UParticleSystem* FExhaustPipeSmokeParticle::LoadSmokeParticle() const
 {
@@ -46,7 +46,7 @@ void UExhaustPipeComponent::BeginPlay()
 		OwnerMovementComponent = Owner->GetZSVehicleMovementComponent();
 		for (FName IterSocketName : GetAllSocketNames())
 		{
-			UParticleSystemComponent * PCS = UGameplayStatics::SpawnEmitterAttached(
+			UParticleSystemComponent * L_PSC = UGameplayStatics::SpawnEmitterAttached(
 														ExhaustSmokeParticle.LoadSmokeParticle(),
 														this, 
 														IterSocketName, 
@@ -54,7 +54,7 @@ void UExhaustPipeComponent::BeginPlay()
 														GetSocketRotation(IterSocketName), 
 														EAttachLocation::KeepWorldPosition,
 														false);
-			SmokeParticleComponents.Add(PCS);
+			SmokeParticleComponents.Add(L_PSC);
 		}
 	}
 }
@@ -80,7 +80,7 @@ void UExhaustPipeComponent::AdjustSmokeIntensityScale(bool EngineStarted)
 
 void UExhaustPipeComponent::AttemptPlayThrottleSound()
 {
-	if (!IsValid(ThrottleSoundComponent))
+	if (!IsValid(RumbleSoundComponent))
 	{
 		return;
 	}
@@ -92,23 +92,27 @@ void UExhaustPipeComponent::AttemptPlayThrottleSound()
 
 	if (L_CurrentPercentage >= L_Threshold)
 	{
-		if (!ThrottleSoundComponent->IsPlaying() && GetProbableBit(50.f))  // 50% chance of playing
+		if (!RumbleSoundComponent->IsPlaying() && GetProbableBit(100.f))  // 50% chance of playing
 		{
-			USoundWave* L_CurrentThrottleSound = GetRandomThrottleSound();
+			USoundWave* L_CurrentThrottleSound = GetRandomRumbleSound();
 			if (IsValid(L_CurrentThrottleSound))
 			{
-				ThrottleSoundComponent->SetSound(L_CurrentThrottleSound);
-				ThrottleSoundComponent->Play();
+				RumbleSoundComponent->SetSound(L_CurrentThrottleSound);
+				RumbleSoundComponent->Play();
 			}
 		}
 	}
 }
 
-USoundWave* UExhaustPipeComponent::GetRandomThrottleSound() const
+USoundWave* UExhaustPipeComponent::GetRandomRumbleSound() const
 {
-	USoundWave* L_RandomThrottleSound = ThrottleSounds[FMath::RandRange(0, ThrottleSounds.Num() - 1)];
+	if (RumbleSounds.Num() == 0)
+	{
+		return nullptr;
+	}
+	USoundWave* L_RandomRumbleSound = RumbleSounds[FMath::RandRange(0, RumbleSounds.Num() - 1)];
 
-	return L_RandomThrottleSound;
+	return L_RandomRumbleSound;
 }
 
 bool UExhaustPipeComponent::GetProbableBit(float Percentage) const
