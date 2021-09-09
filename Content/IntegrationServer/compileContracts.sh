@@ -1,19 +1,3 @@
-#!/bin/bash
-if ! cd "$1"
-then
-  echo "Error during changing directory "
-  read -rsp $'Press any key to continue...\n' -n1 key;
-  exit
-fi
-if ! chmod u+x 'mvnw'
-then
-  echo "Error during making mvnw file executable "
-  read -rsp $'Press any key to continue...\n' -n1 key;
-  exit
-fi
-if ! ./mvnw org.web3j:web3j-maven-plugin:4.5.11:generate-sources
-then
-  echo "Error during contracts compilation "
-  read -rsp $'Press any key to continue...\n' -n1 key;
-  exit
-fi
+version https://git-lfs.github.com/spec/v1
+oid sha256:d0bc4669cb2b7343f877673612ed0d5305f7cb8abfff223ab3c1f4d401807a37
+size 477

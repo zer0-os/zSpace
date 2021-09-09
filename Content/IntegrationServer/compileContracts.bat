@@ -1,6 +1,3 @@
-cd /d %1
-call mvnw org.web3j:web3j-maven-plugin:4.5.11:generate-sources
-IF %ERRORLEVEL% NEQ 0 (
-  pause
-  EXIT /B 1
-)
+version https://git-lfs.github.com/spec/v1
+oid sha256:b676811422d0648ac12b62c2359dde6adbf0795da26ab2cf9b4f8ea9b20d50af
+size 122
