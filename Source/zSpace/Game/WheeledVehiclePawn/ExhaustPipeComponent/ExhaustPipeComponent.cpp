@@ -16,6 +16,7 @@ UExhaustPipeComponent::UExhaustPipeComponent()
 
 	ThrottleSoundComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("ThrottleSoundComponent"));
 	ThrottleSoundComponent->SetupAttachment(this);
+	ThrottleSoundComponent->bAutoActivate = false;
 }
 UParticleSystem* FExhaustPipeSmokeParticle::LoadSmokeParticle() const
 {
@@ -31,7 +32,9 @@ void UExhaustPipeComponent::TickComponent(float DeltaTime, enum ELevelTick TickT
 	{
 		return;
 	}
+
 	AdjustSmokeIntensityScale(Owner->bIsEngineStarted);
+	AttemptPlayThrottleSound();
 }
 
 void UExhaustPipeComponent::BeginPlay()
@@ -77,22 +80,27 @@ void UExhaustPipeComponent::AdjustSmokeIntensityScale(bool EngineStarted)
 
 void UExhaustPipeComponent::AttemptPlayThrottleSound()
 {
-	static const float L_Threshold = 80.f;
+	if (!IsValid(ThrottleSoundComponent))
+	{
+		return;
+	}
+
+	static const float L_Threshold = 70.f; // Max Threshold Percentage
 	static const float L_RPMLimit  = OwnerMovementComponent->GetEngineMaxRotationSpeed();
 
-	float L_CurrentPercentage = L_RPMLimit * OwnerMovementComponent->GetEngineRotationSpeed() / 100.f;
+	float L_CurrentPercentage = OwnerMovementComponent->GetEngineRotationSpeed() * 100.f / L_RPMLimit;
 
 	if (L_CurrentPercentage >= L_Threshold)
 	{
-		USoundWave* CurrentThrottleSound = GetRandomThrottleSound();
-
-		if (!IsValid(CurrentThrottleSound))
+		if (!ThrottleSoundComponent->IsPlaying() && GetProbableBit(50.f))  // 50% chance of playing
 		{
-			return;
+			USoundWave* L_CurrentThrottleSound = GetRandomThrottleSound();
+			if (IsValid(L_CurrentThrottleSound))
+			{
+				ThrottleSoundComponent->SetSound(L_CurrentThrottleSound);
+				ThrottleSoundComponent->Play();
+			}
 		}
-
-		ThrottleSoundComponent->SetSound(CurrentThrottleSound);
-		ThrottleSoundComponent->Play();
 	}
 }
 
@@ -101,5 +109,13 @@ USoundWave* UExhaustPipeComponent::GetRandomThrottleSound() const
 	USoundWave* L_RandomThrottleSound = ThrottleSounds[FMath::RandRange(0, ThrottleSounds.Num() - 1)];
 
 	return L_RandomThrottleSound;
+}
+
+bool UExhaustPipeComponent::GetProbableBit(float Percentage) const
+{
+	float L_RandomFloat = FMath::RandRange(0.f, 100.f);
+	bool  L_Result = L_RandomFloat <= Percentage;
+
+	return L_Result;
 }
 

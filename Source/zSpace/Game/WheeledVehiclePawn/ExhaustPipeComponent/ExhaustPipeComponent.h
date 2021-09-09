@@ -32,7 +32,7 @@ private:
 	UPROPERTY()
 	class UAudioComponent* ThrottleSoundComponent = nullptr;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = true))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = true))
 	TArray<class USoundWave*> ThrottleSounds;
 
 	UPROPERTY()
@@ -50,7 +50,8 @@ protected:
 	void AdjustSmokeIntensityScale(bool EngineStarted);
 	void AttemptPlayThrottleSound();
 
-	class USoundWave* GetRandomThrottleSound() const;
+	class USoundWave* GetRandomThrottleSound()	const;
+	bool              GetProbableBit(float Percentage) const;
 public:
 	UExhaustPipeComponent();
 };
