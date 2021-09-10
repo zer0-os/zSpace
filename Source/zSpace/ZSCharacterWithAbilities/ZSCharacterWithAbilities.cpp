@@ -1009,10 +1009,10 @@ FVector AZSCharacterWithAbilities::GetPossibleLeaveCarLocation(AZSWheeledVehicle
 	const FVector VehicleRightVector =  NewVehicle->GetActorRightVector();
 	const ETraceTypeQuery TraceTypeQuery = UEngineTypes::ConvertToTraceType(ECollisionChannel::ECC_Visibility);
 	FVector Start = NewVehicle->GetActorLocation();
-	Start.Z+=150;
-	constexpr float L_LengthLeaveDirection = 300.0;
+	constexpr float L_LengthLeaveDirection = 300.0f;
 	float L_LengthLevelDirectionFinal = EVehicleLiveDirection::LEFT_DIRECTION == NewVehicle->VehicleLiveDirection ? -L_LengthLeaveDirection : L_LengthLeaveDirection;
 	FVector End = NewVehicle->GetActorLocation() + (VehicleRightVector * L_LengthLevelDirectionFinal);
+	End.Z += 150.f;
 	const bool bIsHit = UKismetSystemLibrary::LineTraceMulti(NewVehicle, Start, End, TraceTypeQuery,true, ActorsToIgnore, EDrawDebugTrace::ForDuration, OutHits, true);
 	if(!bIsHit)
 	{
