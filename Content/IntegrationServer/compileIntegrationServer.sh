@@ -1,19 +1,3 @@
-#!/bin/bash
-if ! cd "$1"
-then
-  echo "Error during changing directory "
-  read -rsp $'Press any key to continue...\n' -n1 key;
-  exit
-fi
-if ! chmod u+x 'mvnw'
-then
-  echo "Error during making mvnw file executable "
-  read -rsp $'Press any key to continue...\n' -n1 key;
-  exit
-fi
-if ! ./mvnw -DskipTests=true clean package
-then
-  echo "Error during integration server compilation "
-  read -rsp $'Press any key to continue...\n' -n1 key;
-  exit
-fi
+version https://git-lfs.github.com/spec/v1
+oid sha256:a548ff622a8446ff9ad61bb1ae1052d37972040dce5ca481fe6368ba56891480
+size 464
