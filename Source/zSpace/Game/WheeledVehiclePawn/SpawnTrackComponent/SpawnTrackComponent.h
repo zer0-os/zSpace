@@ -24,6 +24,11 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
+	bool IsSetParticleLocation();
+
+	void SetParticleLocation();
+
+	
 	FVector GetWheelLocation(int32 NewIndex);
 	
 private:
@@ -36,9 +41,11 @@ private:
 
 	
 	class AZSWheeledVehiclePawn * GetVehiclePawn();
+	
 	class UZSVehicleMovementComponent * GetVehicleMovementComponent();
 
 	void BindSurfaceDetection();
+
 	
 public:
 	
@@ -48,7 +55,5 @@ public:
 	UFUNCTION()
 	void SpawnTrack(UParticleSystem * NewParticle, FVector Location, FName SocketName, int32 NewIndex);
 	
-	//UFUNCTION()	
-	//void TrackLocation(UParticleSystem * Particle, int32 I);	
 		
 };

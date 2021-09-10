@@ -2,7 +2,8 @@
 
 
 #include "Game/WheeledVehiclePawn/SpawnTrackComponent/SpawnTrackComponent.h"
-#include "SComponentClassCombo.h"
+
+#include "AIController.h"
 #include "Game/WheeledVehiclePawn/ZSWheeledVehiclePawn.h"
 #include "Game/WheeledVehiclePawn/DataAsset/TrackDataAsset/TrackDataAsset.h"
 #include "Game/WheeledVehiclePawn/MovementComponent/ZSVehicleMovementComponent.h"
@@ -38,22 +39,47 @@ void USpawnTrackComponent::BeginPlay()
 void USpawnTrackComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-	UZSVehicleMovementComponent * Movement = GetVehicleMovementComponent();
-    	if(IsValid(Movement))
-    	{
-    		//int32 I = 0;
-    		for(int32 I = 0; I < Movement->WheelSetups.Num(); I++)
-    		{
-				const FVector Location  = GetWheelLocation(I);
-    			if(SpawnedTrackes.IsValidIndex(I) && IsValid(SpawnedTrackes[I]))
-    			{
-    				SpawnedTrackes[I]->SetWorldLocation(Location);
-    			}
-				//UKismetSystemLibrary::DrawDebugSphere(this, Location, 50, 12, FLinearColor::Red, 0);
-    		}
-    	}
+	SetParticleLocation();
+}
 
-	// ...
+bool USpawnTrackComponent::IsSetParticleLocation()
+{
+	const AZSWheeledVehiclePawn * Pawn = GetVehiclePawn();
+	FVector L_OutDir(0);
+	float L_OutLength = 0;
+	if(IsValid(Pawn))
+	{
+		Pawn->GetVelocity().ToDirectionAndLength(L_OutDir, L_OutLength); 
+	}
+	if( ROLE_Authority > GetOwnerRole()
+		|| (UKismetSystemLibrary::IsStandalone(this)
+			&& L_OutLength  > 1)) // check vehicle is moving ?
+	{
+		return true;	
+	}
+	return false;	
+}
+
+void USpawnTrackComponent::SetParticleLocation()
+{
+	const bool bIsSetParticleLocation = IsSetParticleLocation();
+	if(bIsSetParticleLocation)
+	{
+		UZSVehicleMovementComponent * Movement = GetVehicleMovementComponent();
+			if(IsValid(Movement))
+			{
+				for(int32 I = 0; I < Movement->WheelSetups.Num(); I++)
+				{
+					const FVector Location  = GetWheelLocation(I);
+					if(SpawnedTrackes.IsValidIndex(I) && IsValid(SpawnedTrackes[I]))
+					{
+						SpawnedTrackes[I]->SetWorldLocation(Location);
+						UKismetSystemLibrary::DrawDebugSphere(this, Location, 50, 12, FLinearColor::Red, 0);
+					}
+				}
+    	}
+		
+	}
 }
 
 FVector USpawnTrackComponent::GetWheelLocation(int32 NewIndex)
@@ -90,6 +116,7 @@ void USpawnTrackComponent::BindSurfaceDetection()
 		}
 	}
 }
+
 
 void USpawnTrackComponent::ClientSurfaceTypeChange(UPhysicalMaterial * NewPhysicalMaterial, int32 I)
 {
