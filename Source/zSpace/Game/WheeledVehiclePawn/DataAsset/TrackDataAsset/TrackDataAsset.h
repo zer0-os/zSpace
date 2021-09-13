@@ -19,9 +19,15 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess=true))
 	TSoftObjectPtr<class UParticleSystem> ParticleSystemSoftClassPtr;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess=true))
+	FRotator Rotation;
+
 public:
 	
 	class  UParticleSystem * GetParticleSystem();
+
+	
+	void GetRotation(FRotator & NewRotation);
 
 	friend class UTrackDataAsset;
 };
@@ -33,9 +39,15 @@ UCLASS()
 class ZSPACE_API UTrackDataAsset : public UDataAsset
 {
 	GENERATED_BODY()
+	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess=true))
 	TArray<FTrackData> TrackDatas;
+	
 public:
-	class  UParticleSystem * GetParticle(TEnumAsByte<EPhysicalSurface> CurrentSurface);
+
+	class  UParticleSystem * GetParticle(const TEnumAsByte<EPhysicalSurface> CurrentSurface);
+
+	void GetRotation(const TEnumAsByte<EPhysicalSurface> CurrentSurface, FRotator & NewRotation);
+	
 	
 };

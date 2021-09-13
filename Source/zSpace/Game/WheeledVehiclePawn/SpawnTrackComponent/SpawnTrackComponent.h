@@ -26,9 +26,8 @@ public:
 
 	bool IsSetParticleLocation();
 
-	void SetParticleLocation();
+	void SetParticleLocation(bool bForceSet = false);
 
-	
 	FVector GetWheelLocation(int32 NewIndex);
 	
 private:
@@ -53,7 +52,7 @@ public:
 	void ClientSurfaceTypeChange(UPhysicalMaterial * NewPhysicalMaterial, int32 I);
 
 	UFUNCTION()
-	void SpawnTrack(UParticleSystem * NewParticle, FVector Location, FName SocketName, int32 NewIndex);
+	void SpawnTrack(UParticleSystem * NewParticle, FVector Location, FName SocketName, int32 NewIndex, const FRotator& NewRotation);
 	
 		
 };

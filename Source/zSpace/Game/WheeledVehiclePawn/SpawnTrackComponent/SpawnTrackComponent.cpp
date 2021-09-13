@@ -60,23 +60,26 @@ bool USpawnTrackComponent::IsSetParticleLocation()
 	return false;	
 }
 
-void USpawnTrackComponent::SetParticleLocation()
+void USpawnTrackComponent::SetParticleLocation(bool bForceSet)
 {
 	const bool bIsSetParticleLocation = IsSetParticleLocation();
-	if(bIsSetParticleLocation)
+	if(bIsSetParticleLocation || bForceSet)
 	{
-		UZSVehicleMovementComponent * Movement = GetVehicleMovementComponent();
-			if(IsValid(Movement))
+		const UZSVehicleMovementComponent * Movement = GetVehicleMovementComponent();
+		if(IsValid(Movement))
+		{
+			for(int32 I = 0; I < Movement->WheelSetups.Num(); I++)
 			{
-				for(int32 I = 0; I < Movement->WheelSetups.Num(); I++)
+				const FVector Location  = GetWheelLocation(I);
+				if(SpawnedTrackes.IsValidIndex(I) && IsValid(SpawnedTrackes[I]))
 				{
-					const FVector Location  = GetWheelLocation(I);
-					if(SpawnedTrackes.IsValidIndex(I) && IsValid(SpawnedTrackes[I]))
-					{
-						SpawnedTrackes[I]->SetWorldLocation(Location);
-						UKismetSystemLibrary::DrawDebugSphere(this, Location, 50, 12, FLinearColor::Red, 0);
-					}
+					SpawnedTrackes[I]->SetWorldLocation(Location);
+					//UKismetSystemLibrary::DrawDebugSphere(this, Location, 50, 12, FLinearColor::Red, 0);
+					//UE_LOG(LogTemp, Warning, TEXT("***************  bWasDeactivated = %d"), SpawnedTrackes[I]->bWasDeactivated);
+					//UE_LOG(LogTemp, Warning, TEXT("***************  bWasActivate = %d"), SpawnedTrackes[I]->bWasActive);
+					//UE_LOG(LogTemp, Warning, TEXT("***************  WasCompleted = %d"), SpawnedTrackes[I]->bWasCompleted);
 				}
+			}
     	}
 		
 	}
@@ -93,7 +96,7 @@ FVector USpawnTrackComponent::GetWheelLocation(int32 NewIndex)
 		{
 			const FName BoneName = Movement->WheelSetups[NewIndex].BoneName;
 			R_WheelLocation  = Pawn->GetMesh()->GetSocketLocation(BoneName);
-			//UKismetSystemLibrary::DrawDebugSphere(this, Location, 50, 12, FLinearColor::Red, 1);
+			R_WheelLocation.Z -= Movement->Wheels[NewIndex]->WheelRadius;
 		}
 	}
 	return R_WheelLocation;
@@ -126,8 +129,10 @@ void USpawnTrackComponent::ClientSurfaceTypeChange(UPhysicalMaterial * NewPhysic
 		if (IsValid(TrackDataAsset))
 		{	
 			UParticleSystem * L_Particle = TrackDataAsset->GetParticle(L_Surface);
+			FRotator L_Rotation(0);
+			TrackDataAsset->GetRotation(L_Surface,L_Rotation);
 			const FVector L_Location = GetWheelLocation(I);
-			SpawnTrack(L_Particle, L_Location, NAME_None, I);
+			SpawnTrack(L_Particle, L_Location, NAME_None, I, L_Rotation);
 			UE_LOG(LogTemp, Warning, TEXT("************************ %s **************"), *NewPhysicalMaterial->GetName());
 		}
 	}
@@ -156,24 +161,34 @@ UZSVehicleMovementComponent* USpawnTrackComponent::GetVehicleMovementComponent()
 	return L_Name;
 }*/
 
- void USpawnTrackComponent::SpawnTrack(UParticleSystem * NewParticle, FVector Location, FName SocketName, int32 NewIndex)
+ void USpawnTrackComponent::SpawnTrack(UParticleSystem * NewParticle, FVector Location, FName SocketName, int32 NewIndex, const FRotator& NewRotation)
 {
-	AZSWheeledVehiclePawn * Vehicle = GetVehiclePawn();
+	const AZSWheeledVehiclePawn * Vehicle = GetVehiclePawn();
 	USkeletalMeshComponent * L_Mesh = Vehicle->GetMesh();
-	const FRotator L_Rotation = FRotator(0, 0, 90);
 	if(!SpawnedTrackes.IsValidIndex(NewIndex))
 	{
-		UParticleSystemComponent *  L_SpawnParticle = UGameplayStatics::SpawnEmitterAttached(NewParticle, L_Mesh, SocketName, Location, L_Rotation) ;
-		SpawnedTrackes.Add(L_SpawnParticle);
+		UParticleSystemComponent *  L_SpawnParticle = NewObject<UParticleSystemComponent>(this);
+		if(IsValid(L_SpawnParticle))
+		{
+			SpawnedTrackes.Add(L_SpawnParticle);
+			SetParticleLocation(true);
+			L_SpawnParticle->SetWorldRotation(NewRotation);
+			L_SpawnParticle->SetTemplate(NewParticle);
+			L_SpawnParticle->bAutoActivate = true;
+			L_SpawnParticle->bAutoDestroy = true;
+			L_SpawnParticle->ActivateSystem(false);
+			L_SpawnParticle->RegisterComponentWithWorld(GetWorld());
+		}
 	}
 	else
 	{
 		UParticleSystemComponent *  L_SpawnParticle = SpawnedTrackes[NewIndex];
-		if(IsValid(L_SpawnParticle))
+		if(IsValid(L_SpawnParticle) && L_SpawnParticle->Template == nullptr)
 		{
 			
 			L_SpawnParticle->SetTemplate(NewParticle);
-			UE_LOG(LogTemp, Warning, TEXT("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ Particle name = %s $$$$$$$$$$$$$$$$$$$$"), *L_SpawnParticle->GetName());
+			L_SpawnParticle->ActivateSystem(true);
+			UE_LOG(LogTemp, Warning, TEXT("****************  %s ***********"), NewParticle == nullptr ? TEXT("nullptr") : TEXT("Not nullptr"));
 			//L_SpawnParticle->ActivateSystem();
 		}
 	}

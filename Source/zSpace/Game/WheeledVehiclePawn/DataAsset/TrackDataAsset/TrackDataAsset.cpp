@@ -11,7 +11,12 @@ UParticleSystem* FTrackData::GetParticleSystem()
 	return R_ParticleSystem;
 }
 
-UParticleSystem * UTrackDataAsset::GetParticle(TEnumAsByte<EPhysicalSurface> CurrentSurface)
+void FTrackData::GetRotation(FRotator& NewRotation)
+{
+	NewRotation = Rotation;	
+}
+
+UParticleSystem * UTrackDataAsset::GetParticle(const TEnumAsByte<EPhysicalSurface> CurrentSurface)
 {
 	UParticleSystem * R_ParticleSystem = nullptr;
 	for (int I=0; I < TrackDatas.Num(); I++)
@@ -23,4 +28,16 @@ UParticleSystem * UTrackDataAsset::GetParticle(TEnumAsByte<EPhysicalSurface> Cur
 		}
 	}
 	return R_ParticleSystem;
+}
+
+void UTrackDataAsset::GetRotation(const TEnumAsByte<EPhysicalSurface> CurrentSurface, FRotator& NewRotation)
+{
+	for (int I=0; I < TrackDatas.Num(); I++)
+	{
+		if(TrackDatas[I].SurfaceType == CurrentSurface)
+		{
+			TrackDatas[I].GetRotation(NewRotation);
+			return;
+		}
+	}
 }
