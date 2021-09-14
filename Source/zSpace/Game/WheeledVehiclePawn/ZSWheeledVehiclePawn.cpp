@@ -29,6 +29,7 @@
 #include "SurfaceTypesDetectActorComponent/SurfaceTypesDetectActorComponent.h"
 #include "zSpace/Game/ZSGamePlayerController/ZSGamePlayerController.h"
 #include "zSpace/ZSCharacterWithAbilities/Components/ManageCharacterMeshComponent/ManageCharacterMeshAC.h"
+#include "AIController.h"
 
 FName AZSWheeledVehiclePawn::VehicleStopLightParamName = "EmissiveColorStopLights";
 
@@ -210,6 +211,8 @@ AZSWheeledVehiclePawn::AZSWheeledVehiclePawn(const FObjectInitializer& ObjectIni
 	SpawnTrackComponent = CreateDefaultSubobject<USpawnTrackComponent>(TEXT("SpawnTrackComponent"));
 	checkf(nullptr != SpawnTrackComponent, TEXT("The SpawnTrackComponent is nullptr. "));
 	AddOwnedComponent(SpawnTrackComponent);
+
+	
 	
 }
 
@@ -291,6 +294,8 @@ void AZSWheeledVehiclePawn::HideVehicleControlWidget()
 void AZSWheeledVehiclePawn::BeginPlay()
 {
 	Super::BeginPlay();
+	EObjectFlags L_Flags = GetFlags() | RF_Transient;
+	SetFlags(L_Flags);
 	SetAutonomousProxy(true);
 	if(ROLE_Authority == GetLocalRole())
 	{
@@ -885,18 +890,29 @@ void AZSWheeledVehiclePawn::UnPossessed()
 	//DisableMove();
 	MoveForward(0);
 	HandbrakePressed();
+	if(GetMesh())
+	{
+		GetMesh()->bOnlyAllowAutonomousTickPose = true;
+	}
 	Super::UnPossessed();
 }
 
 void AZSWheeledVehiclePawn::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
-	//EnableMove();
-	SetIdleBrakeInput(0);
-	SteeringWheelStaticMeshComponent->SetComponentTickEnabled(true);
-	SetIsHiddenDriver(false);
-	Client_SetupDefaultCamera();
-	SetEngineStart(true);
+	if(IsValid(NewController) && !NewController->IsA(AAIController::StaticClass())) // if not AI controller then works below code.
+	{
+		if(GetMesh())
+		{
+			GetMesh()->bOnlyAllowAutonomousTickPose = false;
+		}
+		//EnableMove();
+		SetIdleBrakeInput(0);
+		SteeringWheelStaticMeshComponent->SetComponentTickEnabled(true);
+		SetIsHiddenDriver(false);
+		Client_SetupDefaultCamera();
+		SetEngineStart(true);
+	}
 }
 
 

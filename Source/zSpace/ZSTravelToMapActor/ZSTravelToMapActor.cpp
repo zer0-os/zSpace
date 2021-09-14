@@ -130,6 +130,7 @@ void AZSTravelToMapActor::DisableCharacterMovement()
 {
 	if(IsValid(Character))
 	{
+		Character->Server_SetAnimationState(EAnimationState::Standing);
 		UCharacterMovementComponent * L_CharacterMovementComponent = Character->GetCharacterMovement();
 		if(IsValid(L_CharacterMovementComponent))
 		{
@@ -157,10 +158,10 @@ void AZSTravelToMapActor::ComponentBeginOverlap(UPrimitiveComponent* OverlappedC
 	{
 		UPrimitiveComponent* CapsuleComponent = Cast<UPrimitiveComponent>(Character->GetCapsuleComponent());
 
-		if(CapsuleComponent != OtherComp) return;
-		/*	DisableCharacterMovement();
-			Character->DisableInput(PlayerController);
-			Character->Server_SetAnimationState(EAnimationState::Standing);*/
+		if(CapsuleComponent != OtherComp)
+		{
+			return;
+		}
 
 	}
 	UZSpaceGameInstance* GameInstance = Cast<UZSpaceGameInstance>(GetGameInstance());
@@ -185,9 +186,9 @@ void AZSTravelToMapActor::ComponentBeginOverlap(UPrimitiveComponent* OverlappedC
 	{
 		if (IsValid(Character) && IsValid(PlayerController))
 		{
-	//		DisableCharacterMovement();
+			DisableCharacterMovement();
 			Character->DisableInput(PlayerController);
-	//		Character->Server_SetAnimationState(EAnimationState::Standing);
+			Character->Server_SetAnimationState(EAnimationState::Standing);
 		}
 
 		FTimerHandle Timer;
