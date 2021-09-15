@@ -44,7 +44,6 @@ AZSWheeledVehiclePawn::AZSWheeledVehiclePawn(const FObjectInitializer& ObjectIni
 {
 
 	DriverBoneNameForHHide.Add("head");
-
 	AbilitySystemComponent = CreateDefaultSubobject<UAbilitySystemComponent>(TEXT("AbilitySystemComponent"));
 	checkf(nullptr != AbilitySystemComponent, TEXT("The AbilitySystemComponent is nullptr."));
 	AbilitySystemComponent->SetIsReplicated(true);
@@ -211,9 +210,13 @@ AZSWheeledVehiclePawn::AZSWheeledVehiclePawn(const FObjectInitializer& ObjectIni
 	SpawnTrackComponent = CreateDefaultSubobject<USpawnTrackComponent>(TEXT("SpawnTrackComponent"));
 	checkf(nullptr != SpawnTrackComponent, TEXT("The SpawnTrackComponent is nullptr. "));
 	AddOwnedComponent(SpawnTrackComponent);
+	AutoPossessAI =	EAutoPossessAI::PlacedInWorldOrSpawned;
 
-	
-	
+	/*
+	PathFollowingComponent = CreateDefaultSubobject<UPathFollowingComponent>(TEXT("PathFollowingComponent"));
+	checkf(nullptr != PathFollowingComponent, TEXT("The PathFollowingComponent is nullptr."));
+	AddOwnedComponent(PathFollowingComponent);
+*/
 }
 
 void AZSWheeledVehiclePawn::Server_SetForwardInputValue_Implementation(const float& NewForwardInput)
@@ -309,16 +312,20 @@ void AZSWheeledVehiclePawn::BeginPlay()
 	OnFrontLights(false);
 	SetEngineStart(false);
 	OnInSideLight(false);
+	TurnOffVehicle();
 }
 
 void AZSWheeledVehiclePawn::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
-	if(ROLE_Authority == GetLocalRole())
+	if(false == IsTickWorks())
 	{
-		CheckVehicleStop();
+		if(ROLE_Authority == GetLocalRole())
+		{
+			CheckVehicleStop();
+		}
+		EngineAudioProcessing();	
 	}
-	EngineAudioProcessing();	
 }
 
 
@@ -895,6 +902,7 @@ void AZSWheeledVehiclePawn::UnPossessed()
 		GetMesh()->bOnlyAllowAutonomousTickPose = true;
 	}
 	Super::UnPossessed();
+	TurnOffVehicle();
 }
 
 void AZSWheeledVehiclePawn::PossessedBy(AController* NewController)
@@ -906,12 +914,12 @@ void AZSWheeledVehiclePawn::PossessedBy(AController* NewController)
 		{
 			GetMesh()->bOnlyAllowAutonomousTickPose = false;
 		}
-		//EnableMove();
 		SetIdleBrakeInput(0);
 		SteeringWheelStaticMeshComponent->SetComponentTickEnabled(true);
 		SetIsHiddenDriver(false);
 		Client_SetupDefaultCamera();
 		SetEngineStart(true);
+		TurnOnVehicle();
 	}
 }
 
@@ -1173,6 +1181,65 @@ void AZSWheeledVehiclePawn::DisableMove()
 		const FName L_BoneName("");
 		L_Mesh->SetAllBodiesBelowSimulatePhysics(L_BoneName, false, true);
 	}
+	
+}
+
+bool AZSWheeledVehiclePawn::IsTickWorks() const
+{
+	bool bIsAIPlayerController = false;
+	bIsAIPlayerController = IsValid(Controller) && Controller->IsA(AAIController::StaticClass()) ? true : false;
+	return bIsAIPlayerController;
+}
+
+void AZSWheeledVehiclePawn::TurnOffVehicle()
+{
+	if (GetLocalRole() == ROLE_Authority)
+	{
+		SetReplicates(true);
+	}
+	
+	// do not block anything, just ignore
+	//SetActorEnableCollision(false);
+
+	UPawnMovementComponent* MovementComponent = GetMovementComponent();
+	if (MovementComponent)
+	{
+		MovementComponent->SetComponentTickEnabled(false);
+	}
+	if(GetWorld() && GetWorld()->GetTimerManager().IsTimerPaused(TimerHandleTurnOff))
+	{
+		GetWorld()->GetTimerManager().UnPauseTimer(TimerHandleTurnOff);
+	}
+	GetWorld()->GetTimerManager().SetTimer(TimerHandleTurnOff, [&]()
+	{
+		FVector OutDir(0);
+		float OutLength = 0;
+		GetVelocity().ToDirectionAndLength(OutDir, OutLength);
+		if((IsValid(Controller) && Controller->IsA(AAIController::StaticClass()) || nullptr == Controller) && OutLength < 1   )
+		{
+			DisableMove();
+			GetWorld()->GetTimerManager().PauseTimer(TimerHandleTurnOff);
+		}
+		
+	}, 1, true);
+}
+
+void AZSWheeledVehiclePawn::TurnOnVehicle()
+{
+	if (GetLocalRole() == ROLE_Authority)
+	{
+		SetReplicates(true);
+	}
+	
+	// do not block anything, just ignore
+	//SetActorEnableCollision(true);
+
+	UPawnMovementComponent* MovementComponent = GetMovementComponent();
+	if (MovementComponent)
+	{
+		MovementComponent->SetComponentTickEnabled(true);
+	}
+	EnableMove();
 	
 }
 

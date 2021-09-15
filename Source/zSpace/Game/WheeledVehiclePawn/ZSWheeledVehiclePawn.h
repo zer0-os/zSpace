@@ -24,8 +24,14 @@ UCLASS()
 class ZSPACE_API AZSWheeledVehiclePawn : public AWheeledVehiclePawn, public IAbilitySystemInterface
 {
 	GENERATED_BODY()
-
+	
+private:
+	
+	//UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess=true))
+	//class UPathFollowingComponent * PathFollowingComponent = nullptr;
+	
 public:
+
 
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess=true))	
@@ -86,6 +92,8 @@ public:
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess=true))
 	class USpawnTrackComponent * SpawnTrackComponent = nullptr;
+	
+	FTimerHandle TimerHandleTurnOff;
 	
 public:
 
@@ -356,6 +364,16 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void DisableMove();
+
+	UFUNCTION(BlueprintPure)
+	bool IsTickWorks() const;
+
+	UFUNCTION(BlueprintCallable)
+	void TurnOffVehicle();
+	
+	UFUNCTION(BlueprintCallable)
+	void TurnOnVehicle();
+	
 	
 };
 
