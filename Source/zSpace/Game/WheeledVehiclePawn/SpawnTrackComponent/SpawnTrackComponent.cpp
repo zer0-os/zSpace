@@ -96,7 +96,10 @@ FVector USpawnTrackComponent::GetWheelLocation(int32 NewIndex)
 		{
 			const FName BoneName = Movement->WheelSetups[NewIndex].BoneName;
 			R_WheelLocation  = Pawn->GetMesh()->GetSocketLocation(BoneName);
-			R_WheelLocation.Z -= Movement->Wheels[NewIndex]->WheelRadius;
+			if(Movement->Wheels.IsValidIndex(NewIndex) && Movement->Wheels[NewIndex] )
+			{
+				R_WheelLocation.Z -= Movement->Wheels[NewIndex]->WheelRadius;
+			}
 		}
 	}
 	return R_WheelLocation;
