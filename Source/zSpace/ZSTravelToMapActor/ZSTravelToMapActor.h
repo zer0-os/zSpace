@@ -24,7 +24,11 @@ protected:
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
-
+	
+protected:
+	
+	FHttpModule* HttpZS;
+	
 private:
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, meta=(AllowPrivateAccess=true))
@@ -77,10 +81,10 @@ public:
 	void DisableCharacterMovement();
 
 	UFUNCTION()
-	void ComponentBeginOverlap( UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult);
+	void ComponentBeginOverlap( class UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult);
 
 	UFUNCTION()
-	void OnEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+	void OnEndOverlap(class UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
 	UFUNCTION(BlueprintCallable)	
 	void ShowLoadingEvent(const FString & NewCharacter);
@@ -103,6 +107,12 @@ public:
 
 	UFUNCTION()
 	void ResetState();
+
+	bool IsTeleport(class UPrimitiveComponent * NewOtherComp);
 	
+	UFUNCTION(BlueprintCallable, Category = "Travel")
+	void GetZSMapServerToTravelTo(class APlayerController* NewPlayerController, TEnumAsByte<ERPGSchemeToChooseMap::SchemeToChooseMap> NewSelectedSchemeToChooseMap, int32 NewWorldServerID);
+
+	void OnGetZSMapServerToTravelToResponseReceived(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful);
 };
 

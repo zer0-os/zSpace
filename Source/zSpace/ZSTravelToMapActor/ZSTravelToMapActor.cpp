@@ -13,10 +13,9 @@
 #include "../ZSCharacterWithAbilities/ZSCharacterWithAbilities.h"
 #include "../Game/ZSpaceGameInstance.h"
 #include "../Game/SoundManager/SoundManager.h"
-#include "zSpace/zSpace.h"
-#include <Components/PrimitiveComponent.h>
-#include <Components/CapsuleComponent.h>
 #include "../Game/WidgetLoadingManagerObject/WidgetLoadingManagerObject.h"
+#include "Components/PrimitiveComponent.h"
+#include "Components/CapsuleComponent.h"
 
 // Sets default values
 AZSTravelToMapActor::AZSTravelToMapActor()
@@ -153,16 +152,10 @@ void AZSTravelToMapActor::ComponentBeginOverlap(UPrimitiveComponent* OverlappedC
 	GetOWSCharacter(OtherActor);
 	GetPlayerController(Character);
 	GetPlayerState(PlayerController);
-
-	if (IsValid(Character))
+	const bool bIsTeleport = IsTeleport(OtherComp);
+	if(!bIsTeleport)
 	{
-		UPrimitiveComponent* CapsuleComponent = Cast<UPrimitiveComponent>(Character->GetCapsuleComponent());
-
-		if(CapsuleComponent != OtherComp)
-		{
-			return;
-		}
-
+		return;	
 	}
 	UZSpaceGameInstance* GameInstance = Cast<UZSpaceGameInstance>(GetGameInstance());
 	if (GameInstance)
@@ -209,7 +202,7 @@ void AZSTravelToMapActor::ComponentBeginOverlap(UPrimitiveComponent* OverlappedC
 					DisableCharacterMovement();
 					if(IsValid(PlayerController))
 					{
-						GetMapServerToTravelTo(PlayerController, ERPGSchemeToChooseMap::MapWithFewestPlayers, 0);
+						GetZSMapServerToTravelTo(PlayerController, ERPGSchemeToChooseMap::MapWithFewestPlayers, 0);
 					}
 				}
 			}
@@ -350,5 +343,89 @@ void AZSTravelToMapActor::ResetState()
 	//	Character = nullptr;
 	//	PlayerController = nullptr;
 	//	PlayerState = nullptr;
+	}
+}
+
+bool AZSTravelToMapActor::IsTeleport(UPrimitiveComponent * NewOtherComp)
+{
+	bool R_Status = false;
+	if (IsValid(Character))
+	{
+		UCapsuleComponent * L_CapsuleComponent = Character->GetCapsuleComponent();
+		if(L_CapsuleComponent == NewOtherComp)
+		{
+			R_Status = true;
+		}
+	}
+	return R_Status;	
+}
+
+void AZSTravelToMapActor::GetZSMapServerToTravelTo(APlayerController* NewPlayerController, TEnumAsByte<ERPGSchemeToChooseMap::SchemeToChooseMap> NewSelectedSchemeToChooseMap, int32 NewWorldServerID)
+{
+	HttpZS = &FHttpModule::Get();
+	HttpZS->SetHttpTimeout(TravelTimeout); //Set timeout
+	const FString CharacterName = NewPlayerController->PlayerState->GetPlayerName();
+	UE_LOG(LogTemp, Warning, TEXT("PlayerName: %s"), *CharacterName);
+	UE_LOG(LogTemp, Warning, TEXT("ZoneName: %s"), *ZoneName);
+
+	TSharedRef<IHttpRequest, ESPMode::ThreadSafe> Request = HttpZS->CreateRequest();
+	Request->OnProcessRequestComplete().BindUObject(this, &AZSTravelToMapActor::OnGetZSMapServerToTravelToResponseReceived);
+	//This is the url on which to process the request
+	const FString Url = FString(OWS2APIPath + "api/Users/GetServerToConnectTo");
+
+	TArray<FStringFormatArg> FormatParams;
+	FormatParams.Add(CharacterName);
+	FormatParams.Add(ZoneName);
+	FormatParams.Add(TEXT("0"));
+	const FString PostParameters = FString::Format(TEXT("{ \"CharacterName\": \"{0}\", \"ZoneName\": \"{1}\", \"PlayerGroupType\": {2} }"), FormatParams);
+
+	Request->SetURL(Url);
+	Request->SetVerb("POST");
+	Request->SetHeader(TEXT("User-Agent"), "X-UnrealEngine-Agent");
+	Request->SetHeader("Content-Type", TEXT("application/json"));
+	Request->SetHeader(TEXT("X-CustomerGUID"), RPGAPICustomerKey);
+	Request->SetContentAsString(PostParameters);
+	Request->ProcessRequest();
+}
+
+void AZSTravelToMapActor::OnGetZSMapServerToTravelToResponseReceived(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful)
+{
+	FString ServerAndPort("");
+	if (bWasSuccessful)
+	{
+		TSharedPtr<FJsonObject> JsonObject;
+		const TSharedRef<TJsonReader<>> Reader = TJsonReaderFactory<>::Create(Response->GetContentAsString());
+
+		if (FJsonSerializer::Deserialize(Reader, JsonObject))
+		{
+			const FString ServerIP = JsonObject->GetStringField("serverip");		
+			const FString Port = JsonObject->GetStringField("port");			
+
+			if (ServerIP.IsEmpty() || Port.IsEmpty())
+			{
+				ErrorMapServerToTravelTo(TEXT("Cannot connect to server!"));
+				EventErrorMapServerToTravelTo(TEXT("Cannot connect to server!"));
+				return;
+			}
+
+			ServerAndPort = ServerIP + FString(TEXT(":")) + Port.Left(4);		
+
+			UE_LOG(LogTemp, Warning, TEXT("ServerAndPort: %s"), *ServerAndPort);
+
+			NotifyMapServerToTravelTo(ServerAndPort);
+			EventNotifyMapServerToTravelTo(ServerAndPort);
+		}
+		else
+		{
+			UE_LOG(LogTemp, Error, TEXT("OnGetMapServerToTravelToResponseReceived Server returned no data!"));
+			ErrorMapServerToTravelTo(TEXT("There was a problem connecting to the server.  Please try again."));
+			EventErrorMapServerToTravelTo(TEXT("There was a problem connecting to the server.  Please try again."));
+		}
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("OnGetMapServerToTravelToResponseReceived Error accessing server!"));
+		ErrorMapServerToTravelTo(TEXT("Unknown error connecting to server!"));
+		EventErrorMapServerToTravelTo(TEXT("Unknown error connecting to server!"));
 	}
 }

@@ -285,7 +285,7 @@ void AZSGamePlayerController::Client_OnUnPosses_Implementation()
 void AZSGamePlayerController::PawnLeavingGame()
 {
 	UE_LOG(LogTemp, Log, TEXT("********************** PawnLeavingGame **********************"));
-	AZSWheeledVehiclePawn * Vehicle =  Cast<AZSWheeledVehiclePawn>(GetPawn());
+	const AZSWheeledVehiclePawn * Vehicle =  Cast<AZSWheeledVehiclePawn>(GetPawn());
 	if(IsValid(Vehicle))
 	{
 		TArray<AActor *> OutActors;

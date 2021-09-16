@@ -899,6 +899,10 @@ void AZSCharacterWithAbilities::EnterVehicle_Implementation()
 		UE_LOG(LogTemp, Log, TEXT("Client: Enger Vehicle "));
 		EnterVehicle();	
 	}
+	if(!IsValid(GetOWSPlayerController()))
+	{
+		return;	
+	}
 	UE_LOG(LogTemp, Log, TEXT("Server: Enger Vehicle "));
 	TArray<UPrimitiveComponent *> OverlappingComponents;
 	GetOverlappingComponents(OverlappingComponents);
@@ -936,11 +940,14 @@ void AZSCharacterWithAbilities::AttachToVehicle(AZSWheeledVehiclePawn * NewVehic
 			SetActorLocation(L_VehicleLocation);
 			SetActorHiddenInGame(true);
 			AOWSPlayerController * PC = GetOWSPlayerController();
-			Client_AttachToVehicle(NewVehicle);
-			PC->Possess(NewVehicle);
-			NewVehicle->SetDriverSkeletalMesh(this);
-			NewVehicle->SetZsCharacterWithAbilities(this);
-			UE_LOG(LogTemp, Log, TEXT("Server: Posses"));
+			if(IsValid(PC))
+			{
+				Client_AttachToVehicle(NewVehicle);
+				PC->Possess(NewVehicle);
+				NewVehicle->SetDriverSkeletalMesh(this);
+				NewVehicle->SetZsCharacterWithAbilities(this);
+				UE_LOG(LogTemp, Log, TEXT("Server: Posses"));
+			}
 		}
 	}
 }
