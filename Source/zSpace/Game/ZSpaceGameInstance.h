@@ -165,5 +165,8 @@ public:
 
 	UFUNCTION()
 	void StreamingLevelLoaded();
+
+	UFUNCTION(Exec)
+	void CM_ShowLoadingWidget(bool IsShow);
 	
 };

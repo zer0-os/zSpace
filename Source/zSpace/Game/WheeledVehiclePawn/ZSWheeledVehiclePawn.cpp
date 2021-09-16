@@ -211,6 +211,8 @@ AZSWheeledVehiclePawn::AZSWheeledVehiclePawn(const FObjectInitializer& ObjectIni
 	checkf(nullptr != SpawnTrackComponent, TEXT("The SpawnTrackComponent is nullptr. "));
 	AddOwnedComponent(SpawnTrackComponent);
 	AutoPossessAI =	EAutoPossessAI::PlacedInWorldOrSpawned;
+	
+	TimerDelegateTurnOff = FTimerDelegate::CreateUObject(this, &AZSWheeledVehiclePawn::CanDisableVehicleMovement);
 
 	/*
 	PathFollowingComponent = CreateDefaultSubobject<UPathFollowingComponent>(TEXT("PathFollowingComponent"));
@@ -1210,18 +1212,7 @@ void AZSWheeledVehiclePawn::TurnOffVehicle()
 	{
 		GetWorld()->GetTimerManager().UnPauseTimer(TimerHandleTurnOff);
 	}
-	GetWorld()->GetTimerManager().SetTimer(TimerHandleTurnOff, [&]()
-	{
-		FVector OutDir(0);
-		float OutLength = 0;
-		GetVelocity().ToDirectionAndLength(OutDir, OutLength);
-		if((IsValid(Controller) && Controller->IsA(AAIController::StaticClass()) || nullptr == Controller) && OutLength < 1   )
-		{
-			DisableMove();
-			GetWorld()->GetTimerManager().PauseTimer(TimerHandleTurnOff);
-		}
-		
-	}, 1, true);
+	GetWorld()->GetTimerManager().SetTimer(TimerHandleTurnOff,  TimerDelegateTurnOff, 1, true);
 }
 
 void AZSWheeledVehiclePawn::TurnOnVehicle()
@@ -1271,5 +1262,18 @@ void AZSWheeledVehiclePawn::MultiCastEnableTick_Implementation( bool NewEnable)
 	else
 	{
 		SetActorTickEnabled(false);
+	}
+}
+
+void AZSWheeledVehiclePawn::CanDisableVehicleMovement()
+{
+	UE_LOG(LogTemp, Warning, TEXT("************ Called Timer **************** "));
+	FVector OutDir(0);
+	float OutLength = 0;
+	GetVelocity().ToDirectionAndLength(OutDir, OutLength);
+	if((IsValid(Controller) && Controller->IsA(AAIController::StaticClass()) || nullptr == Controller) && OutLength < 1   )
+	{
+		DisableMove();
+		GetWorld()->GetTimerManager().PauseTimer(TimerHandleTurnOff);
 	}
 }

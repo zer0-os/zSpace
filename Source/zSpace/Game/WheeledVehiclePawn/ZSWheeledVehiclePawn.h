@@ -92,8 +92,10 @@ public:
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess=true))
 	class USpawnTrackComponent * SpawnTrackComponent = nullptr;
-	
+
 	FTimerHandle TimerHandleTurnOff;
+
+	FTimerDelegate TimerDelegateTurnOff;
 	
 public:
 
@@ -373,7 +375,9 @@ public:
 	
 	UFUNCTION(BlueprintCallable)
 	void TurnOnVehicle();
-	
+
+	UFUNCTION()
+	void CanDisableVehicleMovement();
 	
 };
 

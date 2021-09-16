@@ -323,4 +323,21 @@ void UZSpaceGameInstance::StreamingLevelLoaded()
 	}
 }
 
+void UZSpaceGameInstance::CM_ShowLoadingWidget(bool IsShow)
+{
+	if(WidgetLoadingManagerObject)
+	{
+		if(IsShow)
+		{
+			const TSubclassOf<UUserWidget> L_SecondLoadingWidget = WidgetLoadingManagerObject->SecondLoadingWidget.LoadSynchronous();
+			WidgetLoadingManagerObject->ShowLoadingWidget(L_SecondLoadingWidget , 99);
+		}
+		else
+		{
+			WidgetLoadingManagerObject->HideLoadingWidget();	
+		}
+	}
+}
+
+
 
