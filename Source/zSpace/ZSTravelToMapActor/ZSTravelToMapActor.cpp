@@ -304,6 +304,10 @@ void AZSTravelToMapActor::EventNotifyMapServerToTravelTo(const FString& ServerAn
 	if(IsValid(PlayerController))
 	{
 		const FRotator 	R_SpawnRotator = GetCharacterSpawnRotation();
+		if(IsValid(Vehicle))
+		{
+			Vehicle->SwitchToCharacter();
+		}
 		PlayerController->SaveAllPlayerData();
 		const FString L_PlayerName = GetCharacterName();
 		PlayerController->TravelToMap2(ServerAndPort, PointToMoveTo.X, PointToMoveTo.Y, PointToMoveTo.Z, R_SpawnRotator.Roll, R_SpawnRotator.Pitch, R_SpawnRotator.Yaw, L_PlayerName, false);

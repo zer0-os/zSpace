@@ -1268,7 +1268,7 @@ void AZSWheeledVehiclePawn::MultiCastEnableTick_Implementation( bool NewEnable)
 
 void AZSWheeledVehiclePawn::CanDisableVehicleMovement()
 {
-	UE_LOG(LogTemp, Warning, TEXT("************ Called Timer **************** "));
+	//UE_LOG(LogTemp, Warning, TEXT("************ Called Timer **************** "));
 	FVector OutDir(0);
 	float OutLength = 0;
 	GetVelocity().ToDirectionAndLength(OutDir, OutLength);
@@ -1287,6 +1287,7 @@ void AZSWheeledVehiclePawn::SwitchToCharacter()
 		if(IsValid(PC))
 		{
 			TurnOffVehicle();
+			SaveVehicleModelOfCharacter();
 			PC->Possess(ZSCharacterWithAbilities);
 		}
 	}
@@ -1299,7 +1300,7 @@ void AZSWheeledVehiclePawn::SwitchToCharacter()
 void AZSWheeledVehiclePawn::SaveVehicleModelOfCharacter()
 {
 	AZSGamePlayerController * PC = Cast<AZSGamePlayerController>(GetController());
-	APlayerState * L_PlayerState = PC->GetPlayerState<APlayerState>();
+	const APlayerState * L_PlayerState = PC->GetPlayerState<APlayerState>();
 	if(IsValid(PC) && IsValid(ZSCharacterWithAbilities) && IsValid(L_PlayerState))
 	{
 		const UZSpaceGameInstance * GameInstance = Cast<UZSpaceGameInstance>(UGameplayStatics::GetGameInstance(this));
@@ -1307,8 +1308,10 @@ void AZSWheeledVehiclePawn::SaveVehicleModelOfCharacter()
 		const FString CharacterName = L_PlayerState->GetPlayerName(); 
 		if(IsValid(GameInstance))
 		{
-			//GetClass()->Path
-			//PC->AddOrUpdateCosmeticCustomCharacterData(UserSessionGUID, CharacterName, "VehicleName", GetClass()->String );
+			const FAssetData L_AssetData = GetClass();
+			const FSoftObjectPath L_SoftObjectPath = L_AssetData.ToSoftObjectPath();
+			const FString L_VehicleClassName = L_SoftObjectPath.GetAssetPathString();
+			PC->AddOrUpdateCosmeticCustomCharacterData(UserSessionGUID, CharacterName, "VehicleName", L_VehicleClassName );
 		}
 	}
 }
