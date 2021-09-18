@@ -136,7 +136,6 @@ void USpawnTrackComponent::ClientSurfaceTypeChange(UPhysicalMaterial * NewPhysic
 			TrackDataAsset->GetRotation(L_Surface,L_Rotation);
 			const FVector L_Location = GetWheelLocation(I);
 			SpawnTrack(L_Particle, L_Location, NAME_None, I, L_Rotation);
-			UE_LOG(LogTemp, Warning, TEXT("************************ %s **************"), *NewPhysicalMaterial->GetName());
 		}
 	}
 }
@@ -185,8 +184,9 @@ UZSVehicleMovementComponent* USpawnTrackComponent::GetVehicleMovementComponent()
 	}
 	else
 	{
+
 		UParticleSystemComponent *  L_SpawnParticle = SpawnedTrackes[NewIndex];
-		if(IsValid(L_SpawnParticle) && L_SpawnParticle->Template == nullptr)
+		if(IsValid(L_SpawnParticle))
 		{
 			
 			L_SpawnParticle->SetTemplate(NewParticle);
