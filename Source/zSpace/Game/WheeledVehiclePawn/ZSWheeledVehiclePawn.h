@@ -378,6 +378,12 @@ public:
 
 	UFUNCTION()
 	void CanDisableVehicleMovement();
+
+	UFUNCTION(BlueprintCallable)
+	void SwitchToCharacter();
+
+	UFUNCTION(BlueprintCallable)
+	void SaveVehicleModelOfCharacter();
 	
 };
 

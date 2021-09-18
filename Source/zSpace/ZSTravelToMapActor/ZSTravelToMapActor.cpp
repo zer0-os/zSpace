@@ -16,6 +16,7 @@
 #include "../Game/WidgetLoadingManagerObject/WidgetLoadingManagerObject.h"
 #include "Components/PrimitiveComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "Game/WheeledVehiclePawn/ZSWheeledVehiclePawn.h"
 
 // Sets default values
 AZSTravelToMapActor::AZSTravelToMapActor()
@@ -50,16 +51,25 @@ void AZSTravelToMapActor::Tick(float DeltaTime)
 
 }
 
-void AZSTravelToMapActor::GetOWSCharacter(AActor * NewOtherActor)
+void AZSTravelToMapActor::SetCharacter(AActor * NewOtherActor)
 {
 	Character = Cast<AZSCharacterWithAbilities>(NewOtherActor);
 }
 
-void AZSTravelToMapActor::GetPlayerController(AOWSCharacter* NewOWSCharacter)
+void AZSTravelToMapActor::SetPawn(AActor* NewOtherActor)
 {
-	if(IsValid(Character))
+	Vehicle = Cast<AZSWheeledVehiclePawn>(NewOtherActor);
+}
+
+void AZSTravelToMapActor::SetPlayerController(AOWSCharacter* NewOWSCharacter, APawn * NewVehicle)
+{
+	if(IsValid(NewOWSCharacter))
 	{
-		PlayerController = Character->GetController<AZSGamePlayerController>();
+		PlayerController = NewOWSCharacter->GetController<AZSGamePlayerController>();
+	}
+	else if(IsValid(NewVehicle))
+	{
+		PlayerController = NewVehicle->GetController<AZSGamePlayerController>();
 	}
 	else
 	{
@@ -67,7 +77,7 @@ void AZSTravelToMapActor::GetPlayerController(AOWSCharacter* NewOWSCharacter)
 	}
 }
 
-void AZSTravelToMapActor::GetPlayerState(AOWSPlayerController * NewOWSPlayerController)
+void AZSTravelToMapActor::SetPlayerState(AOWSPlayerController * NewOWSPlayerController)
 {
 	if(PlayerController)
 	{
@@ -82,6 +92,14 @@ void AZSTravelToMapActor::GetPlayerState(AOWSPlayerController * NewOWSPlayerCont
 bool AZSTravelToMapActor::IsAvailableTravelToMap()
 {
 	if(IsValid(Character) && false == Character->IsTransferringBetweenMaps)
+	{
+		const bool L_IsEmpty = ZoneName.IsEmpty();
+		if(false == L_IsEmpty )
+		{
+			return true;			
+		}
+	}
+	else if(IsValid(Vehicle))
 	{
 		const bool L_IsEmpty = ZoneName.IsEmpty();
 		if(false == L_IsEmpty )
@@ -149,15 +167,16 @@ void AZSTravelToMapActor::DisableCharacterMovement()
 void AZSTravelToMapActor::ComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 
-	GetOWSCharacter(OtherActor);
-	GetPlayerController(Character);
-	GetPlayerState(PlayerController);
-	const bool bIsTeleport = IsTeleport(OtherComp);
+	SetCharacter(OtherActor);
+	SetPawn(OtherActor);
+	SetPlayerController(Character, Vehicle);
+	SetPlayerState(PlayerController);
+	const bool bIsTeleport = IsTeleport(OtherComp, OtherActor);
 	if(!bIsTeleport)
 	{
 		return;	
 	}
-	UZSpaceGameInstance* GameInstance = Cast<UZSpaceGameInstance>(GetGameInstance());
+	UZSpaceGameInstance * GameInstance = Cast<UZSpaceGameInstance>(GetGameInstance());
 	if (GameInstance)
 	{
 		USoundManager* SoundManager = GameInstance->GetSoundManagerObject();
@@ -188,8 +207,8 @@ void AZSTravelToMapActor::ComponentBeginOverlap(UPrimitiveComponent* OverlappedC
 
 		GetWorld()->GetTimerManager().SetTimer(Timer, [&]()
 		{
-			const bool L_IsEmpty = IsAvailableTravelToMap();
-			if(L_IsEmpty)
+			const bool L_IsAvailableTravelToMap = IsAvailableTravelToMap();
+			if(L_IsAvailableTravelToMap)
 			{
 				if(UseDynamicSpawnLocation)
 				{
@@ -346,7 +365,7 @@ void AZSTravelToMapActor::ResetState()
 	}
 }
 
-bool AZSTravelToMapActor::IsTeleport(UPrimitiveComponent * NewOtherComp)
+bool AZSTravelToMapActor::IsTeleport(UPrimitiveComponent * NewOtherComp, AActor * NewPawn)
 {
 	bool R_Status = false;
 	if (IsValid(Character))
@@ -356,6 +375,11 @@ bool AZSTravelToMapActor::IsTeleport(UPrimitiveComponent * NewOtherComp)
 		{
 			R_Status = true;
 		}
+	}
+	const AZSWheeledVehiclePawn * L_Vehicle = Cast<AZSWheeledVehiclePawn>(NewPawn);
+	if(IsValid(L_Vehicle) && L_Vehicle->GetMesh() == NewOtherComp)
+	{
+		R_Status = true;
 	}
 	return R_Status;	
 }

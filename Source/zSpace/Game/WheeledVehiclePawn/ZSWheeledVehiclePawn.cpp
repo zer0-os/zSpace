@@ -30,6 +30,7 @@
 #include "zSpace/Game/ZSGamePlayerController/ZSGamePlayerController.h"
 #include "zSpace/ZSCharacterWithAbilities/Components/ManageCharacterMeshComponent/ManageCharacterMeshAC.h"
 #include "AIController.h"
+#include "GameFramework/PlayerState.h"
 
 FName AZSWheeledVehiclePawn::VehicleStopLightParamName = "EmissiveColorStopLights";
 
@@ -1275,5 +1276,39 @@ void AZSWheeledVehiclePawn::CanDisableVehicleMovement()
 	{
 		DisableMove();
 		GetWorld()->GetTimerManager().PauseTimer(TimerHandleTurnOff);
+	}
+}
+
+void AZSWheeledVehiclePawn::SwitchToCharacter()
+{
+	if(IsValid(ZSCharacterWithAbilities))
+	{
+		AController * PC = GetController();
+		if(IsValid(PC))
+		{
+			TurnOffVehicle();
+			PC->Possess(ZSCharacterWithAbilities);
+		}
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("The ZSCharacterWithAbilities is nullptr. "));
+	}
+}
+
+void AZSWheeledVehiclePawn::SaveVehicleModelOfCharacter()
+{
+	AZSGamePlayerController * PC = Cast<AZSGamePlayerController>(GetController());
+	APlayerState * L_PlayerState = PC->GetPlayerState<APlayerState>();
+	if(IsValid(PC) && IsValid(ZSCharacterWithAbilities) && IsValid(L_PlayerState))
+	{
+		const UZSpaceGameInstance * GameInstance = Cast<UZSpaceGameInstance>(UGameplayStatics::GetGameInstance(this));
+		const FString UserSessionGUID = GameInstance->UserSessionGUID;
+		const FString CharacterName = L_PlayerState->GetPlayerName(); 
+		if(IsValid(GameInstance))
+		{
+			//GetClass()->Path
+			//PC->AddOrUpdateCosmeticCustomCharacterData(UserSessionGUID, CharacterName, "VehicleName", GetClass()->String );
+		}
 	}
 }

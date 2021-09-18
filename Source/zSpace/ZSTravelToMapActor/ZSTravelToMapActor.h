@@ -49,6 +49,9 @@ private:
 	class AZSCharacterWithAbilities * Character = nullptr;
 
 	UPROPERTY(BlueprintReadOnly, meta=(AllowPrivateAccess=true))
+	class AZSWheeledVehiclePawn * Vehicle = nullptr;
+
+	UPROPERTY(BlueprintReadOnly, meta=(AllowPrivateAccess=true))
 	class AZSGamePlayerController * PlayerController = nullptr;
 
 	UPROPERTY(BlueprintReadOnly, meta=(AllowPrivateAccess=true))
@@ -65,11 +68,13 @@ private:
 
 public:
 
-	void GetOWSCharacter(class AActor * NewOtherActor);
-
-	void GetPlayerController(class AOWSCharacter * NewOWSCharacter);
+	void SetCharacter(class AActor * NewOtherActor);
 	
-	void GetPlayerState(class AOWSPlayerController * NewOWSPlayerController );
+	void SetPawn(class AActor * NewOtherActor);
+
+	void SetPlayerController(class AOWSCharacter * NewOWSCharacter, class APawn * Pawn);
+	
+	void SetPlayerState(class AOWSPlayerController * NewOWSPlayerController );
 
 	bool IsAvailableTravelToMap();
 
@@ -108,7 +113,7 @@ public:
 	UFUNCTION()
 	void ResetState();
 
-	bool IsTeleport(class UPrimitiveComponent * NewOtherComp);
+	bool IsTeleport(class UPrimitiveComponent * NewOtherComp, class AActor * NewPawn);
 	
 	UFUNCTION(BlueprintCallable, Category = "Travel")
 	void GetZSMapServerToTravelTo(class APlayerController* NewPlayerController, TEnumAsByte<ERPGSchemeToChooseMap::SchemeToChooseMap> NewSelectedSchemeToChooseMap, int32 NewWorldServerID);
