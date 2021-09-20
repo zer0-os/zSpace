@@ -129,6 +129,7 @@ void USpawnTrackComponent::ClientSurfaceTypeChange(UPhysicalMaterial * NewPhysic
 	if(IsValid(NewPhysicalMaterial))
 	{
 		TEnumAsByte<EPhysicalSurface> L_Surface = NewPhysicalMaterial->SurfaceType;
+		UKismetSystemLibrary::PrintString(this,TEXT("Surfas type") + GetNameSafe(NewPhysicalMaterial));
 		if (IsValid(TrackDataAsset))
 		{	
 			UParticleSystem * L_Particle = TrackDataAsset->GetParticle(L_Surface);
@@ -138,6 +139,11 @@ void USpawnTrackComponent::ClientSurfaceTypeChange(UPhysicalMaterial * NewPhysic
 			SpawnTrack(L_Particle, L_Location, NAME_None, I, L_Rotation);
 		}
 	}
+	else
+	{
+		SetTemplate(nullptr, I);
+	}
+	
 }
 
 UZSVehicleMovementComponent* USpawnTrackComponent::GetVehicleMovementComponent()
@@ -162,9 +168,23 @@ UZSVehicleMovementComponent* USpawnTrackComponent::GetVehicleMovementComponent()
     	}
 	return L_Name;
 }*/
+void USpawnTrackComponent::SetTemplate(UParticleSystem * NewParticle, int32 NewIndex)
+{
+		UParticleSystemComponent *  L_SpawnParticle = SpawnedTrackes[NewIndex];
+		if(IsValid(L_SpawnParticle))
+		{
+			L_SpawnParticle->SetTemplate(NewParticle);
+			L_SpawnParticle->ActivateSystem(true);
+			UKismetSystemLibrary::PrintString(this, GetNameSafe(L_SpawnParticle->Template));
+			UE_LOG(LogTemp, Warning, TEXT("****************  %s ***********"), NewParticle == nullptr ? TEXT("nullptr") : TEXT("Not nullptr"));
+			//L_SpawnParticle->ActivateSystem();
+		}
+	
+}
 
  void USpawnTrackComponent::SpawnTrack(UParticleSystem * NewParticle, FVector Location, FName SocketName, int32 NewIndex, const FRotator& NewRotation)
 {
+	UKismetSystemLibrary::PrintString(this,"************************************");
 	const AZSWheeledVehiclePawn * Vehicle = GetVehiclePawn();
 	USkeletalMeshComponent * L_Mesh = Vehicle->GetMesh();
 	if(!SpawnedTrackes.IsValidIndex(NewIndex))
@@ -184,16 +204,7 @@ UZSVehicleMovementComponent* USpawnTrackComponent::GetVehicleMovementComponent()
 	}
 	else
 	{
-
-		UParticleSystemComponent *  L_SpawnParticle = SpawnedTrackes[NewIndex];
-		if(IsValid(L_SpawnParticle))
-		{
-			
-			L_SpawnParticle->SetTemplate(NewParticle);
-			L_SpawnParticle->ActivateSystem(true);
-			UE_LOG(LogTemp, Warning, TEXT("****************  %s ***********"), NewParticle == nullptr ? TEXT("nullptr") : TEXT("Not nullptr"));
-			//L_SpawnParticle->ActivateSystem();
-		}
+		SetTemplate(NewParticle, NewIndex);
 	}
 	//UKismetSystemLibrary::DrawDebugSphere(this, Location, 1000, 12, FLinearColor::Red, 15);
 	//SpawnedTrackes.Emplace(L_SpawnParticle);

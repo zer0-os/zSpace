@@ -53,6 +53,9 @@ public:
 
 	UFUNCTION()
 	void SpawnTrack(UParticleSystem * NewParticle, FVector Location, FName SocketName, int32 NewIndex, const FRotator& NewRotation);
+
+	UFUNCTION()
+	void SetTemplate(UParticleSystem * NewParticle, int32 NewIndex);
 	
 		
 };
