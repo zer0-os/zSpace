@@ -129,7 +129,7 @@ void USpawnTrackComponent::ClientSurfaceTypeChange(UPhysicalMaterial * NewPhysic
 	if(IsValid(NewPhysicalMaterial))
 	{
 		TEnumAsByte<EPhysicalSurface> L_Surface = NewPhysicalMaterial->SurfaceType;
-		UKismetSystemLibrary::PrintString(this,TEXT("Surfas type") + GetNameSafe(NewPhysicalMaterial));
+		//UKismetSystemLibrary::PrintString(this,TEXT("Surfas type") + GetNameSafe(NewPhysicalMaterial));
 		if (IsValid(TrackDataAsset))
 		{	
 			UParticleSystem * L_Particle = TrackDataAsset->GetParticle(L_Surface);
@@ -170,21 +170,24 @@ UZSVehicleMovementComponent* USpawnTrackComponent::GetVehicleMovementComponent()
 }*/
 void USpawnTrackComponent::SetTemplate(UParticleSystem * NewParticle, int32 NewIndex)
 {
+	if(SpawnedTrackes.IsValidIndex(NewIndex))
+	{
 		UParticleSystemComponent *  L_SpawnParticle = SpawnedTrackes[NewIndex];
 		if(IsValid(L_SpawnParticle))
 		{
 			L_SpawnParticle->SetTemplate(NewParticle);
 			L_SpawnParticle->ActivateSystem(true);
-			UKismetSystemLibrary::PrintString(this, GetNameSafe(L_SpawnParticle->Template));
+			//UKismetSystemLibrary::PrintString(this, GetNameSafe(L_SpawnParticle->Template));
 			UE_LOG(LogTemp, Warning, TEXT("****************  %s ***********"), NewParticle == nullptr ? TEXT("nullptr") : TEXT("Not nullptr"));
 			//L_SpawnParticle->ActivateSystem();
 		}
+	}
 	
 }
 
  void USpawnTrackComponent::SpawnTrack(UParticleSystem * NewParticle, FVector Location, FName SocketName, int32 NewIndex, const FRotator& NewRotation)
 {
-	UKismetSystemLibrary::PrintString(this,"************************************");
+	//UKismetSystemLibrary::PrintString(this,"************************************");
 	const AZSWheeledVehiclePawn * Vehicle = GetVehiclePawn();
 	USkeletalMeshComponent * L_Mesh = Vehicle->GetMesh();
 	if(!SpawnedTrackes.IsValidIndex(NewIndex))
