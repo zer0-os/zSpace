@@ -1165,7 +1165,7 @@ void AZSWheeledVehiclePawn::OnConstruction(const FTransform& MovieSceneBlends)
 }
 #endif
 
-void AZSWheeledVehiclePawn::EnableMove()
+void AZSWheeledVehiclePawn::EnableMove_Implementation()
 {
 	USkeletalMeshComponent * L_Mesh = GetMesh();
 	if(IsValid(L_Mesh))
@@ -1176,7 +1176,7 @@ void AZSWheeledVehiclePawn::EnableMove()
 	}
 }
 
-void AZSWheeledVehiclePawn::DisableMove()
+void AZSWheeledVehiclePawn::DisableMove_Implementation()
 {
 	USkeletalMeshComponent * L_Mesh = GetMesh();
 	if(IsValid(L_Mesh))
@@ -1184,8 +1184,8 @@ void AZSWheeledVehiclePawn::DisableMove()
 		const FName L_BoneName("");
 		L_Mesh->SetAllBodiesBelowSimulatePhysics(L_BoneName, false, true);
 	}
-	
 }
+
 
 bool AZSWheeledVehiclePawn::IsTickWorks() const
 {
@@ -1196,14 +1196,6 @@ bool AZSWheeledVehiclePawn::IsTickWorks() const
 
 void AZSWheeledVehiclePawn::TurnOffVehicle()
 {
-	if (GetLocalRole() == ROLE_Authority)
-	{
-		SetReplicates(true);
-	}
-	
-	// do not block anything, just ignore
-	//SetActorEnableCollision(false);
-
 	UPawnMovementComponent* MovementComponent = GetMovementComponent();
 	if (MovementComponent)
 	{
@@ -1286,7 +1278,11 @@ void AZSWheeledVehiclePawn::SwitchToCharacter()
 		AController * PC = GetController();
 		if(IsValid(PC))
 		{
-			TurnOffVehicle();
+			DisableMove();
+			if(IsValid(ZSCharacterWithAbilities))
+			{
+				ZSCharacterWithAbilities->IsTransferringBetweenMaps = true;
+			}
 			SaveVehicleModelOfCharacter();
 			PC->Possess(ZSCharacterWithAbilities);
 		}

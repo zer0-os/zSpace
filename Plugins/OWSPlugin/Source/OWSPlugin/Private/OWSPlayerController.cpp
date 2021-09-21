@@ -1490,6 +1490,7 @@ void AOWSPlayerController::OnGetCosmeticCustomCharacterDataResponseReceived(FHtt
 
 void AOWSPlayerController::AddOrUpdateCosmeticCustomCharacterData(FString UserSessionGUID, FString CharacterName, FString CustomFieldName, FString CustomValue)
 {
+	Http = &FHttpModule::Get(); // TODO The line added for ZSpace project
 	TSharedRef<IHttpRequest, ESPMode::ThreadSafe> Request = Http->CreateRequest();
 	Request->OnProcessRequestComplete().BindUObject(this, &AOWSPlayerController::OnAddOrUpdateCosmeticCustomCharacterDataResponseReceived);
 

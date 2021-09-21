@@ -80,6 +80,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = true))
 	TArray<FName> DriverBoneNameForHHide;
+	
+	UPROPERTY(BlueprintReadOnly, meta =(AllowPrivateAccess=true))
+	uint8 IsTransferringBetweenMaps:1;
 
 	UPROPERTY(BlueprintReadOnly, meta =(AllowPrivateAccess=true))
 	uint8 bIsEngineStarted:1;
@@ -361,10 +364,10 @@ public:
 	virtual void OnConstruction(const FTransform& Transform) override;
 #endif
 
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, NetMulticast, Reliable)
 	void EnableMove();
 
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, NetMulticast, Reliable)
 	void DisableMove();
 
 	UFUNCTION(BlueprintPure)

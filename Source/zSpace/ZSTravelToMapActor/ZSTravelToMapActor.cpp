@@ -99,7 +99,7 @@ bool AZSTravelToMapActor::IsAvailableTravelToMap()
 			return true;			
 		}
 	}
-	else if(IsValid(Vehicle))
+	else if(IsValid(Vehicle) && false == Vehicle->IsTransferringBetweenMaps)
 	{
 		const bool L_IsEmpty = ZoneName.IsEmpty();
 		if(false == L_IsEmpty )
@@ -157,10 +157,6 @@ void AZSTravelToMapActor::DisableCharacterMovement()
 		{
 			UE_LOG(LogTemp, Error, TEXT("AZSTravelToMapActor::DisableCharacterMovement(): The L_CharacterMovementComponent is nullptr."));
 		}
-	}
-	else
-	{
-		UE_LOG(LogTemp, Error, TEXT("AZSTravelToMapActor::DisableCharacterMovement(): The Character is nullptr."));
 	}
 }
 
@@ -367,12 +363,16 @@ void AZSTravelToMapActor::ResetState()
 	//	PlayerController = nullptr;
 	//	PlayerState = nullptr;
 	}
+	if(IsValid(Vehicle))
+	{
+		Vehicle->IsTransferringBetweenMaps = false;
+	}
 }
 
 bool AZSTravelToMapActor::IsTeleport(UPrimitiveComponent * NewOtherComp, AActor * NewPawn)
 {
 	bool R_Status = false;
-	if (IsValid(Character))
+	if (IsValid(Character) && false == Character->IsTransferringBetweenMaps)
 	{
 		UCapsuleComponent * L_CapsuleComponent = Character->GetCapsuleComponent();
 		if(L_CapsuleComponent == NewOtherComp)
@@ -381,7 +381,7 @@ bool AZSTravelToMapActor::IsTeleport(UPrimitiveComponent * NewOtherComp, AActor 
 		}
 	}
 	const AZSWheeledVehiclePawn * L_Vehicle = Cast<AZSWheeledVehiclePawn>(NewPawn);
-	if(IsValid(L_Vehicle) && L_Vehicle->GetMesh() == NewOtherComp)
+	if(IsValid(L_Vehicle) && L_Vehicle->GetMesh() == NewOtherComp && false == Vehicle->IsTransferringBetweenMaps )
 	{
 		R_Status = true;
 	}
