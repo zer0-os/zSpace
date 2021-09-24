@@ -387,6 +387,9 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void SaveVehicleModelOfCharacter();
+
+
+	void DisableClientCollisions();
 	
 };
 

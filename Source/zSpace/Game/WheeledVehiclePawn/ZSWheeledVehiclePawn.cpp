@@ -31,6 +31,7 @@
 #include "zSpace/ZSCharacterWithAbilities/Components/ManageCharacterMeshComponent/ManageCharacterMeshAC.h"
 #include "AIController.h"
 #include "GameFramework/PlayerState.h"
+#include "Particles/ParticleSystemComponent.h"
 
 FName AZSWheeledVehiclePawn::VehicleStopLightParamName = "EmissiveColorStopLights";
 
@@ -300,6 +301,7 @@ void AZSWheeledVehiclePawn::HideVehicleControlWidget()
 void AZSWheeledVehiclePawn::BeginPlay()
 {
 	Super::BeginPlay();
+	DisableClientCollisions();
 	EObjectFlags L_Flags = GetFlags() | RF_Transient;
 	SetFlags(L_Flags);
 	SetAutonomousProxy(true);
@@ -1308,6 +1310,25 @@ void AZSWheeledVehiclePawn::SaveVehicleModelOfCharacter()
 			const FSoftObjectPath L_SoftObjectPath = L_AssetData.ToSoftObjectPath();
 			const FString L_VehicleClassName = L_SoftObjectPath.GetAssetPathString();
 			PC->AddOrUpdateCosmeticCustomCharacterData(UserSessionGUID, CharacterName, "VehicleName", L_VehicleClassName );
+		}
+	}
+}
+
+void AZSWheeledVehiclePawn::DisableClientCollisions()
+{
+	if(ROLE_Authority > GetLocalRole())
+	{
+		TArray<UPrimitiveComponent*> L_Components;
+		GetComponents<UPrimitiveComponent>(L_Components);
+		for(auto  Iter = L_Components.CreateIterator(); Iter; Iter++)
+		{
+			UPrimitiveComponent * Iter1 = *Iter;
+			if(IsValid(Iter1)
+				&& Iter1->IsA(UStaticMeshComponent::StaticClass())
+				&& GetMesh() != Iter1) // Skip Root SkeletalMesh component (Vehicle Mesh) 
+			{
+				Iter1->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+			}
 		}
 	}
 }
