@@ -11,6 +11,12 @@ UParticleSystem* FTrackData::GetParticleSystem()
 	return R_ParticleSystem;
 }
 
+UParticleSystem* FTrackData::GetSprayParticleSystem()
+{
+	UParticleSystem * R_ParticleSystem = Cast<UParticleSystem>(ParticleSystemSpraySoftClassPtr.LoadSynchronous());
+	return R_ParticleSystem;
+}
+
 void FTrackData::GetRotation(FRotator& NewRotation)
 {
 	NewRotation = Rotation;	
@@ -24,6 +30,20 @@ UParticleSystem * UTrackDataAsset::GetParticle(const TEnumAsByte<EPhysicalSurfac
 		if(TrackDatas[I].SurfaceType == CurrentSurface)
 		{
 			R_ParticleSystem =	TrackDatas[I].GetParticleSystem();
+			break;
+		}
+	}
+	return R_ParticleSystem;
+}
+
+UParticleSystem* UTrackDataAsset::GetSprayParticle(const TEnumAsByte<EPhysicalSurface> CurrentSurface)
+{
+	UParticleSystem * R_ParticleSystem = nullptr;
+	for (int I=0; I < TrackDatas.Num(); I++)
+	{
+		if(TrackDatas[I].SurfaceType == CurrentSurface)
+		{
+			R_ParticleSystem =	TrackDatas[I].GetSprayParticleSystem();
 			break;
 		}
 	}

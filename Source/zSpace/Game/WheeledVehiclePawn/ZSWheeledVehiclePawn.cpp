@@ -24,6 +24,7 @@
 #include "Components/SpotLightComponent.h"
 #include "Components/WidgetComponent.h"
 #include "Net/UnrealNetwork.h"
+#include "SpawnSprayComponent/SpawnSprayComponent.h"
 #include "SpawnTrackComponent/SpawnTrackComponent.h"
 #include "SpringArmComponent/ZSSpringArmComponent.h"
 #include "SurfaceTypesDetectActorComponent/SurfaceTypesDetectActorComponent.h"
@@ -211,6 +212,10 @@ AZSWheeledVehiclePawn::AZSWheeledVehiclePawn(const FObjectInitializer& ObjectIni
 	SpawnTrackComponent = CreateDefaultSubobject<USpawnTrackComponent>(TEXT("SpawnTrackComponent"));
 	checkf(nullptr != SpawnTrackComponent, TEXT("The SpawnTrackComponent is nullptr. "));
 	AddOwnedComponent(SpawnTrackComponent);
+	
+	SpawnSprayComponent = CreateDefaultSubobject<USpawnSprayComponent>(TEXT("SpawnSprayComponent"));
+	checkf(nullptr != SpawnSprayComponent, TEXT("The SpawnSprayComponent is nullptr. "));
+	AddOwnedComponent(SpawnSprayComponent);
 	AutoPossessAI =	EAutoPossessAI::PlacedInWorldOrSpawned;
 	
 	TimerDelegateTurnOff = FTimerDelegate::CreateUObject(this, &AZSWheeledVehiclePawn::CanDisableVehicleMovement);

@@ -96,6 +96,9 @@ public:
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess=true))
 	class USpawnTrackComponent * SpawnTrackComponent = nullptr;
 
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess=true))
+	class USpawnSprayComponent * SpawnSprayComponent = nullptr;
+	
 	FTimerHandle TimerHandleTurnOff;
 
 	FTimerDelegate TimerDelegateTurnOff;

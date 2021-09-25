@@ -20,13 +20,17 @@ private:
 	TSoftObjectPtr<class UParticleSystem> ParticleSystemSoftClassPtr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess=true))
+	TSoftObjectPtr<class UParticleSystem> ParticleSystemSpraySoftClassPtr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess=true))
 	FRotator Rotation;
 
 public:
 	
 	class  UParticleSystem * GetParticleSystem();
+	UParticleSystem* GetSprayParticleSystem();
 
-	
+
 	void GetRotation(FRotator & NewRotation);
 
 	friend class UTrackDataAsset;
@@ -46,6 +50,7 @@ class ZSPACE_API UTrackDataAsset : public UDataAsset
 public:
 
 	class  UParticleSystem * GetParticle(const TEnumAsByte<EPhysicalSurface> CurrentSurface);
+	UParticleSystem * GetSprayParticle(const TEnumAsByte<EPhysicalSurface> CurrentSurface );
 
 	void GetRotation(const TEnumAsByte<EPhysicalSurface> CurrentSurface, FRotator & NewRotation);
 	
