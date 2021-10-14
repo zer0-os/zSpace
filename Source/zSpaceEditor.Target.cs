@@ -9,8 +9,8 @@ public class zSpaceEditorTarget : TargetRules
 	{
 		Type = TargetType.Editor;
         ExtraModuleNames.AddRange(new string[] { "zSpace" });
-        bCompileChaos = true;
-        bUseChaos = true;
+        //bCompileChaos = true;
+        //bUseChaos = true;
         DefaultBuildSettings = BuildSettingsVersion.V2;
     }
 }
