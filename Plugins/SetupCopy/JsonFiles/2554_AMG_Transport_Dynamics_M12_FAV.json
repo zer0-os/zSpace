@@ -1,0 +1,478 @@
+[
+	{
+		"meshName": "/Game/Cars/AMG/2554_AMG_Transport_Dynamics_M12_FAV/2554_AMG_Transport_Dynamics_M12_FAV_AMG_Transport_Dynamics_M12_FAV",
+		"materialsPath": [
+			"/Game/Setup_Materials/MI_Metal_Painted",
+			"/Game/AutomotiveMaterials/Masters/CarPaint/M_CarPaint_Master_WW",
+			"/Game/Setup_Materials/MI_Plastic_Satin"
+		]
+	},
+	{
+		"meshName": "/Game/Cars/AMG/2554_AMG_Transport_Dynamics_M12_FAV/2554_AMG_Transport_Dynamics_M12_FAV_AMG_Transport_Dynamics_M12_FAV_bonnetV1",
+		"materialsPath": [
+			"/Game/AutomotiveMaterials/Masters/CarPaint/M_CarPaint_Master_WW",
+			"/Game/Setup_Materials/MI_Metal_Chrome_01",
+			"/Game/Setup_Materials/MI_Metal_Painted"
+		]
+	},
+	{
+		"meshName": "/Game/Cars/AMG/2554_AMG_Transport_Dynamics_M12_FAV/2554_AMG_Transport_Dynamics_M12_FAV_AMG_Transport_Dynamics_M12_FAV_LogoV1",
+		"materialsPath": [
+			"/Game/AutomotiveMaterials/Masters/M_CarPaint_Texture_Inst2",
+			"/Game/AutomotiveMaterials/Masters/M_CarPaint_Texture_Inst2"
+		]
+	},
+	{
+		"meshName": "/Game/Cars/AMG/2554_AMG_Transport_Dynamics_M12_FAV/2554_AMG_Transport_Dynamics_M12_FAV_AMG_Transport_Dynamics_M12_FAV_Number_PlatesBKV1",
+		"materialsPath": [
+			"/Game/AutomotiveMaterials/Masters/CarNumber/M_CarNumberMaster"
+		]
+	},
+	{
+		"meshName": "/Game/Cars/AMG/2554_AMG_Transport_Dynamics_M12_FAV/2554_AMG_Transport_Dynamics_M12_FAV_AMG_Transport_Dynamics_M12_FAV_Number_PlatesFRV1",
+		"materialsPath": [
+			"/Game/AutomotiveMaterials/Masters/CarNumber/M_CarNumberMaster_Inst"
+		]
+	},
+	{
+		"meshName": "/Game/Cars/AMG/2554_AMG_Transport_Dynamics_M12_FAV/2554_AMG_Transport_Dynamics_M12_FAV_AMG_Transport_Dynamics_M12_FAV_RimV1",
+		"materialsPath": [
+			"/Game/AutomotiveMaterials/Masters/CarPaint/M_CarPaint_Master_WW",
+			"/Game/AutomotiveMaterials/Masters/M_CarPaint_Texture_Inst2"
+		]
+	},
+	{
+		"meshName": "/Game/Cars/AMG/2554_AMG_Transport_Dynamics_M12_FAV/2554_AMG_Transport_Dynamics_M12_FAV_AMG_Transport_Dynamics_M12_FAV_RimV2",
+		"materialsPath": [
+			"/Game/Cars/AMG/2554_AMG_Transport_Dynamics_M12_FAV/Materials/rim",
+			"/Game/Cars/AMG/2554_AMG_Transport_Dynamics_M12_FAV/Materials/inner_rim",
+			"/Game/AutomotiveMaterials/Masters/M_CarPaint_Texture_Inst2"
+		]
+	},
+	{
+		"meshName": "/Game/Cars/AMG/2554_AMG_Transport_Dynamics_M12_FAV/2554_AMG_Transport_Dynamics_M12_FAV_AMG_Transport_Dynamics_M12_FAV_WheelV1",
+		"materialsPath": [
+			"/Game/Cars/AMG/2554_AMG_Transport_Dynamics_M12_FAV/Materials/bump_plastic5"
+		]
+	},
+	{
+		"meshName": "/Game/Cars/AMG/2554_AMG_Transport_Dynamics_M12_FAV/2554_AMG_Transport_Dynamics_M12_FAV_bun_warthog_10_cockpit_s_glassF_glass_",
+		"materialsPath": [
+			"/Game/Setup_Materials/MI_Glass_Windshield"
+		]
+	},
+	{
+		"meshName": "/Game/Cars/AMG/2554_AMG_Transport_Dynamics_M12_FAV/2554_AMG_Transport_Dynamics_M12_FAV_bun_warthog_10_cockpit_s_interior_anodized_aluminum_",
+		"materialsPath": [
+			"/Game/References/AutomotiveMats/Materials/Interior/Metal/MI_Metal_Aluminum_SandBlast"
+		]
+	},
+	{
+		"meshName": "/Game/Cars/AMG/2554_AMG_Transport_Dynamics_M12_FAV/2554_AMG_Transport_Dynamics_M12_FAV_bun_warthog_10_cockpit_s_interior_bump_leather2_",
+		"materialsPath": [
+			"/Game/References/AutomotiveMats/Materials/Interior/Leather/MI_Leather_Black"
+		]
+	},
+	{
+		"meshName": "/Game/Cars/AMG/2554_AMG_Transport_Dynamics_M12_FAV/2554_AMG_Transport_Dynamics_M12_FAV_bun_warthog_10_cockpit_s_interior_bump_leather_",
+		"materialsPath": [
+			"/Game/References/AutomotiveMats/Materials/Interior/Metal/MI_Metal_Aluminum_SandBlast"
+		]
+	},
+	{
+		"meshName": "/Game/Cars/AMG/2554_AMG_Transport_Dynamics_M12_FAV/2554_AMG_Transport_Dynamics_M12_FAV_bun_warthog_10_cockpit_s_interior_bump_metal_",
+		"materialsPath": [
+			"/Game/References/AutomotiveMats/Materials/Interior/Leather/MI_Leather_Black"
+		]
+	},
+	{
+		"meshName": "/Game/Cars/AMG/2554_AMG_Transport_Dynamics_M12_FAV/2554_AMG_Transport_Dynamics_M12_FAV_bun_warthog_10_cockpit_s_interior_bump_plastic4_",
+		"materialsPath": [
+			"/Game/Setup_Materials/MI_Plastic_Smooth"
+		]
+	},
+	{
+		"meshName": "/Game/Cars/AMG/2554_AMG_Transport_Dynamics_M12_FAV/2554_AMG_Transport_Dynamics_M12_FAV_bun_warthog_10_cockpit_s_interior_bump_plastic_",
+		"materialsPath": [
+			"/Game/Setup_Materials/MI_Plastic_Smooth"
+		]
+	},
+	{
+		"meshName": "/Game/Cars/AMG/2554_AMG_Transport_Dynamics_M12_FAV/2554_AMG_Transport_Dynamics_M12_FAV_bun_warthog_10_cockpit_s_interior_carbon_fiber3_",
+		"materialsPath": [
+			"/Game/Setup_Materials/MI_CarbonFiber"
+		]
+	},
+	{
+		"meshName": "/Game/Cars/AMG/2554_AMG_Transport_Dynamics_M12_FAV/2554_AMG_Transport_Dynamics_M12_FAV_bun_warthog_10_cockpit_s_interior_chrome_",
+		"materialsPath": [
+			"/Game/Setup_Materials/MI_Metal_Chrome_01"
+		]
+	},
+	{
+		"meshName": "/Game/Cars/AMG/2554_AMG_Transport_Dynamics_M12_FAV/2554_AMG_Transport_Dynamics_M12_FAV_bun_warthog_10_cockpit_s_interior_digital_gauge_",
+		"materialsPath": [
+			"/Game/Cars/AMG/2554_AMG_Transport_Dynamics_M12_FAV/Materials/digital_gauge"
+		]
+	},
+	{
+		"meshName": "/Game/Cars/AMG/2554_AMG_Transport_Dynamics_M12_FAV/2554_AMG_Transport_Dynamics_M12_FAV_bun_warthog_10_cockpit_s_interior_embossed_metal_",
+		"materialsPath": [
+			"/Game/References/AutomotiveMats/Materials/Interior/Metal/MI_Metal_Aluminum_SandBlast"
+		]
+	},
+	{
+		"meshName": "/Game/Cars/AMG/2554_AMG_Transport_Dynamics_M12_FAV/2554_AMG_Transport_Dynamics_M12_FAV_bun_warthog_10_cockpit_s_interior_glass_",
+		"materialsPath": [
+			"/Game/Setup_Materials/MI_Glass_Windows"
+		]
+	},
+	{
+		"meshName": "/Game/Cars/AMG/2554_AMG_Transport_Dynamics_M12_FAV/2554_AMG_Transport_Dynamics_M12_FAV_bun_warthog_10_cockpit_s_interior_rubber_",
+		"materialsPath": [
+			"/Game/Setup_Materials/MI_Rubber_Rough"
+		]
+	},
+	{
+		"meshName": "/Game/Cars/AMG/2554_AMG_Transport_Dynamics_M12_FAV/2554_AMG_Transport_Dynamics_M12_FAV_bun_warthog_10_cockpit_s_interior_smooth_metal_",
+		"materialsPath": [
+			"/Game/Setup_Materials/MI_Metal_Wear_01"
+		]
+	},
+	{
+		"meshName": "/Game/Cars/AMG/2554_AMG_Transport_Dynamics_M12_FAV/2554_AMG_Transport_Dynamics_M12_FAV_bun_warthog_10_cockpit_s_interior_smooth_plastic_",
+		"materialsPath": [
+			"/Game/Setup_Materials/MI_Plastic_Smooth"
+		]
+	},
+	{
+		"meshName": "/Game/Cars/AMG/2554_AMG_Transport_Dynamics_M12_FAV/2554_AMG_Transport_Dynamics_M12_FAV_bun_warthog_10_cockpit_s_interior_solid_",
+		"materialsPath": [
+			"/Game/Setup_Materials/MI_Plastic_Smooth_Dark"
+		]
+	},
+	{
+		"meshName": "/Game/Cars/AMG/2554_AMG_Transport_Dynamics_M12_FAV/2554_AMG_Transport_Dynamics_M12_FAV_bun_warthog_10_cockpit_s_seatL_anodized_aluminum_",
+		"materialsPath": [
+			"/Game/References/AutomotiveMats/Materials/Interior/Metal/MI_Metal_Aluminum_SandBlast"
+		]
+	},
+	{
+		"meshName": "/Game/Cars/AMG/2554_AMG_Transport_Dynamics_M12_FAV/2554_AMG_Transport_Dynamics_M12_FAV_bun_warthog_10_cockpit_s_seatL_bump_leather_",
+		"materialsPath": [
+			"/Game/AutomotiveMaterials/Materials/Interior/Leather/MI_Leather_Black"
+		]
+	},
+	{
+		"meshName": "/Game/Cars/AMG/2554_AMG_Transport_Dynamics_M12_FAV/2554_AMG_Transport_Dynamics_M12_FAV_bun_warthog_10_cockpit_s_seatL_bump_plastic4_",
+		"materialsPath": [
+			"/Game/AutomotiveMaterials/Materials/Interior/Leather/MI_Leather_Smooth_Black"
+		]
+	},
+	{
+		"meshName": "/Game/Cars/AMG/2554_AMG_Transport_Dynamics_M12_FAV/2554_AMG_Transport_Dynamics_M12_FAV_bun_warthog_10_cockpit_s_seatL_carbon_fiber_",
+		"materialsPath": [
+			"/Game/AutomotiveMaterials/Materials/Interior/Leather/MI_Leather_Smooth_Black"
+		]
+	},
+	{
+		"meshName": "/Game/Cars/AMG/2554_AMG_Transport_Dynamics_M12_FAV/2554_AMG_Transport_Dynamics_M12_FAV_bun_warthog_10_cockpit_s_seatL_mottled_",
+		"materialsPath": [
+			"/Game/AutomotiveMaterials/Materials/Interior/Leather/MI_Leather_Smooth_Black"
+		]
+	},
+	{
+		"meshName": "/Game/Cars/AMG/2554_AMG_Transport_Dynamics_M12_FAV/2554_AMG_Transport_Dynamics_M12_FAV_bun_warthog_10_cockpit_s_seatR_anodized_aluminum_",
+		"materialsPath": [
+			"/Game/References/AutomotiveMats/Materials/Interior/Metal/MI_Metal_Aluminum_SandBlast"
+		]
+	},
+	{
+		"meshName": "/Game/Cars/AMG/2554_AMG_Transport_Dynamics_M12_FAV/2554_AMG_Transport_Dynamics_M12_FAV_bun_warthog_10_cockpit_s_seatR_bump_leather_",
+		"materialsPath": [
+			"/Game/AutomotiveMaterials/Materials/Interior/Leather/MI_Leather_Black"
+		]
+	},
+	{
+		"meshName": "/Game/Cars/AMG/2554_AMG_Transport_Dynamics_M12_FAV/2554_AMG_Transport_Dynamics_M12_FAV_bun_warthog_10_cockpit_s_seatR_bump_plastic4_",
+		"materialsPath": [
+			"/Game/AutomotiveMaterials/Materials/Interior/Leather/MI_Leather_Smooth_Black"
+		]
+	},
+	{
+		"meshName": "/Game/Cars/AMG/2554_AMG_Transport_Dynamics_M12_FAV/2554_AMG_Transport_Dynamics_M12_FAV_bun_warthog_10_cockpit_s_seatR_carbon_fiber_",
+		"materialsPath": [
+			"/Game/AutomotiveMaterials/Materials/Interior/Leather/MI_Leather_Smooth_Black"
+		]
+	},
+	{
+		"meshName": "/Game/Cars/AMG/2554_AMG_Transport_Dynamics_M12_FAV/2554_AMG_Transport_Dynamics_M12_FAV_bun_warthog_10_cockpit_s_seatR_mottled_",
+		"materialsPath": [
+			"/Game/AutomotiveMaterials/Materials/Interior/Leather/MI_Leather_Smooth_Black"
+		]
+	},
+	{
+		"meshName": "/Game/Cars/AMG/2554_AMG_Transport_Dynamics_M12_FAV/2554_AMG_Transport_Dynamics_M12_FAV_bun_warthog_10_cockpit_s_steering_wheel_anodized_aluminum_",
+		"materialsPath": [
+			"/Game/References/AutomotiveMats/Materials/Interior/Metal/MI_Metal_Aluminum_SandBlast"
+		]
+	},
+	{
+		"meshName": "/Game/Cars/AMG/2554_AMG_Transport_Dynamics_M12_FAV/2554_AMG_Transport_Dynamics_M12_FAV_bun_warthog_10_cockpit_s_steering_wheel_bump_metal_",
+		"materialsPath": [
+			"/Game/Setup_Materials/MI_Metal_Painted"
+		]
+	},
+	{
+		"meshName": "/Game/Cars/AMG/2554_AMG_Transport_Dynamics_M12_FAV/2554_AMG_Transport_Dynamics_M12_FAV_bun_warthog_10_cockpit_s_steering_wheel_embossed_metal_",
+		"materialsPath": [
+			"/Game/Setup_Materials/MI_Metal_Wear_01"
+		]
+	},
+	{
+		"meshName": "/Game/Cars/AMG/2554_AMG_Transport_Dynamics_M12_FAV/2554_AMG_Transport_Dynamics_M12_FAV_bun_warthog_10_cockpit_s_steering_wheel_mottled2_",
+		"materialsPath": [
+			"/Game/References/AutomotiveMats/Materials/Interior/Leather/MI_Leather_Black"
+		]
+	},
+	{
+		"meshName": "/Game/Cars/AMG/2554_AMG_Transport_Dynamics_M12_FAV/2554_AMG_Transport_Dynamics_M12_FAV_bun_warthog_10_cockpit_s_steering_wheel_smooth_metal_",
+		"materialsPath": [
+			"/Game/Setup_Materials/MI_Metal_Wear_01"
+		]
+	},
+	{
+		"meshName": "/Game/Cars/AMG/2554_AMG_Transport_Dynamics_M12_FAV/2554_AMG_Transport_Dynamics_M12_FAV_bun_warthog_10_s_lod0_body_black_",
+		"materialsPath": [
+			"/Game/Setup_Materials/M_Blocking"
+		]
+	},
+	{
+		"meshName": "/Game/Cars/AMG/2554_AMG_Transport_Dynamics_M12_FAV/2554_AMG_Transport_Dynamics_M12_FAV_bun_warthog_10_s_lod0_body_carbon_fiber3_",
+		"materialsPath": [
+			"/Game/Setup_Materials/MI_CarbonFiber"
+		]
+	},
+	{
+		"meshName": "/Game/Cars/AMG/2554_AMG_Transport_Dynamics_M12_FAV/2554_AMG_Transport_Dynamics_M12_FAV_bun_warthog_10_s_lod0_body_chrome_",
+		"materialsPath": [
+			"/Game/Setup_Materials/MI_Metal_Chrome_01"
+		]
+	},
+	{
+		"meshName": "/Game/Cars/AMG/2554_AMG_Transport_Dynamics_M12_FAV/2554_AMG_Transport_Dynamics_M12_FAV_bun_warthog_10_s_lod0_body_glass_",
+		"materialsPath": [
+			"/Game/Setup_Materials/MI_Glass_Headlights"
+		]
+	},
+	{
+		"meshName": "/Game/Cars/AMG/2554_AMG_Transport_Dynamics_M12_FAV/2554_AMG_Transport_Dynamics_M12_FAV_bun_warthog_10_s_lod0_body_head_light_",
+		"materialsPath": [
+			"/Game/CarConfigurator/Car/Materials/MI_HeadLightChrome"
+		]
+	},
+	{
+		"meshName": "/Game/Cars/AMG/2554_AMG_Transport_Dynamics_M12_FAV/2554_AMG_Transport_Dynamics_M12_FAV_bun_warthog_10_s_lod0_body_lights_glass_",
+		"materialsPath": [
+			"/Game/Setup_Materials/MI_Glass_Tailights1"
+		]
+	},
+	{
+		"meshName": "/Game/Cars/AMG/2554_AMG_Transport_Dynamics_M12_FAV/2554_AMG_Transport_Dynamics_M12_FAV_bun_warthog_10_s_lod0_body_metal2_1",
+		"materialsPath": [
+			"/Game/AutomotiveMaterials/Masters/CarPaint/M_CarPaint_Master_WW"
+		]
+	},
+	{
+		"meshName": "/Game/Cars/AMG/2554_AMG_Transport_Dynamics_M12_FAV/2554_AMG_Transport_Dynamics_M12_FAV_bun_warthog_10_s_lod0_body_metal_",
+		"materialsPath": [
+			"/Game/Setup_Materials/MI_Metal_Painted"
+		]
+	},
+	{
+		"meshName": "/Game/Cars/AMG/2554_AMG_Transport_Dynamics_M12_FAV/2554_AMG_Transport_Dynamics_M12_FAV_bun_warthog_10_s_lod0_body_plastic_",
+		"materialsPath": [
+			"/Game/Setup_Materials/MI_Plastic_Satin"
+		]
+	},
+	{
+		"meshName": "/Game/Cars/AMG/2554_AMG_Transport_Dynamics_M12_FAV/2554_AMG_Transport_Dynamics_M12_FAV_bun_warthog_10_s_lod0_body_reflector_",
+		"materialsPath": [
+			"/Game/Setup_Materials/MI_Metal_Chrome_01"
+		]
+	},
+	{
+		"meshName": "/Game/Cars/AMG/2554_AMG_Transport_Dynamics_M12_FAV/2554_AMG_Transport_Dynamics_M12_FAV_bun_warthog_10_s_lod0_body_rubber_trim_",
+		"materialsPath": [
+			"/Game/Setup_Materials/MI_Rubber_Rough"
+		]
+	},
+	{
+		"meshName": "/Game/Cars/AMG/2554_AMG_Transport_Dynamics_M12_FAV/2554_AMG_Transport_Dynamics_M12_FAV_bun_warthog_10_s_lod0_body_smooth_plastic_",
+		"materialsPath": [
+			"/Game/Setup_Materials/MI_Plastic_Smooth"
+		]
+	},
+	{
+		"meshName": "/Game/Cars/AMG/2554_AMG_Transport_Dynamics_M12_FAV/2554_AMG_Transport_Dynamics_M12_FAV_bun_warthog_10_s_lod0_body_tail_light_",
+		"materialsPath": [
+			"/Game/Cars/AMG/2554_AMG_Transport_Dynamics_M12_FAV/Materials/tail_light"
+		]
+	},
+	{
+		"meshName": "/Game/Cars/AMG/2554_AMG_Transport_Dynamics_M12_FAV/2554_AMG_Transport_Dynamics_M12_FAV_bun_warthog_10_s_lod0_body_textured_reflector_",
+		"materialsPath": [
+			"/Game/Cars/AMG/2554_AMG_Transport_Dynamics_M12_FAV/Materials/textured_reflector"
+		]
+	},
+	{
+		"meshName": "/Game/Cars/AMG/2554_AMG_Transport_Dynamics_M12_FAV/2554_AMG_Transport_Dynamics_M12_FAV_bun_warthog_10_s_lod0_body_vent1_metal2_",
+		"materialsPath": [
+			"/Game/Setup_Materials/MI_Metal_Painted"
+		]
+	},
+	{
+		"meshName": "/Game/Cars/AMG/2554_AMG_Transport_Dynamics_M12_FAV/2554_AMG_Transport_Dynamics_M12_FAV_bun_warthog_10_s_lod0_body_vent1L_metal2_",
+		"materialsPath": [
+			"/Game/Setup_Materials/MI_Metal_Painted"
+		]
+	},
+	{
+		"meshName": "/Game/Cars/AMG/2554_AMG_Transport_Dynamics_M12_FAV/2554_AMG_Transport_Dynamics_M12_FAV_bun_warthog_10_s_lod0_body_vent1R_metal2_",
+		"materialsPath": [
+			"/Game/Setup_Materials/MI_Metal_Painted"
+		]
+	},
+	{
+		"meshName": "/Game/Cars/AMG/2554_AMG_Transport_Dynamics_M12_FAV/2554_AMG_Transport_Dynamics_M12_FAV_bun_warthog_10_s_lod0_body_vent2L_metal2_",
+		"materialsPath": [
+			"/Game/Setup_Materials/MI_Metal_Painted"
+		]
+	},
+	{
+		"meshName": "/Game/Cars/AMG/2554_AMG_Transport_Dynamics_M12_FAV/2554_AMG_Transport_Dynamics_M12_FAV_bun_warthog_10_s_lod0_body_vent2R_metal2_",
+		"materialsPath": [
+			"/Game/Setup_Materials/MI_Metal_Painted"
+		]
+	},
+	{
+		"meshName": "/Game/Cars/AMG/2554_AMG_Transport_Dynamics_M12_FAV/2554_AMG_Transport_Dynamics_M12_FAV_bun_warthog_10_s_lod0_body_vent5L_metal2_",
+		"materialsPath": [
+			"/Game/Setup_Materials/MI_Metal_Painted"
+		]
+	},
+	{
+		"meshName": "/Game/Cars/AMG/2554_AMG_Transport_Dynamics_M12_FAV/2554_AMG_Transport_Dynamics_M12_FAV_bun_warthog_10_s_lod0_body_vent5R_metal2_",
+		"materialsPath": [
+			"/Game/Setup_Materials/MI_Metal_Painted"
+		]
+	},
+	{
+		"meshName": "/Game/Cars/AMG/2554_AMG_Transport_Dynamics_M12_FAV/2554_AMG_Transport_Dynamics_M12_FAV_bun_warthog_10_s_lod0_engine_anodized_aluminum_",
+		"materialsPath": [
+			"/Game/References/AutomotiveMats/Materials/Interior/Metal/MI_Metal_Aluminum_SandBlast"
+		]
+	},
+	{
+		"meshName": "/Game/Cars/AMG/2554_AMG_Transport_Dynamics_M12_FAV/2554_AMG_Transport_Dynamics_M12_FAV_bun_warthog_10_s_lod0_engine_bump_metal2_",
+		"materialsPath": [
+			"/Game/Setup_Materials/MI_Metal_Painted"
+		]
+	},
+	{
+		"meshName": "/Game/Cars/AMG/2554_AMG_Transport_Dynamics_M12_FAV/2554_AMG_Transport_Dynamics_M12_FAV_bun_warthog_10_s_lod0_engine_bump_metal_",
+		"materialsPath": [
+			"/Game/Setup_Materials/MI_Metal_Painted"
+		]
+	},
+	{
+		"meshName": "/Game/Cars/AMG/2554_AMG_Transport_Dynamics_M12_FAV/2554_AMG_Transport_Dynamics_M12_FAV_bun_warthog_10_s_lod0_engine_bump_plastic2_",
+		"materialsPath": [
+			"/Game/Setup_Materials/MI_Plastic_Smooth_Dark"
+		]
+	},
+	{
+		"meshName": "/Game/Cars/AMG/2554_AMG_Transport_Dynamics_M12_FAV/2554_AMG_Transport_Dynamics_M12_FAV_bun_warthog_10_s_lod0_engine_carbon_fiber_",
+		"materialsPath": [
+			"/Game/Setup_Materials/MI_CarbonFiber"
+		]
+	},
+	{
+		"meshName": "/Game/Cars/AMG/2554_AMG_Transport_Dynamics_M12_FAV/2554_AMG_Transport_Dynamics_M12_FAV_bun_warthog_10_s_lod0_engine_chrome_",
+		"materialsPath": [
+			"/Game/Setup_Materials/MI_Metal_Chrome_01"
+		]
+	},
+	{
+		"meshName": "/Game/Cars/AMG/2554_AMG_Transport_Dynamics_M12_FAV/2554_AMG_Transport_Dynamics_M12_FAV_bun_warthog_10_s_lod0_engine_embossed_metal_",
+		"materialsPath": [
+			"/Game/Setup_Materials/MI_Metal_Painted"
+		]
+	},
+	{
+		"meshName": "/Game/Cars/AMG/2554_AMG_Transport_Dynamics_M12_FAV/2554_AMG_Transport_Dynamics_M12_FAV_bun_warthog_10_s_lod0_engine_rubber_",
+		"materialsPath": [
+			"/Game/Setup_Materials/MI_Rubber_Rough"
+		]
+	},
+	{
+		"meshName": "/Game/Cars/AMG/2554_AMG_Transport_Dynamics_M12_FAV/2554_AMG_Transport_Dynamics_M12_FAV_bun_warthog_10_s_lod0_engine_smooth_metal_",
+		"materialsPath": [
+			"/Game/Cars/AMG/2554_AMG_Transport_Dynamics_M12_FAV/Materials/smooth_metal_en"
+		]
+	},
+	{
+		"meshName": "/Game/Cars/AMG/2554_AMG_Transport_Dynamics_M12_FAV/2554_AMG_Transport_Dynamics_M12_FAV_bun_warthog_10_s_lod0_engine_smooth_plastic_",
+		"materialsPath": [
+			"/Game/Setup_Materials/MI_Plastic_Smooth"
+		]
+	},
+	{
+		"meshName": "/Game/Cars/AMG/2554_AMG_Transport_Dynamics_M12_FAV/2554_AMG_Transport_Dynamics_M12_FAV_bun_warthog_10_s_lod0_glassLHL_glass_",
+		"materialsPath": [
+			"/Game/Setup_Materials/MI_Glass_Headlights"
+		]
+	},
+	{
+		"meshName": "/Game/Cars/AMG/2554_AMG_Transport_Dynamics_M12_FAV/2554_AMG_Transport_Dynamics_M12_FAV_bun_warthog_10_s_lod0_glassLTL_detail_glass_red_",
+		"materialsPath": [
+			"/Game/Setup_Materials/MI_Glass_Tailights1"
+		]
+	},
+	{
+		"meshName": "/Game/Cars/AMG/2554_AMG_Transport_Dynamics_M12_FAV/2554_AMG_Transport_Dynamics_M12_FAV_bun_warthog_10_s_lod0_glassRHL_glass_",
+		"materialsPath": [
+			"/Game/Setup_Materials/MI_Glass_Headlights"
+		]
+	},
+	{
+		"meshName": "/Game/Cars/AMG/2554_AMG_Transport_Dynamics_M12_FAV/2554_AMG_Transport_Dynamics_M12_FAV_bun_warthog_10_s_lod0_glassRTL_detail_glass_red_",
+		"materialsPath": [
+			"/Game/Setup_Materials/MI_Glass_Tailights1"
+		]
+	},
+	{
+		"meshName": "/Game/Cars/AMG/2554_AMG_Transport_Dynamics_M12_FAV/2554_AMG_Transport_Dynamics_M12_FAV_bun_warthog_10_s_lod0_headlightL_head_light_",
+		"materialsPath": [
+			"/Game/CarConfigurator/Car/Materials/MI_HeadLightChrome"
+		]
+	},
+	{
+		"meshName": "/Game/Cars/AMG/2554_AMG_Transport_Dynamics_M12_FAV/2554_AMG_Transport_Dynamics_M12_FAV_bun_warthog_10_s_lod0_headlightL_metal_",
+		"materialsPath": [
+			"/Game/Setup_Materials/MI_Metal_Painted"
+		]
+	},
+	{
+		"meshName": "/Game/Cars/AMG/2554_AMG_Transport_Dynamics_M12_FAV/2554_AMG_Transport_Dynamics_M12_FAV_bun_warthog_10_s_lod0_headlightR_head_light_",
+		"materialsPath": [
+			"/Game/CarConfigurator/Car/Materials/MI_HeadLightChrome"
+		]
+	},
+	{
+		"meshName": "/Game/Cars/AMG/2554_AMG_Transport_Dynamics_M12_FAV/2554_AMG_Transport_Dynamics_M12_FAV_bun_warthog_10_s_lod0_headlightR_metal_",
+		"materialsPath": [
+			"/Game/Setup_Materials/MI_Metal_Painted"
+		]
+	}
+]

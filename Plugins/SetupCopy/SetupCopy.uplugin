@@ -1,0 +1,24 @@
+{
+	"FileVersion": 3,
+	"Version": 1,
+	"VersionName": "1.0",
+	"FriendlyName": "SetupCopy",
+	"Description": "",
+	"Category": "Other",
+	"CreatedBy": "Neo Graph Games",
+	"CreatedByURL": "",
+	"DocsURL": "",
+	"MarketplaceURL": "",
+	"SupportURL": "",
+	"CanContainContent": true,
+	"IsBetaVersion": false,
+	"IsExperimentalVersion": false,
+	"Installed": false,
+	"Modules": [
+		{
+			"Name": "SetupCopy",
+			"Type": "Runtime",
+			"LoadingPhase": "Default"
+		}
+	]
+}
